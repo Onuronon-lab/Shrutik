@@ -1,0 +1,14 @@
+chunk_000.wav: Ei meye ki apnar? Ji.
+chunk_001.wav: Maiyar chul lal. Maiya to nanan deshe deshe ghurbe.
+chunk_002.wav: Chirol donti pingol kesh, ghurbe konna nanan desh.
+chunk_003.wav: Tumi pushpo re cheno?
+chunk_004.wav: Shunechi se birat gatoki. Chini!
+chunk_005.wav: Aij sondhay tar gaan shunbo. gaan shuina jodi mone dhore
+chunk_006.wav: Bibaher prostab debo. Bibaho koira bou niya
+chunk_007.wav: deshe firbo. Apni prostab dilei se apnare bibaho korbo?
+chunk_008.wav: Obossoi! Ami misha kha alir bikkhato khan bongsher ek matro sontan.
+chunk_009.wav: Jalal khan. Amar gaaner golao oti monohor!
+chunk_010.wav: Je meye gaan kore se onner gaan bujhbe.
+chunk_000.wav: Ei meye ki apnar? Ji.
+chunk_002.wav: Chirol donti pingol kesh, ghurbe konna nanan desh!
+chunk_003.wav: Tumi pushpo re chino.
