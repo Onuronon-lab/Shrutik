@@ -7,7 +7,7 @@
   - Set up basic configuration management for different environments
   - _Requirements: 7.1, 7.2_
 
-- [ ] 2. Implement database models and migrations
+- [x] 2. Implement database models and migrations
   - Create SQLAlchemy models for users, languages, scripts, voice_recordings, audio_chunks, transcriptions, quality_reviews tables
   - Set up Alembic for database migrations and create initial migration scripts
   - Implement database connection and session management
