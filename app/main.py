@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.middleware import AuthContextMiddleware
 from app.api.auth import router as auth_router
+from app.api.scripts import router as scripts_router
+from app.api.voice_recordings import router as voice_recordings_router
 
 app = FastAPI(
     title="Voice Data Collection Platform",
@@ -21,6 +23,8 @@ app.add_middleware(
 app.add_middleware(AuthContextMiddleware)
 
 app.include_router(auth_router, prefix="/api")
+app.include_router(scripts_router, prefix="/api")
+app.include_router(voice_recordings_router, prefix="/api")
 
 @app.get("/")
 async def root():

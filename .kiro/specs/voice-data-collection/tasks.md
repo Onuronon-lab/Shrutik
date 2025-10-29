@@ -21,14 +21,14 @@
   - Add middleware for token validation and user context injection
   - _Requirements: 5.5, 6.2, 6.7_
 
-- [ ] 4. Create script management system
+- [x] 4. Create script management system
   - Implement CRUD operations for managing Bangla scripts in different duration categories
   - Build API endpoint to serve random scripts based on duration selection
   - Create admin interface endpoints for script management
   - Add script validation and metadata handling
   - _Requirements: 1.1, 1.2, 5.1_
 
-- [ ] 5. Develop voice recording functionality
+- [x] 5. Develop voice recording functionality
   - Create API endpoints for voice recording upload and metadata storage
   - Implement file upload handling with validation for audio formats and size limits
   - Build recording session management with contributor and script association
