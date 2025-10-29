@@ -1,1 +1,1 @@
-# Pydantic schemas package
+# Schemas package

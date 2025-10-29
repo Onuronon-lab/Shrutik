@@ -10,20 +10,16 @@ logger = logging.getLogger(__name__)
 
 def init_db() -> None:
     """Initialize database with default data"""
-    # Import models here to avoid circular imports
     from app.models import Language
     
     try:
-        # Create a database session
         db = SessionLocal()
         
-        # Check if we already have data
         existing_languages = db.query(Language).first()
         if existing_languages:
             logger.info("Database already initialized")
             return
         
-        # Create default language (Bangla)
         bangla_language = Language(
             name="Bangla",
             code="bn"
@@ -44,19 +40,16 @@ def init_db() -> None:
 
 def create_admin_user(email: str, name: str, password_hash: str) -> None:
     """Create an admin user"""
-    # Import models here to avoid circular imports
     from app.models import User, UserRole
     
     try:
         db = SessionLocal()
         
-        # Check if user already exists
         existing_user = db.query(User).filter(User.email == email).first()
         if existing_user:
             logger.info(f"User {email} already exists")
             return
         
-        # Create admin user
         admin_user = User(
             name=name,
             email=email,

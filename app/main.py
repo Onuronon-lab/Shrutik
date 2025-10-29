@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
+from app.core.middleware import AuthContextMiddleware
+from app.api.auth import router as auth_router
 
 app = FastAPI(
     title="Voice Data Collection Platform",
@@ -8,7 +10,6 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Configure CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.ALLOWED_HOSTS,
@@ -16,6 +17,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(AuthContextMiddleware)
+
+app.include_router(auth_router, prefix="/api")
 
 @app.get("/")
 async def root():

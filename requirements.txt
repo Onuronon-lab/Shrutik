@@ -14,6 +14,7 @@ passlib[bcrypt]>=1.7.4
 
 # Configuration management
 pydantic-settings>=2.0.0
+pydantic[email]>=2.0.0
 
 # Audio processing dependencies (optional for now)
 # librosa>=0.10.0

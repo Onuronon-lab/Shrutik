@@ -13,7 +13,6 @@ def check_database_connection() -> bool:
     """Check if database connection is working"""
     try:
         db = SessionLocal()
-        # Try to execute a simple query
         result = db.execute(text("SELECT 1"))
         db.close()
         return True
@@ -26,8 +25,7 @@ def get_table_info(table_name: str) -> Optional[Dict[str, Any]]:
     """Get information about a database table"""
     try:
         db = SessionLocal()
-        
-        # Get table column information
+
         query = text("""
             SELECT column_name, data_type, is_nullable, column_default
             FROM information_schema.columns 
@@ -45,8 +43,7 @@ def get_table_info(table_name: str) -> Optional[Dict[str, Any]]:
             }
             for row in result
         ]
-        
-        # Get table row count
+
         count_query = text(f"SELECT COUNT(*) as count FROM {table_name}")
         count_result = db.execute(count_query)
         row_count = count_result.scalar()
@@ -68,8 +65,7 @@ def get_database_stats() -> Dict[str, Any]:
     """Get general database statistics"""
     try:
         db = SessionLocal()
-        
-        # Get all table names
+
         tables_query = text("""
             SELECT table_name 
             FROM information_schema.tables 
@@ -79,8 +75,7 @@ def get_database_stats() -> Dict[str, Any]:
         
         result = db.execute(tables_query)
         table_names = [row.table_name for row in result]
-        
-        # Get row counts for each table
+
         table_stats = {}
         for table_name in table_names:
             try:
@@ -110,8 +105,7 @@ def execute_raw_query(query: str, params: Optional[Dict[str, Any]] = None) -> Li
         db = SessionLocal()
         
         result = db.execute(text(query), params or {})
-        
-        # Convert result to list of dictionaries
+
         columns = result.keys()
         rows = [dict(zip(columns, row)) for row in result.fetchall()]
         

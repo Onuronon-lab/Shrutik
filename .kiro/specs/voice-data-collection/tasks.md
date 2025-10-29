@@ -14,7 +14,7 @@
   - Add database indexes for performance optimization
   - _Requirements: 1.5, 2.4, 3.4, 4.1, 5.3_
 
-- [ ] 3. Build authentication and authorization system
+- [x] 3. Build authentication and authorization system
   - Implement JWT token-based authentication with FastAPI security utilities
   - Create user registration and login endpoints with password hashing
   - Build role-based access control system with permissions for contributor, admin, sworik_developer roles
