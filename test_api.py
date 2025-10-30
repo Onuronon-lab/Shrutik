@@ -27,8 +27,7 @@ def test_admin_api_flow():
     else:
         print(f"❌ Registration failed: {response.status_code} - {response.text}")
         return
-    
-    # 2. Login to get token
+
     print("\n2. Logging in as admin...")
     login_data = {
         "email": "admin@example.com",
@@ -43,8 +42,7 @@ def test_admin_api_flow():
     token_data = response.json()
     access_token = token_data["access_token"]
     print("✅ Login successful, got access token")
-    
-    # 3. Test authenticated endpoint
+
     print("\n3. Testing random script endpoint...")
     headers = {"Authorization": f"Bearer {access_token}"}
     
@@ -57,8 +55,7 @@ def test_admin_api_flow():
         print("   Script:", response.json())
     else:
         print(f"❌ Random script request failed: {response.status_code} - {response.text}")
-    
-    # 4. Test user info endpoint
+
     print("\n4. Testing user info endpoint...")
     response = requests.get(f"{BASE_URL}/api/auth/me", headers=headers)
     if response.status_code == 200:
@@ -67,46 +64,39 @@ def test_admin_api_flow():
         print(f"   User: {user_info['name']} ({user_info['email']}) - Role: {user_info['role']}")
     else:
         print(f"❌ User info request failed: {response.status_code} - {response.text}")
-    
-    # 5. Test script management endpoints (admin only)
+
     print("\n5. Testing script management endpoints...")
     
-    # List scripts
     response = requests.get(f"{BASE_URL}/api/scripts/", headers=headers)
     if response.status_code == 200:
         scripts_data = response.json()
         print(f"✅ Listed scripts successfully - Total: {scripts_data['total']}")
     else:
         print(f"❌ List scripts failed: {response.status_code} - {response.text}")
-    
-    # Get script statistics
+
     response = requests.get(f"{BASE_URL}/api/scripts/statistics", headers=headers)
     if response.status_code == 200:
         stats = response.json()
         print(f"✅ Got script statistics - Total scripts: {stats['total_scripts']}")
     else:
         print(f"❌ Script statistics failed: {response.status_code} - {response.text}")
-    
-    # 6. Test voice recording endpoints
+
     print("\n6. Testing voice recording endpoints...")
-    
-    # Get user recordings
+
     response = requests.get(f"{BASE_URL}/api/recordings/", headers=headers)
     if response.status_code == 200:
         recordings_data = response.json()
         print(f"✅ Listed user recordings successfully - Total: {recordings_data['total']}")
     else:
         print(f"❌ List recordings failed: {response.status_code} - {response.text}")
-    
-    # Get all recordings (admin only)
+
     response = requests.get(f"{BASE_URL}/api/recordings/admin/all", headers=headers)
     if response.status_code == 200:
         all_recordings = response.json()
         print(f"✅ Listed all recordings successfully - Total: {all_recordings['total']}")
     else:
         print(f"❌ List all recordings failed: {response.status_code} - {response.text}")
-    
-    # Get recording statistics (admin only)
+
     response = requests.get(f"{BASE_URL}/api/recordings/admin/statistics", headers=headers)
     if response.status_code == 200:
         rec_stats = response.json()
@@ -114,17 +104,14 @@ def test_admin_api_flow():
         print(f"   Duration: {rec_stats['total_duration_hours']} hours")
     else:
         print(f"❌ Recording statistics failed: {response.status_code} - {response.text}")
-    
-    # 7. Test creating a recording session (if scripts exist)
+
     print("\n7. Testing recording session creation...")
-    
-    # First, try to get a random script to use for session
+
     response = requests.get(f"{BASE_URL}/api/scripts/random?duration_category=2_minutes", headers=headers)
     if response.status_code == 200:
         script = response.json()
         script_id = script['id']
-        
-        # Create recording session
+
         session_data = {
             "script_id": script_id,
             "language_id": script['language_id']

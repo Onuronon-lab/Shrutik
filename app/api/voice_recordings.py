@@ -246,3 +246,161 @@ async def update_recording_status(
     )
     
     return VoiceRecordingResponse.model_validate(recording)
+
+
+@router.post("/{recording_id}/process")
+async def trigger_audio_processing(
+    recording_id: int,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Manually trigger audio processing for a recording.
+    
+    This endpoint allows users to manually trigger the audio chunking process
+    for their recordings, or admins to reprocess failed recordings.
+    """
+    recording_service = VoiceRecordingService(db)
+    
+    # Verify user has access to this recording
+    user_id = current_user.id if current_user.role not in ["admin", "sworik_developer"] else None
+    recording = recording_service.get_recording_by_id(recording_id, user_id)
+    if not recording:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Recording not found"
+        )
+    
+    # Check if recording is in a processable state
+    if recording.status not in [RecordingStatus.UPLOADED, RecordingStatus.FAILED]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Recording cannot be processed in current status: {recording.status}"
+        )
+    
+    # Trigger processing
+    recording_service._trigger_audio_processing(recording_id)
+    
+    return {
+        "message": "Audio processing triggered successfully",
+        "recording_id": recording_id,
+        "status": "queued"
+    }
+
+
+@router.get("/{recording_id}/processing-status")
+async def get_processing_status(
+    recording_id: int,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get detailed processing status for a recording.
+    
+    Returns information about the background processing task including
+    current status, progress, and any error messages.
+    """
+    recording_service = VoiceRecordingService(db)
+    
+    # Verify user has access to this recording
+    user_id = current_user.id if current_user.role not in ["admin", "sworik_developer"] else None
+    recording = recording_service.get_recording_by_id(recording_id, user_id)
+    if not recording:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Recording not found"
+        )
+    
+    # Get task status
+    task_status = recording_service.get_processing_task_status(recording_id)
+    
+    return {
+        "recording_id": recording_id,
+        "recording_status": recording.status,
+        "task_status": task_status,
+        "chunks_created": len(recording.audio_chunks) if recording.audio_chunks else 0
+    }
+
+
+# Admin endpoints for batch processing
+@router.post("/admin/batch-process")
+async def batch_process_recordings(
+    recording_ids: list[int],
+    current_user: User = Depends(require_admin_or_sworik),
+    db: Session = Depends(get_db)
+):
+    """
+    Process multiple recordings in batch (admin only).
+    
+    Triggers audio processing for multiple recordings simultaneously.
+    Useful for bulk processing of uploaded recordings.
+    """
+    from app.tasks.audio_processing import batch_process_recordings as batch_task
+    
+    # Validate all recording IDs exist
+    recording_service = VoiceRecordingService(db)
+    valid_recordings = []
+    
+    for recording_id in recording_ids:
+        recording = recording_service.get_recording_by_id(recording_id)
+        if recording:
+            valid_recordings.append(recording_id)
+    
+    if not valid_recordings:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No valid recordings found"
+        )
+    
+    # Trigger batch processing
+    task = batch_task.delay(valid_recordings)
+    
+    return {
+        "message": f"Batch processing triggered for {len(valid_recordings)} recordings",
+        "task_id": task.id,
+        "recording_ids": valid_recordings
+    }
+
+
+@router.post("/admin/reprocess-failed")
+async def reprocess_failed_recordings(
+    current_user: User = Depends(require_admin_or_sworik),
+    db: Session = Depends(get_db)
+):
+    """
+    Reprocess all failed recordings (admin only).
+    
+    Finds all recordings with failed status and attempts to reprocess them.
+    Useful for recovering from system issues or processing improvements.
+    """
+    from app.tasks.audio_processing import reprocess_failed_recordings as reprocess_task
+    
+    # Trigger reprocessing
+    task = reprocess_task.delay()
+    
+    return {
+        "message": "Failed recordings reprocessing triggered",
+        "task_id": task.id
+    }
+
+
+@router.post("/admin/cleanup-orphaned-chunks")
+async def cleanup_orphaned_chunks(
+    current_user: User = Depends(require_admin_or_sworik),
+    db: Session = Depends(get_db)
+):
+    """
+    Clean up orphaned audio chunk files (admin only).
+    
+    Removes audio chunk files that don't have corresponding database records.
+    Useful for cleaning up after failed processing or data corruption.
+    """
+    from app.tasks.audio_processing import cleanup_orphaned_chunks as cleanup_task
+    
+    # Trigger cleanup
+    task = cleanup_task.delay()
+    
+    return {
+        "message": "Orphaned chunks cleanup triggered",
+        "task_id": task.id
+    }

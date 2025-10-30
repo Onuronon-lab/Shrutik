@@ -194,6 +194,9 @@ class VoiceRecordingService:
             if session.session_id in self._active_sessions:
                 del self._active_sessions[session.session_id]
             
+            # Trigger background audio processing
+            self._trigger_audio_processing(db_recording.id)
+            
             return VoiceRecordingResponse.model_validate(db_recording)
             
         except Exception as e:
@@ -434,3 +437,50 @@ class VoiceRecordingService:
         self.db.delete(recording)
         self.db.commit()
         return True
+    
+    def _trigger_audio_processing(self, recording_id: int) -> None:
+        """Trigger background audio processing for a recording."""
+        try:
+            from app.tasks.audio_processing import process_audio_recording
+            
+            # Queue the audio processing task
+            task = process_audio_recording.delay(recording_id)
+            
+            # Update recording metadata with task ID for tracking
+            recording = self.get_recording_by_id(recording_id)
+            if recording:
+                if recording.meta_data is None:
+                    recording.meta_data = {}
+                recording.meta_data["processing_task_id"] = task.id
+                self.db.commit()
+                
+        except Exception as e:
+            # Log error but don't fail the upload
+            print(f"Warning: Failed to trigger audio processing for recording {recording_id}: {e}")
+    
+    def get_processing_task_status(self, recording_id: int) -> Optional[Dict[str, Any]]:
+        """Get the status of the background processing task for a recording."""
+        recording = self.get_recording_by_id(recording_id)
+        if not recording or not recording.meta_data:
+            return None
+        
+        task_id = recording.meta_data.get("processing_task_id")
+        if not task_id:
+            return None
+        
+        try:
+            from app.core.celery_app import celery_app
+            from celery.result import AsyncResult
+            
+            result = AsyncResult(task_id, app=celery_app)
+            
+            return {
+                "task_id": task_id,
+                "status": result.status,
+                "result": result.result if result.ready() else None,
+                "info": result.info if hasattr(result, 'info') else None
+            }
+            
+        except Exception as e:
+            print(f"Error getting task status for recording {recording_id}: {e}")
+            return None
