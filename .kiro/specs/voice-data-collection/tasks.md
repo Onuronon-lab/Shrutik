@@ -85,7 +85,7 @@
   - Add duration selection interface and real-time recording feedback
   - _Requirements: 1.1, 1.2, 1.3, 7.2, 7.3_
 
-- [ ] 13. Build transcription interface
+- [x] 13. Build transcription interface
   - Create audio playback component with waveform visualization and controls
   - Implement transcription form with Bangla keyboard support and text input
   - Build sentence quantity selection and random chunk serving interface

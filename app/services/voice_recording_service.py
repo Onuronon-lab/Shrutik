@@ -35,9 +35,11 @@ class RecordingSession:
 class VoiceRecordingService:
     """Service for managing voice recordings and recording sessions."""
     
+    # Class variable to share sessions across all instances
+    _active_sessions: Dict[str, RecordingSession] = {}
+    
     def __init__(self, db: Session):
         self.db = db
-        self._active_sessions: Dict[str, RecordingSession] = {}
     
     def create_recording_session(
         self, 
@@ -127,6 +129,7 @@ class VoiceRecordingService:
             )
         
         file_extension = os.path.splitext(audio_file.filename)[1].lower()
+        print(f"DEBUG: filename={audio_file.filename}, extension={file_extension}, allowed={settings.ALLOWED_AUDIO_FORMATS}")
         if file_extension not in settings.ALLOWED_AUDIO_FORMATS:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

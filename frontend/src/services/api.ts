@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { AuthResponse, LoginCredentials } from '../types/auth';
+import { TranscriptionSubmission } from '../types/api';
 
 class ApiService {
   private api: AxiosInstance;
@@ -153,6 +154,36 @@ class ApiService {
       params.append('status', status);
     }
     return this.get(`/recordings?${params.toString()}`);
+  }
+
+  // Transcription endpoints
+  async getRandomChunks(count: number, language_id?: number): Promise<any> {
+    const params = new URLSearchParams({ count: count.toString() });
+    if (language_id) {
+      params.append('language_id', language_id.toString());
+    }
+    return this.get(`/chunks/random?${params.toString()}`);
+  }
+
+  async submitTranscription(transcription: TranscriptionSubmission): Promise<any> {
+    return this.post('/transcriptions', transcription);
+  }
+
+  async skipChunk(chunk_id: number): Promise<any> {
+    return this.post(`/chunks/${chunk_id}/skip`);
+  }
+
+  async getUserTranscriptions(skip = 0, limit = 100): Promise<any> {
+    const params = new URLSearchParams({ 
+      skip: skip.toString(), 
+      limit: limit.toString() 
+    });
+    return this.get(`/transcriptions?${params.toString()}`);
+  }
+
+  async getChunkAudio(chunk_id: number): Promise<string> {
+    // Returns the audio file URL for the chunk
+    return this.get(`/chunks/${chunk_id}/audio`);
   }
 }
 

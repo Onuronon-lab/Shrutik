@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     
     UPLOAD_DIR: str = "uploads"
     MAX_FILE_SIZE: int = 100 * 1024 * 1024
-    ALLOWED_AUDIO_FORMATS: List[str] = [".wav", ".mp3", ".m4a", ".flac"]
+    ALLOWED_AUDIO_FORMATS: List[str] = [".wav", ".mp3", ".m4a", ".flac", ".webm"]
     
     CHUNK_MIN_DURATION: float = 1.0
     CHUNK_MAX_DURATION: float = 10.0

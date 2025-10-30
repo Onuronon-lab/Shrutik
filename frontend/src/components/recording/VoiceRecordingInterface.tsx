@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { 
-  MicrophoneIcon, 
-  StopIcon, 
-  PlayIcon, 
+import {
+  MicrophoneIcon,
+  StopIcon,
+  PlayIcon,
   PauseIcon,
   ArrowPathIcon,
   CheckCircleIcon,
@@ -88,7 +88,7 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
   const loadScript = useCallback(async (duration: DurationOption) => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       // Check if user is authenticated
       const token = localStorage.getItem('auth_token');
@@ -102,21 +102,21 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
         setError('Invalid script data received');
         return;
       }
-      
+
       setCurrentScript(script);
-      
+
       // Create recording session
       const session = await apiService.createRecordingSession(script.id);
       if (!session || typeof session !== 'object') {
         setError('Failed to create recording session');
         return;
       }
-      
+
       setRecordingSession(session);
     } catch (err: any) {
       console.error('Load script error:', err);
       let errorMessage = 'Failed to load script';
-      
+
       if (err.response?.status === 401) {
         errorMessage = 'Please log in to access recording features';
       } else if (err.response?.data?.detail) {
@@ -124,7 +124,7 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
       } else if (err.message) {
         errorMessage = err.message;
       }
-      
+
       setError(typeof errorMessage === 'string' ? errorMessage : 'Failed to load script');
     } finally {
       setIsLoading(false);
@@ -145,7 +145,7 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
   const startRecording = useCallback(async () => {
     try {
       setError(null);
-      
+
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           echoCancellation: true,
@@ -172,7 +172,7 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
       mediaRecorder.onstop = () => {
         const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
         const audioUrl = URL.createObjectURL(audioBlob);
-        
+
         setRecordingState(prev => ({
           ...prev,
           audioBlob,
@@ -180,7 +180,7 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
           isRecording: false,
           isPaused: false
         }));
-        
+
         cleanup();
       };
 
@@ -197,19 +197,19 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
         setRecordingState(prev => {
           const newTime = prev.recordingTime + 1;
           const maxTime = (selectedDuration?.minutes || 10) * 60;
-          
+
           if (newTime >= maxTime) {
             // Call stopRecording directly to avoid dependency issues
             if (mediaRecorderRef.current && prev.isRecording) {
               mediaRecorderRef.current.stop();
-              
+
               if (timerRef.current) {
                 clearInterval(timerRef.current);
                 timerRef.current = null;
               }
             }
           }
-          
+
           return { ...prev, recordingTime: newTime };
         });
       }, 1000);
@@ -224,7 +224,7 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
   const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current && recordingState.isRecording) {
       mediaRecorderRef.current.stop();
-      
+
       if (timerRef.current) {
         clearInterval(timerRef.current);
         timerRef.current = null;
@@ -243,19 +243,19 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
         setRecordingState(prev => {
           const newTime = prev.recordingTime + 1;
           const maxTime = (selectedDuration?.minutes || 10) * 60;
-          
+
           if (newTime >= maxTime) {
             // Call stopRecording directly to avoid dependency issues
             if (mediaRecorderRef.current && prev.isRecording) {
               mediaRecorderRef.current.stop();
-              
+
               if (timerRef.current) {
                 clearInterval(timerRef.current);
                 timerRef.current = null;
               }
             }
           }
-          
+
           return { ...prev, recordingTime: newTime };
         });
       }, 1000);
@@ -272,8 +272,8 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
 
   // Upload recording
   const uploadRecording = useCallback(async () => {
-    if (!recordingState.audioBlob || !recordingSession) {
-      setError('No recording or session available');
+    if (!recordingState.audioBlob || !recordingSession || !currentScript) {
+      setError('No recording, session, or script available');
       return;
     }
 
@@ -287,8 +287,11 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
         type: 'audio/webm'
       });
 
-      const uploadData = {
-        session_id: recordingSession.session_id,
+      let sessionToUse = recordingSession;
+
+      // Try to upload with current session first
+      let uploadData = {
+        session_id: sessionToUse.session_id,
         duration: recordingState.recordingTime,
         audio_format: 'webm',
         file_size: recordingState.audioBlob.size,
@@ -297,22 +300,62 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
         bit_depth: 16
       };
 
-      const recording = await apiService.uploadRecording(audioFile, uploadData);
-      
-      setUploadStatus('success');
-      setUploadProgress(100);
-      
-      if (onRecordingComplete) {
-        onRecordingComplete(recording);
+      console.log('Upload data:', uploadData);
+      console.log('Audio file:', audioFile);
+
+      try {
+        const recording = await apiService.uploadRecording(audioFile, uploadData);
+
+        setUploadStatus('success');
+        setUploadProgress(100);
+
+        if (onRecordingComplete) {
+          onRecordingComplete(recording);
+        }
+        return;
+      } catch (sessionError: any) {
+        // If session is invalid or forbidden, try to create a new one
+        if ((sessionError.response?.status === 400 &&
+          sessionError.response?.data?.detail?.includes('session')) ||
+          (sessionError.response?.status === 403)) {
+
+          console.log('Session expired, creating new session...');
+
+          // Create new session
+          const newSession = await apiService.createRecordingSession(currentScript.id);
+          setRecordingSession(newSession);
+
+          // Small delay to ensure session is stored
+          await new Promise(resolve => setTimeout(resolve, 100));
+
+          // Update upload data with new session
+          uploadData.session_id = newSession.session_id;
+
+          // Retry upload with new session
+          const recording = await apiService.uploadRecording(audioFile, uploadData);
+
+          setUploadStatus('success');
+          setUploadProgress(100);
+
+          if (onRecordingComplete) {
+            onRecordingComplete(recording);
+          }
+          return;
+        }
+
+        // If it's not a session error, re-throw
+        throw sessionError;
       }
 
     } catch (err: any) {
       console.error('Upload error:', err);
+      console.error('Error response:', err.response?.data);
+      console.error('Error status:', err.response?.status);
       const errorMessage = err.response?.data?.detail || err.message || 'Failed to upload recording';
       setError(typeof errorMessage === 'string' ? errorMessage : 'Failed to upload recording');
       setUploadStatus('error');
     }
-  }, [recordingState.audioBlob, recordingState.recordingTime, recordingSession, onRecordingComplete]);
+  }, [recordingState.audioBlob, recordingState.recordingTime, recordingSession, currentScript, onRecordingComplete]);
 
   // Play recorded audio
   const playRecording = useCallback(() => {
@@ -333,7 +376,7 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
     setUploadStatus('idle');
     setUploadProgress(0);
     setError(null);
-    
+
     if (selectedDuration) {
       loadScript(selectedDuration);
     }
@@ -432,40 +475,39 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
       {currentScript && recordingSession && (
         <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Recording Controls</h3>
-          
+
           {/* Recording Status */}
           <div className="text-center mb-6">
             <div className="text-3xl font-mono font-bold text-gray-900 mb-2">
               {formatTime(recordingState.recordingTime)}
             </div>
             <div className="text-sm text-gray-500 mb-4">
-              {recordingState.isRecording 
-                ? (recordingState.isPaused ? 'Paused' : 'Recording...') 
-                : recordingState.audioBlob 
-                  ? 'Recording Complete' 
+              {recordingState.isRecording
+                ? (recordingState.isPaused ? 'Paused' : 'Recording...')
+                : recordingState.audioBlob
+                  ? 'Recording Complete'
                   : 'Ready to Record'
               }
             </div>
-            
+
             {/* Audio Visualizer */}
             {recordingState.isRecording && (
               <div className="mb-4">
-                <AudioVisualizer 
+                <AudioVisualizer
                   isRecording={recordingState.isRecording && !recordingState.isPaused}
                   stream={streamRef.current}
                   className="mb-2"
                 />
               </div>
             )}
-            
+
             {/* Progress Bar */}
             {(recordingState.isRecording || recordingState.recordingTime > 0) && (
               <div className="mb-4">
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
-                    className={`h-2 rounded-full transition-all duration-1000 ${
-                      recordingState.isRecording ? 'bg-red-500' : 'bg-indigo-600'
-                    }`}
+                    className={`h-2 rounded-full transition-all duration-1000 ${recordingState.isRecording ? 'bg-red-500' : 'bg-indigo-600'
+                      }`}
                     style={{ width: `${getProgressPercentage()}%` }}
                   />
                 </div>
@@ -501,9 +543,8 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
                 </button>
                 <button
                   onClick={stopRecording}
-                  className={`w-16 h-16 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center transition-all duration-200 shadow-lg ${
-                    !recordingState.isPaused ? 'recording-pulse' : ''
-                  }`}
+                  className={`w-16 h-16 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center transition-all duration-200 shadow-lg ${!recordingState.isPaused ? 'recording-pulse' : ''
+                    }`}
                 >
                   <StopIcon className="w-8 h-8" />
                 </button>

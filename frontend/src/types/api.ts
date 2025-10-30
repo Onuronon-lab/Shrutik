@@ -69,3 +69,40 @@ export interface RecordingProgress {
   message: string;
   estimated_completion?: string;
 }
+
+// Transcription related types
+export interface AudioChunk {
+  id: number;
+  recording_id: number;
+  chunk_index: number;
+  file_path: string;
+  start_time: number;
+  end_time: number;
+  duration: number;
+  sentence_hint?: string;
+  meta_data: Record<string, any>;
+  created_at: string;
+}
+
+export interface Transcription {
+  id: number;
+  chunk_id: number;
+  user_id: number;
+  text: string;
+  language_id: number;
+  quality?: number;
+  confidence?: number;
+  created_at: string;
+}
+
+export interface TranscriptionSession {
+  chunks: AudioChunk[];
+  total_count: number;
+  session_id: string;
+}
+
+export interface TranscriptionSubmission {
+  chunk_id: number;
+  text: string;
+  language_id?: number;
+}

@@ -97,7 +97,7 @@ class RecordingUploadRequest(BaseModel):
     @classmethod
     def validate_audio_format(cls, v):
         """Validate audio format."""
-        allowed_formats = ['wav', 'mp3', 'm4a', 'flac']
+        allowed_formats = ['wav', 'mp3', 'm4a', 'flac', 'webm']
         if v.lower() not in allowed_formats:
             raise ValueError(f'Audio format must be one of: {", ".join(allowed_formats)}')
         return v.lower()

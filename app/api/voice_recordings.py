@@ -38,7 +38,7 @@ async def upload_recording(
     audio_file: UploadFile = File(..., description="Audio file to upload"),
     session_id: str = Form(..., description="Recording session ID"),
     duration: float = Form(..., description="Recording duration in seconds"),
-    audio_format: str = Form(..., description="Audio format (wav, mp3, m4a, flac)"),
+    audio_format: str = Form(..., description="Audio format (wav, mp3, m4a, flac, webm)"),
     file_size: int = Form(..., description="File size in bytes"),
     sample_rate: Optional[int] = Form(None, description="Sample rate in Hz"),
     channels: Optional[int] = Form(None, description="Number of audio channels"),
