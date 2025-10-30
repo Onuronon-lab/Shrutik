@@ -7,6 +7,7 @@ from .voice_recording import VoiceRecording, RecordingStatus
 from .audio_chunk import AudioChunk
 from .transcription import Transcription
 from .quality_review import QualityReview, ReviewDecision
+from .export_audit import ExportAuditLog
 
 __all__ = [
     "User",
@@ -20,4 +21,5 @@ __all__ = [
     "Transcription",
     "QualityReview",
     "ReviewDecision",
+    "ExportAuditLog",
 ]
