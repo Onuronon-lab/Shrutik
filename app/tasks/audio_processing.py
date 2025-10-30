@@ -339,3 +339,161 @@ def cleanup_orphaned_chunks() -> dict:
         
     finally:
         db.close()
+
+
+@celery_app.task(bind=True, name="calculate_consensus_for_chunks")
+def calculate_consensus_for_chunks(self, chunk_ids: List[int]) -> dict:
+    """
+    Calculate consensus for multiple audio chunks.
+    
+    Args:
+        chunk_ids: List of AudioChunk IDs to process
+        
+    Returns:
+        dict: Consensus calculation results
+    """
+    from app.services.consensus_service import ConsensusService
+    
+    db = get_db()
+    
+    try:
+        logger.info(f"Starting consensus calculation for {len(chunk_ids)} chunks")
+        
+        consensus_service = ConsensusService(db)
+        results = {
+            'total_chunks': len(chunk_ids),
+            'processed': 0,
+            'validated': 0,
+            'flagged_for_review': 0,
+            'failed': 0,
+            'details': []
+        }
+        
+        for i, chunk_id in enumerate(chunk_ids):
+            try:
+                # Update task progress
+                self.update_state(
+                    state='PROGRESS',
+                    meta={
+                        'current': i + 1,
+                        'total': len(chunk_ids),
+                        'status': f'Processing chunk {chunk_id}...'
+                    }
+                )
+                
+                # Evaluate consensus for this chunk
+                consensus_result = consensus_service.evaluate_chunk_consensus(chunk_id)
+                
+                # Update validation status
+                validation_status = consensus_service.update_chunk_validation_status(consensus_result)
+                
+                # Track results
+                results['processed'] += 1
+                if validation_status.is_validated:
+                    results['validated'] += 1
+                if validation_status.requires_manual_review:
+                    results['flagged_for_review'] += 1
+                
+                results['details'].append({
+                    'chunk_id': chunk_id,
+                    'status': 'success',
+                    'consensus_confidence': consensus_result.confidence_score,
+                    'quality_score': consensus_result.quality_score,
+                    'requires_review': consensus_result.requires_review,
+                    'participant_count': consensus_result.participant_count,
+                    'flagged_reasons': consensus_result.flagged_reasons
+                })
+                
+                logger.info(f"Processed consensus for chunk {chunk_id}: "
+                           f"confidence={consensus_result.confidence_score:.3f}, "
+                           f"requires_review={consensus_result.requires_review}")
+                
+            except Exception as e:
+                logger.error(f"Failed to calculate consensus for chunk {chunk_id}: {e}")
+                results['failed'] += 1
+                results['details'].append({
+                    'chunk_id': chunk_id,
+                    'status': 'failed',
+                    'error': str(e)
+                })
+        
+        logger.info(f"Consensus calculation completed: {results['processed']} processed, "
+                   f"{results['validated']} validated, {results['flagged_for_review']} flagged")
+        
+        return results
+        
+    except Exception as e:
+        logger.error(f"Unexpected error in consensus calculation: {e}")
+        self.update_state(
+            state='FAILURE',
+            meta={'error': str(e)}
+        )
+        return {
+            'total_chunks': len(chunk_ids),
+            'processed': 0,
+            'validated': 0,
+            'flagged_for_review': 0,
+            'failed': len(chunk_ids),
+            'error': str(e)
+        }
+        
+    finally:
+        db.close()
+
+
+@celery_app.task(name="recalculate_all_consensus")
+def recalculate_all_consensus() -> dict:
+    """
+    Recalculate consensus for all chunks that have multiple transcriptions.
+    
+    Returns:
+        dict: Recalculation results
+    """
+    from app.services.consensus_service import ConsensusService
+    
+    db = get_db()
+    
+    try:
+        # Find chunks with multiple transcriptions
+        from app.models.transcription import Transcription
+        from app.models.audio_chunk import AudioChunk
+        
+        chunks_with_multiple_transcriptions = db.query(AudioChunk.id).join(Transcription).group_by(
+            AudioChunk.id
+        ).having(func.count(Transcription.id) >= ConsensusService.MIN_TRANSCRIPTIONS_FOR_CONSENSUS).all()
+        
+        chunk_ids = [chunk.id for chunk in chunks_with_multiple_transcriptions]
+        
+        if not chunk_ids:
+            return {
+                'status': 'success',
+                'message': 'No chunks with multiple transcriptions found',
+                'chunks_found': 0,
+                'chunks_processed': 0
+            }
+        
+        logger.info(f"Found {len(chunk_ids)} chunks with multiple transcriptions for consensus recalculation")
+        
+        # Process in batch
+        batch_result = calculate_consensus_for_chunks.delay(chunk_ids)
+        result = batch_result.get(timeout=3600)  # 1 hour timeout
+        
+        return {
+            'status': 'success',
+            'message': f'Recalculated consensus for {len(chunk_ids)} chunks',
+            'chunks_found': len(chunk_ids),
+            'chunks_processed': result['processed'],
+            'batch_result': result
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to recalculate all consensus: {e}")
+        return {
+            'status': 'failed',
+            'message': str(e),
+            'chunks_found': 0,
+            'chunks_processed': 0
+        }
+        
+    finally:
+        db.close()

@@ -1,4 +1,5 @@
 import uuid
+import logging
 from typing import Optional, List, Dict, Any, Tuple
 from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
@@ -15,6 +16,8 @@ from app.schemas.transcription import (
     TranscriptionSubmission, TranscriptionSubmissionResponse, TranscriptionListResponse,
     TranscriptionStatistics, ChunkSkipRequest, ChunkSkipResponse
 )
+
+logger = logging.getLogger(__name__)
 
 
 class TranscriptionSession:
@@ -434,9 +437,9 @@ class TranscriptionService:
             # Queue consensus calculation task
             task = calculate_consensus_for_chunks.delay(chunk_ids)
             
-            # Could store task ID for tracking if needed
-            print(f"Triggered consensus calculation for chunks {chunk_ids}, task ID: {task.id}")
+            # Log task information
+            logger.info(f"Triggered consensus calculation for chunks {chunk_ids}, task ID: {task.id}")
             
         except Exception as e:
             # Log error but don't fail the transcription submission
-            print(f"Warning: Failed to trigger consensus calculation for chunks {chunk_ids}: {e}")
+            logger.warning(f"Failed to trigger consensus calculation for chunks {chunk_ids}: {e}")
