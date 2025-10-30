@@ -6,8 +6,10 @@ class ApiService {
   private api: AxiosInstance;
 
   constructor() {
+    const baseURL = 'http://localhost:8000/api';
+    console.log('API Base URL:', baseURL);
     this.api = axios.create({
-      baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8000/api',
+      baseURL: baseURL,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -122,7 +124,7 @@ class ApiService {
     formData.append('duration', uploadData.duration.toString());
     formData.append('audio_format', uploadData.audio_format);
     formData.append('file_size', uploadData.file_size.toString());
-    
+
     if (uploadData.sample_rate) {
       formData.append('sample_rate', uploadData.sample_rate.toString());
     }
@@ -146,9 +148,9 @@ class ApiService {
   }
 
   async getUserRecordings(skip = 0, limit = 100, status?: string): Promise<any> {
-    const params = new URLSearchParams({ 
-      skip: skip.toString(), 
-      limit: limit.toString() 
+    const params = new URLSearchParams({
+      skip: skip.toString(),
+      limit: limit.toString()
     });
     if (status) {
       params.append('status', status);
@@ -158,15 +160,16 @@ class ApiService {
 
   // Transcription endpoints
   async getRandomChunks(count: number, language_id?: number): Promise<any> {
-    const params = new URLSearchParams({ count: count.toString() });
-    if (language_id) {
-      params.append('language_id', language_id.toString());
-    }
-    return this.get(`/chunks/random?${params.toString()}`);
+    const taskRequest = {
+      quantity: count,
+      language_id: language_id || null,
+      skip_chunk_ids: []
+    };
+    return this.post('/transcriptions/tasks', taskRequest);
   }
 
   async submitTranscription(transcription: TranscriptionSubmission): Promise<any> {
-    return this.post('/transcriptions', transcription);
+    return this.post('/transcriptions/submit', transcription);
   }
 
   async skipChunk(chunk_id: number): Promise<any> {
@@ -174,16 +177,29 @@ class ApiService {
   }
 
   async getUserTranscriptions(skip = 0, limit = 100): Promise<any> {
-    const params = new URLSearchParams({ 
-      skip: skip.toString(), 
-      limit: limit.toString() 
+    const params = new URLSearchParams({
+      skip: skip.toString(),
+      limit: limit.toString()
     });
     return this.get(`/transcriptions?${params.toString()}`);
   }
 
   async getChunkAudio(chunk_id: number): Promise<string> {
-    // Returns the audio file URL for the chunk
-    return this.get(`/chunks/${chunk_id}/audio`);
+    // Fetch the audio file as a blob and return an object URL
+    try {
+      const response = await this.api.get(`/chunks/${chunk_id}/audio`, {
+        responseType: 'blob'
+      });
+      
+      // Create an object URL from the blob
+      const audioBlob = new Blob([response.data], { type: 'audio/wav' });
+      const audioUrl = URL.createObjectURL(audioBlob);
+      
+      return audioUrl;
+    } catch (error) {
+      console.error('Failed to fetch audio chunk:', error);
+      throw error;
+    }
   }
 }
 

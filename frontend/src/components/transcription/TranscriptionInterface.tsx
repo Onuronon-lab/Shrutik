@@ -28,6 +28,7 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [sessionComplete, setSessionComplete] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
 
   const currentChunk = chunks[currentIndex];
 
@@ -50,6 +51,7 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
       
       if (response.chunks && response.chunks.length > 0) {
         setChunks(response.chunks);
+        setSessionId(response.session_id);
         setCurrentIndex(0);
         setCompletedCount(0);
         setSkippedCount(0);
@@ -83,9 +85,13 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
       setError(null);
 
       const submission: TranscriptionSubmission = {
-        chunk_id: currentChunk.id,
-        text: text,
-        language_id: 1 // Assuming Bangla language ID is 1
+        session_id: sessionId || 'default-session',
+        transcriptions: [{
+          chunk_id: currentChunk.id,
+          text: text,
+          language_id: 1 // Assuming Bangla language ID is 1
+        }],
+        skipped_chunk_ids: []
       };
 
       await apiService.submitTranscription(submission);
@@ -94,6 +100,14 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
       moveToNext();
     } catch (err: any) {
       console.error('Error submitting transcription:', err);
+      
+      // If session is invalid, try to reload chunks to get a new session
+      if (err.response?.data?.detail?.includes('session')) {
+        setError('সেশন মেয়াদ শেষ হয়েছে। নতুন চাঙ্ক লোড করা হচ্ছে...');
+        await loadChunks();
+        return;
+      }
+      
       setError('ট্রান্সক্রিপশন জমা দিতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
     } finally {
       setIsSubmitting(false);

@@ -32,14 +32,15 @@ services:
       timeout: 5s
       retries: 5
 
-  app:
+  backend:
     build: .
-    container_name: voice_collection_app
+    container_name: voice_collection_backend
     ports:
       - "8000:8000"
     environment:
       - DATABASE_URL=postgresql://postgres:password@postgres:5432/voice_collection
       - REDIS_URL=redis://redis:6379/0
+      - DEBUG=true
     depends_on:
       postgres:
         condition: service_healthy
@@ -48,7 +49,52 @@ services:
     volumes:
       - ./app:/app/app
       - ./uploads:/app/uploads
+      - ./.env:/app/.env
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  celery:
+    build: .
+    container_name: voice_collection_celery
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/voice_collection
+      - REDIS_URL=redis://redis:6379/0
+      - DEBUG=true
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    volumes:
+      - ./app:/app/app
+      - ./uploads:/app/uploads
+      - ./.env:/app/.env
+    command: celery -A app.core.celery_app worker --loglevel=info
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: voice_collection_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000/api
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+    command: npm start
+    depends_on:
+      - backend
+    stdin_open: true
+    tty: true
 
 volumes:
   postgres_data:

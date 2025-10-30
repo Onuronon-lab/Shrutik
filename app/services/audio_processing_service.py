@@ -372,9 +372,9 @@ class AudioChunkingService:
                         recording_id=recording_id,
                         chunk_index=i,
                         file_path=str(chunk_path),
-                        start_time=start_time,
-                        end_time=end_time,
-                        duration=end_time - start_time,
+                        start_time=float(start_time),
+                        end_time=float(end_time),
+                        duration=float(end_time - start_time),
                         meta_data=chunk_metadata
                     )
                     

@@ -1,8 +1,10 @@
 from typing import Optional
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
+import os
 from app.db.database import get_db
 from app.core.dependencies import get_current_active_user, require_admin_or_sworik
 from app.models.user import User

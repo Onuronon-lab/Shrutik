@@ -101,8 +101,14 @@ export interface TranscriptionSession {
   session_id: string;
 }
 
-export interface TranscriptionSubmission {
+export interface TranscriptionCreate {
   chunk_id: number;
   text: string;
-  language_id?: number;
+  language_id: number;
+}
+
+export interface TranscriptionSubmission {
+  session_id: string;
+  transcriptions: TranscriptionCreate[];
+  skipped_chunk_ids?: number[];
 }

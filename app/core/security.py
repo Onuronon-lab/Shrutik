@@ -7,10 +7,19 @@ from app.core.config import settings
 from app.models.user import UserRole
 
 try:
+    # Try bcrypt first with a simple test
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=12)
-    pwd_context.hash("test")
-except Exception:
-    pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
+    pwd_context.hash("test"[:72])  # Ensure test password is within bcrypt limits
+except Exception as e:
+    print(f"bcrypt failed: {e}")
+    try:
+        # Fallback to argon2
+        pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
+        pwd_context.hash("test")
+    except Exception as e2:
+        print(f"argon2 failed: {e2}")
+        # Final fallback to pbkdf2 (always available)
+        pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:

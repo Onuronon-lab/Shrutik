@@ -151,6 +151,53 @@ class AudioChunk:
     end_time: float
     duration: float
     sentence_hint: Optional[str] = None
+    transcription_count: int = 0
+```
+
+#### API Request/Response Examples
+
+**Get Transcription Task:**
+```json
+POST /api/transcriptions/tasks
+{
+  "quantity": 5,
+  "language_id": null,
+  "skip_chunk_ids": []
+}
+
+Response:
+{
+  "chunks": [
+    {
+      "id": 1,
+      "recording_id": 1,
+      "chunk_index": 0,
+      "file_path": "uploads/chunks/1/chunk_000.wav",
+      "start_time": 0.0,
+      "end_time": 8.67,
+      "duration": 8.67,
+      "sentence_hint": null,
+      "transcription_count": 0
+    }
+  ],
+  "total_available": 10,
+  "session_id": "uuid-session-id"
+}
+```
+
+**Submit Transcriptions:**
+```json
+POST /api/transcriptions/submit
+{
+  "session_id": "uuid-session-id",
+  "transcriptions": [
+    {
+      "chunk_id": 1,
+      "text": "এটি একটি বাংলা বাক্য।",
+      "confidence": 0.9
+    }
+  ]
+}
 ```
 
 #### Consensus Engine
@@ -183,25 +230,48 @@ class ConsensusResult:
 
 ### 3. API Endpoints
 
+#### Authentication Endpoints
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/login` - User login
+- `POST /api/auth/logout` - User logout
+- `GET /api/auth/me` - Get current user profile
+- `PATCH /api/auth/profile` - Update user profile
+
 #### Voice Recording Endpoints
 - `GET /api/scripts/random?duration={minutes}` - Get random script by duration
-- `POST /api/recordings` - Upload voice recording
-- `GET /api/recordings/user/{userID}` - Get user's recordings
+- `POST /api/voice-recordings/upload` - Upload voice recording
+- `GET /api/voice-recordings/` - Get user's recordings (paginated)
+- `GET /api/voice-recordings/{recording_id}` - Get specific recording
+- `GET /api/voice-recordings/{recording_id}/status` - Get processing status
 
 #### Transcription Endpoints
-- `GET /api/chunks/random?count={number}` - Get random chunks for transcription
-- `POST /api/transcriptions` - Submit transcription
-- `GET /api/transcriptions/user/{userID}` - Get user's transcriptions
+- `POST /api/transcriptions/tasks` - Get random chunks for transcription task
+- `POST /api/transcriptions/submit` - Submit transcription
+- `POST /api/transcriptions/skip` - Skip a difficult chunk
+- `GET /api/transcriptions/` - Get user's transcriptions (paginated)
+- `GET /api/transcriptions/{transcription_id}` - Get specific transcription
+- `PATCH /api/transcriptions/{transcription_id}` - Update transcription
+- `DELETE /api/transcriptions/{transcription_id}` - Delete transcription
+
+#### Audio Chunk Endpoints
+- `GET /api/chunks/{chunk_id}/audio` - Serve audio file for chunk
 
 #### Admin Endpoints
-- `GET /api/admin/stats` - Platform statistics
-- `GET /api/admin/users` - User management
+- `GET /api/admin/dashboard` - Platform statistics and overview
+- `GET /api/admin/users` - User management (paginated)
+- `POST /api/admin/users/{user_id}/role` - Update user role
+- `GET /api/admin/scripts` - Script management
 - `POST /api/admin/scripts` - Add new scripts
 - `GET /api/admin/quality-review` - Flagged items for review
+- `GET /api/transcriptions/admin/all` - All transcriptions (admin view)
+- `GET /api/transcriptions/admin/statistics` - Transcription statistics
+- `PATCH /api/transcriptions/admin/{transcription_id}/consensus` - Set consensus
+- `PATCH /api/transcriptions/admin/{transcription_id}/validate` - Validate transcription
 
 #### Export Endpoints (Sworik Developers Only)
-- `GET /api/export/dataset?filters={}` - Export validated dataset
-- `GET /api/export/metadata` - Export metadata and statistics
+- `POST /api/export/dataset` - Export validated dataset with filters
+- `GET /api/export/history` - Export history and audit logs
+- `GET /api/export/{export_id}/download` - Download exported dataset
 
 ## Data Models
 
