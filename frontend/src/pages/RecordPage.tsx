@@ -1,7 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { MicrophoneIcon } from '@heroicons/react/24/outline';
+import { CheckCircleIcon } from '@heroicons/react/24/solid';
+import VoiceRecordingInterface from '../components/recording/VoiceRecordingInterface';
+import ErrorBoundary from '../components/common/ErrorBoundary';
+import { VoiceRecording } from '../types/api';
 
 const RecordPage: React.FC = () => {
+  const [completedRecordings, setCompletedRecordings] = useState<VoiceRecording[]>([]);
+
+  const handleRecordingComplete = (recording: VoiceRecording) => {
+    setCompletedRecordings(prev => [recording, ...prev]);
+  };
+
   return (
     <div className="max-w-4xl mx-auto">
       <div className="text-center mb-8">
@@ -12,19 +22,37 @@ const RecordPage: React.FC = () => {
         </p>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md p-8 border border-gray-200">
-        <div className="text-center text-gray-500">
-          <p className="text-lg mb-4">Voice recording interface will be implemented in the next task.</p>
-          <p>This will include:</p>
-          <ul className="text-left max-w-md mx-auto mt-4 space-y-2">
-            <li>• Duration selection (2, 5, 10 minutes)</li>
-            <li>• Random script display</li>
-            <li>• Real-time audio recording</li>
-            <li>• Progress tracking</li>
-            <li>• Upload functionality</li>
-          </ul>
+      {/* Recording Interface */}
+      <ErrorBoundary>
+        <VoiceRecordingInterface onRecordingComplete={handleRecordingComplete} />
+      </ErrorBoundary>
+
+      {/* Completed Recordings */}
+      {completedRecordings.length > 0 && (
+        <div className="mt-8 bg-white rounded-lg shadow-md p-6 border border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <CheckCircleIcon className="w-5 h-5 mr-2 text-green-600" />
+            Recent Recordings
+          </h3>
+          <div className="space-y-3">
+            {completedRecordings.slice(0, 5).map((recording) => (
+              <div key={recording.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div>
+                  <div className="font-medium text-gray-900">
+                    Recording #{recording.id}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    Duration: {Math.round(recording.duration)}s • Status: {recording.status}
+                  </div>
+                </div>
+                <div className="text-sm text-gray-500">
+                  {new Date(recording.created_at).toLocaleString()}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
