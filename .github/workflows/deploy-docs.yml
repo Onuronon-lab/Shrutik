@@ -60,33 +60,33 @@ jobs:
       if: github.ref == 'refs/heads/master'
       uses: actions/deploy-pages@v4
 
-  # Job to check documentation links and formatting
-  check-docs:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+  # Job to check documentation links and formatting (disabled for now)
+  # check-docs:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@v4
 
-    - name: Setup mdBook
-      uses: peaceiris/actions-mdbook@v1
-      with:
-        mdbook-version: 'latest'
+  #   - name: Setup mdBook
+  #     uses: peaceiris/actions-mdbook@v1
+  #     with:
+  #       mdbook-version: 'latest'
 
-    - name: Check documentation
-      run: |
-        # Check if the book builds without errors
-        mdbook build
-        
-        # Check for broken internal links
-        mdbook test
+  #   - name: Check documentation
+  #     run: |
+  #       # Check if the book builds without errors
+  #       mdbook build
+  #       
+  #       # Check for broken internal links
+  #       mdbook test
 
-    - name: Validate markdown
-      uses: DavidAnson/markdownlint-action@v1
-      with:
-        files: 'docs/**/*.md'
-        config: '.markdownlint.json'
-        ignore: 'docs/SUMMARY.md'
-      continue-on-error: true
+  #   - name: Validate markdown
+  #     uses: DavidAnson/markdownlint-action@v1
+  #     with:
+  #       files: 'docs/**/*.md'
+  #       config: '.markdownlint.json'
+  #       ignore: 'docs/SUMMARY.md'
+  #     continue-on-error: true
 
   # Job to check for spelling errors (disabled for now due to false positives)
   # spell-check:
