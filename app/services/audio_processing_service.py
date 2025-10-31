@@ -6,7 +6,6 @@ intelligent chunking using librosa for VAD and sentence boundary detection.
 """
 
 import os
-import logging
 import numpy as np
 from typing import List, Tuple, Optional, Dict, Any
 from pathlib import Path
@@ -18,13 +17,10 @@ from sqlalchemy.orm import Session
 from app.models.voice_recording import VoiceRecording, RecordingStatus
 from app.models.audio_chunk import AudioChunk
 from app.core.config import settings
+from app.core.logging_config import get_logger
+from app.core.exceptions import AudioProcessingError, ErrorContext, safe_execute
 
-logger = logging.getLogger(__name__)
-
-
-class AudioProcessingError(Exception):
-    """Custom exception for audio processing errors."""
-    pass
+logger = get_logger(__name__)
 
 
 class AudioChunkingService:
@@ -37,65 +33,105 @@ class AudioChunkingService:
         
     def load_audio(self, file_path: str) -> Tuple[np.ndarray, int]:
         """Load audio file and return audio data and sample rate."""
-        try:
+        with ErrorContext("audio loading", AudioProcessingError, logger, file_path=file_path):
+            # Validate file exists and is readable
+            if not os.path.exists(file_path):
+                raise AudioProcessingError(f"Audio file not found: {file_path}")
+            
+            if not os.access(file_path, os.R_OK):
+                raise AudioProcessingError(f"Audio file not readable: {file_path}")
+            
+            file_size = os.path.getsize(file_path)
+            if file_size == 0:
+                raise AudioProcessingError(f"Audio file is empty: {file_path}")
+            
+            logger.info(f"Loading audio file: {file_path} ({file_size} bytes)")
+            
             # Try loading with librosa first (handles most formats)
-            audio_data, sr = librosa.load(file_path, sr=self.sample_rate)
-            return audio_data, sr
-        except Exception as e:
-            logger.warning(f"librosa failed to load {file_path}, trying pydub: {e}")
             try:
+                audio_data, sr = librosa.load(file_path, sr=self.sample_rate)
+                logger.info(f"Successfully loaded with librosa: duration={len(audio_data)/sr:.2f}s, sr={sr}")
+                return audio_data, sr
+            except Exception as e:
+                logger.warning(f"librosa failed to load {file_path}, trying pydub: {e}")
+                
                 # Fallback to pydub for more format support
-                audio_segment = AudioSegment.from_file(file_path)
-                audio_data = np.array(audio_segment.get_array_of_samples(), dtype=np.float32)
-                
-                # Convert to mono if stereo
-                if audio_segment.channels == 2:
-                    audio_data = audio_data.reshape((-1, 2)).mean(axis=1)
-                
-                # Normalize to [-1, 1] range
-                audio_data = audio_data / (2**15)  # Assuming 16-bit audio
-                
-                # Resample if needed
-                if audio_segment.frame_rate != self.sample_rate:
-                    audio_data = librosa.resample(
-                        audio_data, 
-                        orig_sr=audio_segment.frame_rate, 
-                        target_sr=self.sample_rate
+                try:
+                    audio_segment = AudioSegment.from_file(file_path)
+                    audio_data = np.array(audio_segment.get_array_of_samples(), dtype=np.float32)
+                    
+                    # Convert to mono if stereo
+                    if audio_segment.channels == 2:
+                        audio_data = audio_data.reshape((-1, 2)).mean(axis=1)
+                        logger.info("Converted stereo audio to mono")
+                    
+                    # Normalize to [-1, 1] range
+                    audio_data = audio_data / (2**15)  # Assuming 16-bit audio
+                    
+                    # Resample if needed
+                    if audio_segment.frame_rate != self.sample_rate:
+                        logger.info(f"Resampling from {audio_segment.frame_rate}Hz to {self.sample_rate}Hz")
+                        audio_data = librosa.resample(
+                            audio_data, 
+                            orig_sr=audio_segment.frame_rate, 
+                            target_sr=self.sample_rate
+                        )
+                    
+                    logger.info(f"Successfully loaded with pydub: duration={len(audio_data)/self.sample_rate:.2f}s")
+                    return audio_data, self.sample_rate
+                    
+                except Exception as fallback_error:
+                    raise AudioProcessingError(
+                        f"Failed to load audio file with both librosa and pydub",
+                        details={
+                            "file_path": file_path,
+                            "file_size": file_size,
+                            "librosa_error": str(e),
+                            "pydub_error": str(fallback_error)
+                        }
                     )
-                
-                return audio_data, self.sample_rate
-            except Exception as fallback_error:
-                raise AudioProcessingError(
-                    f"Failed to load audio file {file_path}: {fallback_error}"
-                )
     
     def detect_voice_activity(self, audio_data: np.ndarray, sr: int) -> np.ndarray:
         """
         Detect voice activity using energy-based VAD.
         Returns boolean array indicating voice activity.
         """
-        # Frame-based energy calculation
-        frame_length = int(0.025 * sr)  # 25ms frames
-        hop_length = int(0.010 * sr)    # 10ms hop
-        
-        # Calculate RMS energy for each frame
-        rms_energy = librosa.feature.rms(
-            y=audio_data, 
-            frame_length=frame_length, 
-            hop_length=hop_length
-        )[0]
-        
-        # Dynamic threshold based on audio statistics
-        energy_threshold = np.percentile(rms_energy, 30)  # 30th percentile as threshold
-        
-        # Voice activity detection
-        voice_activity = rms_energy > energy_threshold
-        
-        # Apply median filter to smooth VAD decisions
-        from scipy.signal import medfilt
-        voice_activity = medfilt(voice_activity.astype(int), kernel_size=5).astype(bool)
-        
-        return voice_activity
+        with ErrorContext("voice activity detection", AudioProcessingError, logger):
+            if len(audio_data) == 0:
+                raise AudioProcessingError("Cannot detect voice activity on empty audio data")
+            
+            # Frame-based energy calculation
+            frame_length = int(0.025 * sr)  # 25ms frames
+            hop_length = int(0.010 * sr)    # 10ms hop
+            
+            logger.debug(f"VAD parameters: frame_length={frame_length}, hop_length={hop_length}")
+            
+            # Calculate RMS energy for each frame
+            rms_energy = librosa.feature.rms(
+                y=audio_data, 
+                frame_length=frame_length, 
+                hop_length=hop_length
+            )[0]
+            
+            if len(rms_energy) == 0:
+                raise AudioProcessingError("No energy frames calculated for VAD")
+            
+            # Dynamic threshold based on audio statistics
+            energy_threshold = np.percentile(rms_energy, 30)  # 30th percentile as threshold
+            logger.debug(f"VAD energy threshold: {energy_threshold}")
+            
+            # Voice activity detection
+            voice_activity = rms_energy > energy_threshold
+            
+            # Apply median filter to smooth VAD decisions
+            try:
+                from scipy.signal import medfilt
+                voice_activity = medfilt(voice_activity.astype(int), kernel_size=5).astype(bool)
+            except ImportError:
+                logger.warning("scipy not available, skipping VAD smoothing")
+            
+            logger.debug(f"VAD detected {np.sum(voice_activity)} voice frames out of {len(voice_activity)}")
+            return voice_activity
     
     def find_sentence_boundaries(self, audio_data: np.ndarray, sr: int) -> List[float]:
         """

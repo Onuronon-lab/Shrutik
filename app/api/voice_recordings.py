@@ -55,6 +55,16 @@ async def upload_recording(
     """
     # Validate content type
     if not audio_file.content_type or not audio_file.content_type.startswith('audio/'):
+        from app.core.logging_config import get_logger
+        logger = get_logger(__name__)
+        logger.warning(
+            f"Invalid content type for audio upload: {audio_file.content_type}",
+            extra={
+                "user_id": current_user.id,
+                "filename": audio_file.filename,
+                "content_type": audio_file.content_type
+            }
+        )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="File must be an audio file"

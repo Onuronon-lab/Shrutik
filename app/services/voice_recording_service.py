@@ -8,6 +8,7 @@ from sqlalchemy import func, and_
 from fastapi import HTTPException, status, UploadFile
 import librosa
 import soundfile as sf
+
 from app.models.voice_recording import VoiceRecording, RecordingStatus
 from app.models.script import Script
 from app.models.language import Language
@@ -18,6 +19,13 @@ from app.schemas.voice_recording import (
     RecordingUploadRequest, RecordingProgressResponse, RecordingStatistics
 )
 from app.core.config import settings
+from app.core.logging_config import get_logger
+from app.core.exceptions import (
+    FileStorageError, ValidationError, AudioProcessingError, 
+    ErrorContext, safe_execute, log_and_raise_error
+)
+
+logger = get_logger(__name__)
 
 
 class RecordingSession:
@@ -107,41 +115,66 @@ class VoiceRecordingService:
         audio_file: UploadFile
     ) -> VoiceRecordingResponse:
         """Upload and process a voice recording."""
-        # Validate session
-        session = self.get_recording_session(upload_data.session_id)
-        if not session:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid or expired recording session"
-            )
-        
-        if session.user_id != user_id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Session does not belong to current user"
-            )
-        
-        # Validate file format
-        if not audio_file.filename:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="No filename provided"
-            )
-        
-        file_extension = os.path.splitext(audio_file.filename)[1].lower()
-        print(f"DEBUG: filename={audio_file.filename}, extension={file_extension}, allowed={settings.ALLOWED_AUDIO_FORMATS}")
-        if file_extension not in settings.ALLOWED_AUDIO_FORMATS:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Unsupported audio format. Allowed: {', '.join(settings.ALLOWED_AUDIO_FORMATS)}"
-            )
-        
-        # Validate file size
-        if upload_data.file_size > settings.MAX_FILE_SIZE:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"File size exceeds maximum limit of {settings.MAX_FILE_SIZE // (1024 * 1024)}MB"
-            )
+        with ErrorContext("recording upload", FileStorageError, logger, 
+                         user_id=user_id, session_id=upload_data.session_id):
+            
+            # Validate session
+            session = self.get_recording_session(upload_data.session_id)
+            if not session:
+                log_and_raise_error(
+                    logger, ValidationError,
+                    "Invalid or expired recording session",
+                    error_code="INVALID_SESSION",
+                    details={"session_id": upload_data.session_id},
+                    user_id=user_id
+                )
+            
+            if session.user_id != user_id:
+                log_and_raise_error(
+                    logger, ValidationError,
+                    "Session does not belong to current user",
+                    error_code="SESSION_OWNERSHIP_MISMATCH",
+                    details={"session_user_id": session.user_id, "current_user_id": user_id},
+                    user_id=user_id
+                )
+            
+            # Validate file format
+            if not audio_file.filename:
+                log_and_raise_error(
+                    logger, ValidationError,
+                    "No filename provided",
+                    error_code="MISSING_FILENAME",
+                    user_id=user_id
+                )
+            
+            file_extension = os.path.splitext(audio_file.filename)[1].lower()
+            logger.info(f"Processing upload: filename={audio_file.filename}, extension={file_extension}")
+            
+            if file_extension not in settings.ALLOWED_AUDIO_FORMATS:
+                log_and_raise_error(
+                    logger, ValidationError,
+                    f"Unsupported audio format: {file_extension}",
+                    error_code="UNSUPPORTED_FORMAT",
+                    details={
+                        "provided_format": file_extension,
+                        "allowed_formats": settings.ALLOWED_AUDIO_FORMATS
+                    },
+                    user_id=user_id
+                )
+            
+            # Validate file size
+            if upload_data.file_size > settings.MAX_FILE_SIZE:
+                log_and_raise_error(
+                    logger, ValidationError,
+                    f"File size exceeds maximum limit",
+                    error_code="FILE_TOO_LARGE",
+                    details={
+                        "file_size": upload_data.file_size,
+                        "max_size": settings.MAX_FILE_SIZE,
+                        "max_size_mb": settings.MAX_FILE_SIZE // (1024 * 1024)
+                    },
+                    user_id=user_id
+                )
         
         try:
             # Generate unique filename

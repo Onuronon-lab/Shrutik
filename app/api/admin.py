@@ -10,7 +10,7 @@ from app.services.auth_service import AuthService
 from app.schemas.admin import (
     PlatformStatsResponse, UserStatsResponse, UserManagementResponse,
     RoleUpdateRequest, QualityReviewItemResponse, FlaggedTranscriptionResponse,
-    SystemHealthResponse, UsageAnalyticsResponse, QualityReviewUpdateRequest
+    UsageAnalyticsResponse, QualityReviewUpdateRequest
 )
 from app.schemas.auth import UserResponse
 
@@ -142,14 +142,89 @@ async def create_quality_review(
         )
 
 
-@router.get("/system/health", response_model=SystemHealthResponse)
+@router.get("/system/health")
 async def get_system_health(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_admin_or_sworik)
 ):
-    """Get system health metrics."""
-    admin_service = AdminService(db)
-    return admin_service.get_system_health()
+    """Get comprehensive system health metrics."""
+    from app.core.monitoring import run_health_check
+    from app.core.logging_config import get_logger
+    
+    logger = get_logger(__name__)
+    
+    try:
+        health_status = await run_health_check()
+        logger.info(f"Admin health check requested by user {current_user.id}")
+        return health_status
+    except Exception as e:
+        logger.error(f"Admin health check failed: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve system health status"
+        )
+
+
+@router.get("/system/metrics")
+async def get_system_metrics(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin_or_sworik)
+):
+    """Get detailed system metrics."""
+    from app.core.monitoring import get_system_metrics
+    from app.core.logging_config import get_logger
+    
+    logger = get_logger(__name__)
+    
+    try:
+        metrics = await get_system_metrics()
+        logger.info(f"System metrics requested by user {current_user.id}")
+        return {
+            "timestamp": metrics.timestamp.isoformat(),
+            "cpu_percent": metrics.cpu_percent,
+            "memory_percent": metrics.memory_percent,
+            "disk_percent": metrics.disk_percent,
+            "active_connections": metrics.active_connections,
+            "redis_connected": metrics.redis_connected,
+            "database_connected": metrics.database_connected,
+            "celery_workers": metrics.celery_workers,
+            "queue_size": metrics.queue_size,
+            "error_rate": metrics.error_rate,
+            "response_time_avg": metrics.response_time_avg
+        }
+    except Exception as e:
+        logger.error(f"Failed to get system metrics: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve system metrics"
+        )
+
+
+@router.get("/system/alerts")
+async def get_recent_alerts(
+    limit: int = Query(50, ge=1, le=200),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin_or_sworik)
+):
+    """Get recent system alerts."""
+    from app.core.monitoring import health_checker
+    from app.core.logging_config import get_logger
+    
+    logger = get_logger(__name__)
+    
+    try:
+        alerts = await health_checker.get_recent_alerts(limit=limit)
+        logger.info(f"System alerts requested by user {current_user.id}")
+        return {
+            "alerts": alerts,
+            "total_count": len(alerts)
+        }
+    except Exception as e:
+        logger.error(f"Failed to get system alerts: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve system alerts"
+        )
 
 
 @router.get("/analytics/usage", response_model=UsageAnalyticsResponse)
