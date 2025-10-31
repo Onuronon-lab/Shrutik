@@ -61,17 +61,17 @@ sudo systemctl start postgresql  # Linux
 brew services start postgresql   # Mac
 
 # Create database
-createdb shrutik_dev
+createdb voice_collection
 
 # Set environment variables
-cp .env.example .env.development
+cp .env.development .env
 ```
 
 Edit `.env.development`:
 
 ```env
 # Development Database
-DATABASE_URL=postgresql://postgres:password@localhost:5432/shrutik_dev
+DATABASE_URL=postgresql://postgres:password@localhost:5432/voice_collection
 
 # Redis
 REDIS_URL=redis://localhost:6379/0
@@ -177,13 +177,13 @@ When switching between local development and Docker, you need to update these co
 
 **Local Development:**
 ```env
-DATABASE_URL=postgresql://postgres:password@localhost:5432/shrutik_dev
+DATABASE_URL=postgresql://postgres:password@localhost:5432/voice_collection
 REDIS_URL=redis://localhost:6379/0
 ```
 
 **Docker:**
 ```env
-DATABASE_URL=postgresql://postgres:password@db:5432/shrutik
+DATABASE_URL=postgresql://postgres:password@postgres:5432/voice_collection
 REDIS_URL=redis://redis:6379/0
 ```
 
@@ -209,8 +209,7 @@ pkill -f uvicorn
 pkill -f celery
 
 # Update config for Docker
-sed -i 's/localhost/db/g' .env
-sed -i 's/localhost/redis/g' .env
+cp .env.docker .env
 
 # Start Docker using development script
 chmod +x docker-dev.sh
@@ -223,8 +222,7 @@ chmod +x docker-dev.sh
 docker-compose down
 
 # Update config for local
-sed -i 's/@db:/@localhost:/g' .env
-sed -i 's/redis:6379/localhost:6379/g' .env
+cp .env.development .env
 
 # Start local services
 ./scripts/start-dev.sh
@@ -236,9 +234,10 @@ sed -i 's/redis:6379/localhost:6379/g' .env
 
 | File | Purpose | When to Use |
 |------|---------|-------------|
-| `.env.example` | Template with all variables | Copy to create other env files |
-| `.env` | Production configuration | Docker production deployment |
-| `.env.development` | Local development | Local Python development |
+| `.env.example` | Template with all variables | Reference for available options |
+| `.env.development` | Local development | Native Python development |
+| `.env.docker` | Docker development | Docker Compose development |
+| `.env` | Active configuration | Current environment (copy from above) |
 | `frontend/.env.local` | Frontend development | Local frontend development |
 
 ## 🧪 Testing
@@ -358,8 +357,8 @@ alembic current
 
 ```bash
 # Drop and recreate database
-dropdb shrutik_dev
-createdb shrutik_dev
+dropdb voice_collection
+createdb voice_collection
 alembic upgrade head
 python create_admin.py
 ```

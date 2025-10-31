@@ -17,8 +17,8 @@ The fastest way to get Shrutik running is with Docker:
 git clone https://github.com/Onuronon-lab/Shrutik.git
 cd shrutik
 
-# Copy environment configuration
-cp .env.example .env
+# Copy Docker environment configuration
+cp .env.docker .env
 
 # Start all services using our development script
 chmod +x docker-dev.sh
@@ -56,7 +56,7 @@ Edit the `.env` file with your configuration:
 
 ```env
 # Database
-DATABASE_URL=postgresql://postgres:password@localhost:5432/shrutik
+DATABASE_URL=postgresql://postgres:password@localhost:5432/voice_collection
 
 # Redis
 REDIS_URL=redis://localhost:6379/0

@@ -44,11 +44,9 @@ services:
       - NEXT_PUBLIC_API_URL=http://localhost:8000
     
   # Development database with exposed port for direct access
-  db:
-    ports:
-      - "5432:5432"
+  postgres:
     environment:
-      - POSTGRES_DB=shrutik_dev
+      - POSTGRES_DB=voice_collection
       
   # Development Redis with exposed port for direct access  
   redis:

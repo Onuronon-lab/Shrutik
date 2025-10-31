@@ -23,7 +23,19 @@ cp .env.example .env
 
 ### 2. Configure Environment for Docker
 
-Edit the `.env` file with Docker-specific settings:
+Copy the Docker-specific environment file:
+
+```bash
+# Use Docker-specific configuration
+cp .env.docker .env
+```
+
+**Available Environment Files:**
+- `.env.example` - Template with all available options
+- `.env.development` - Local development (localhost)
+- `.env.docker` - Docker development (service names)
+
+Or manually edit the `.env` file with Docker-specific settings:
 
 ```env
 # Application
@@ -119,13 +131,13 @@ Follow the prompts to create your first admin user.
 
 **Local Development:**
 ```env
-DATABASE_URL=postgresql://postgres:password@localhost:5432/shrutik_dev
+DATABASE_URL=postgresql://postgres:password@localhost:5432/voice_collection
 REDIS_URL=redis://localhost:6379/0
 ```
 
 **Docker:**
 ```env
-DATABASE_URL=postgresql://postgres:password@db:5432/shrutik
+DATABASE_URL=postgresql://postgres:password@postgres:5432/voice_collection
 REDIS_URL=redis://redis:6379/0
 ```
 
@@ -370,9 +382,8 @@ services:
 
 2. **Update configuration**:
    ```bash
-   # Update .env file
-   sed -i 's/localhost/db/g' .env
-   sed -i 's/localhost/redis/g' .env
+   # Use Docker configuration
+   cp .env.docker .env
    ```
 
 3. **Start Docker**:
@@ -389,9 +400,8 @@ services:
 
 2. **Update configuration**:
    ```bash
-   # Update .env file
-   sed -i 's/@db:/@localhost:/g' .env
-   sed -i 's/redis:6379/localhost:6379/g' .env
+   # Use local development configuration
+   cp .env.development .env
    ```
 
 3. **Start local services**:
