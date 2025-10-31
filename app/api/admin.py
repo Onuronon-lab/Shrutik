@@ -13,6 +13,9 @@ from app.schemas.admin import (
     UsageAnalyticsResponse, QualityReviewUpdateRequest
 )
 from app.schemas.auth import UserResponse
+from app.core.performance import performance_optimizer
+from app.core.rate_limiting import rate_limit_manager
+from app.core.cache import cache_manager
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -273,3 +276,205 @@ async def get_system_logs(
         "total_count": 0,
         "message": "Log integration not implemented yet"
     }
+
+#
+ Performance monitoring endpoints
+@router.get("/performance/dashboard")
+async def get_performance_dashboard(
+    current_user: User = Depends(require_admin_or_sworik)
+):
+    """Get comprehensive performance dashboard data."""
+    try:
+        dashboard_data = performance_optimizer.get_performance_dashboard()
+        return dashboard_data
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get performance dashboard: {str(e)}"
+        )
+
+
+@router.get("/performance/endpoints")
+async def get_endpoint_performance(
+    endpoint: Optional[str] = Query(None, description="Filter by specific endpoint"),
+    days: int = Query(1, ge=1, le=7, description="Number of days to analyze"),
+    current_user: User = Depends(require_admin_or_sworik)
+):
+    """Get performance metrics for API endpoints."""
+    try:
+        from app.core.performance import performance_metrics
+        
+        if endpoint:
+            metrics = performance_metrics.get_endpoint_metrics(endpoint, "GET", days)
+            return {"endpoint_metrics": [metrics]}
+        else:
+            # Get metrics for common endpoints
+            common_endpoints = [
+                "/api/transcriptions/tasks",
+                "/api/transcriptions/submit",
+                "/api/recordings/upload",
+                "/api/chunks/{chunk_id}/audio",
+                "/api/auth/login"
+            ]
+            
+            all_metrics = []
+            for ep in common_endpoints:
+                metrics = performance_metrics.get_endpoint_metrics(ep, "GET", days)
+                all_metrics.append(metrics)
+            
+            return {"endpoint_metrics": all_metrics}
+            
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get endpoint performance: {str(e)}"
+        )
+
+
+@router.get("/performance/cache")
+async def get_cache_performance(
+    current_user: User = Depends(require_admin_or_sworik)
+):
+    """Get cache performance metrics and optimization recommendations."""
+    try:
+        cache_stats = performance_optimizer.optimize_cache_settings()
+        
+        # Add cache size information
+        cache_info = {
+            "redis_connected": cache_manager.redis.ping(),
+            "cache_keys_count": len(cache_manager.redis.client.keys("*")) if cache_manager.redis.ping() else 0
+        }
+        
+        return {
+            "cache_optimization": cache_stats,
+            "cache_info": cache_info
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get cache performance: {str(e)}"
+        )
+
+
+@router.get("/performance/database")
+async def get_database_performance(
+    current_user: User = Depends(require_admin_or_sworik)
+):
+    """Get database performance metrics."""
+    try:
+        from app.db.database import get_connection_pool_status
+        from app.core.performance import query_optimizer
+        
+        pool_status = get_connection_pool_status()
+        query_report = query_optimizer.get_query_performance_report()
+        
+        return {
+            "connection_pool": pool_status,
+            "query_performance": query_report
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get database performance: {str(e)}"
+        )
+
+
+@router.get("/performance/rate-limits")
+async def get_rate_limit_stats(
+    current_user: User = Depends(require_admin_or_sworik)
+):
+    """Get rate limiting statistics."""
+    try:
+        stats = rate_limit_manager.get_rate_limit_statistics()
+        return {"rate_limit_stats": stats}
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get rate limit stats: {str(e)}"
+        )
+
+
+@router.post("/performance/cache/clear")
+async def clear_cache(
+    cache_type: str = Query("all", description="Type of cache to clear (all, api, db, stats)"),
+    current_user: User = Depends(require_admin)
+):
+    """Clear cache (admin only)."""
+    try:
+        if cache_type == "all":
+            cache_manager.redis.client.flushdb()
+            message = "All caches cleared"
+        elif cache_type == "api":
+            from app.core.cache import api_cache
+            api_cache.cache.delete_pattern("api_response:*")
+            message = "API response cache cleared"
+        elif cache_type == "db":
+            from app.core.cache import db_cache
+            db_cache.cache.delete_pattern("db_query:*")
+            message = "Database query cache cleared"
+        elif cache_type == "stats":
+            from app.core.cache import stats_cache
+            stats_cache.invalidate_statistics()
+            message = "Statistics cache cleared"
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid cache type"
+            )
+        
+        return {"message": message}
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to clear cache: {str(e)}"
+        )
+
+
+@router.post("/performance/rate-limits/{user_id}/reset")
+async def reset_user_rate_limit(
+    user_id: int,
+    current_user: User = Depends(require_admin)
+):
+    """Reset rate limits for a specific user (admin only)."""
+    try:
+        success = rate_limit_manager.reset_user_rate_limit(user_id)
+        
+        if success:
+            return {"message": f"Rate limits reset for user {user_id}"}
+        else:
+            return {"message": f"No rate limits found for user {user_id}"}
+            
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to reset rate limits: {str(e)}"
+        )
+
+
+@router.get("/performance/cdn")
+async def get_cdn_status(
+    current_user: User = Depends(require_admin_or_sworik)
+):
+    """Get CDN status and configuration."""
+    try:
+        from app.core.cdn import cdn_manager
+        
+        cdn_status = {
+            "enabled": cdn_manager.config.is_cdn_enabled(),
+            "base_url": cdn_manager.config.CDN_BASE_URL,
+            "provider": cdn_manager.config.CDN_PROVIDER,
+            "audio_cache_ttl": cdn_manager.config.AUDIO_CACHE_TTL,
+            "static_cache_ttl": cdn_manager.config.STATIC_CACHE_TTL
+        }
+        
+        return {"cdn_status": cdn_status}
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get CDN status: {str(e)}"
+        )

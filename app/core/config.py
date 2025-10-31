@@ -35,6 +35,19 @@ class Settings(BaseSettings):
     
     CHUNK_MIN_DURATION: float = 1.0
     CHUNK_MAX_DURATION: float = 10.0
+    
+    # Performance and caching settings
+    ENABLE_CACHING: bool = True
+    CACHE_DEFAULT_TTL: int = 3600  # 1 hour
+    ENABLE_RATE_LIMITING: bool = True
+    ENABLE_CDN: bool = False
+    CDN_BASE_URL: str = ""
+    
+    # Database optimization settings
+    DB_POOL_SIZE: int = 20
+    DB_MAX_OVERFLOW: int = 30
+    DB_POOL_TIMEOUT: int = 30
+    DB_POOL_RECYCLE: int = 3600
 
 
 settings = Settings()

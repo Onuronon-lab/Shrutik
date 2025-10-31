@@ -16,6 +16,10 @@ from app.core.exceptions import (
 )
 from app.core.monitoring import MonitoringMiddleware, run_health_check
 from app.core.middleware import AuthContextMiddleware
+from app.core.rate_limiting import RateLimitMiddleware
+from app.core.performance import performance_monitor
+from app.core.cache import cache_manager
+from app.db.database import optimize_database_settings, get_connection_pool_status
 from app.api.auth import router as auth_router
 from app.api.scripts import router as scripts_router
 from app.api.voice_recordings import router as voice_recordings_router
@@ -76,8 +80,9 @@ async def add_request_id(request: Request, call_next):
     response.headers["X-Request-ID"] = request_id
     return response
 
-# Add monitoring middleware
+# Add performance and monitoring middleware
 app.add_middleware(MonitoringMiddleware)
+app.add_middleware(RateLimitMiddleware)
 
 app.add_middleware(
     CORSMiddleware,
@@ -116,6 +121,13 @@ async def health_check():
     """Comprehensive health check endpoint."""
     try:
         health_status = await run_health_check()
+        
+        # Add performance metrics to health check
+        health_status["performance"] = {
+            "database_pool": get_connection_pool_status(),
+            "cache_status": cache_manager.redis.ping() if cache_manager.redis else False
+        }
+        
         logger.info(f"Health check completed: {health_status['status']}")
         return health_status
     except Exception as e:
@@ -126,6 +138,17 @@ async def health_check():
             "error": str(e)
         }
 
+
+@app.get("/metrics")
+async def get_performance_metrics():
+    """Get performance metrics and system status."""
+    try:
+        from app.core.performance import performance_optimizer
+        return performance_optimizer.get_performance_dashboard()
+    except Exception as e:
+        logger.error(f"Error getting performance metrics: {e}")
+        return {"error": str(e)}
+
 @app.on_event("startup")
 async def startup_event():
     """Application startup event handler."""
@@ -134,6 +157,21 @@ async def startup_event():
     logger.info(f"Database URL: {settings.DATABASE_URL.split('@')[1] if '@' in settings.DATABASE_URL else 'Not configured'}")
     logger.info(f"Redis URL: {settings.REDIS_URL}")
     logger.info(f"Celery enabled: {settings.USE_CELERY}")
+    
+    # Initialize performance optimizations
+    try:
+        # Optimize database settings
+        optimize_database_settings()
+        logger.info("Database optimizations applied")
+        
+        # Test cache connection
+        if cache_manager.redis.ping():
+            logger.info("Cache system initialized successfully")
+        else:
+            logger.warning("Cache system connection failed")
+            
+    except Exception as e:
+        logger.warning(f"Performance optimization initialization failed: {e}")
 
 @app.on_event("shutdown")
 async def shutdown_event():

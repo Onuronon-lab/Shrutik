@@ -16,6 +16,8 @@ from app.schemas.transcription import (
     TranscriptionSubmission, TranscriptionSubmissionResponse, TranscriptionListResponse,
     TranscriptionStatistics, ChunkSkipRequest, ChunkSkipResponse
 )
+from app.core.cache import cache_result, db_cache, invalidate_related_caches
+from app.core.performance import query_optimizer
 
 logger = logging.getLogger(__name__)
 
@@ -40,12 +42,20 @@ class TranscriptionService:
     def __init__(self, db: Session):
         self.db = db
     
+    @query_optimizer.monitor_query("get_random_chunks_for_transcription")
     def get_random_chunks_for_transcription(
         self, 
         user_id: int, 
         task_request: TranscriptionTaskRequest
     ) -> TranscriptionTaskResponse:
         """Get random untranscribed audio chunks for transcription."""
+        
+        # Check cache for available chunks count (short TTL since it changes frequently)
+        cache_key = db_cache.generate_query_key(
+            "available_chunks",
+            filters={"user_id": user_id, "language_id": task_request.language_id},
+            limit=task_request.quantity
+        )
         
         # Base query for chunks that need transcription
         query = self.db.query(AudioChunk).join(VoiceRecording)
@@ -87,12 +97,18 @@ class TranscriptionService:
                 detail="No chunks available for transcription"
             )
         
-        # Convert to response format with transcription counts
+        # Convert to response format with cached transcription counts
         chunk_responses = []
         for chunk in chunks:
-            transcription_count = self.db.query(Transcription).filter(
-                Transcription.chunk_id == chunk.id
-            ).count()
+            # Cache transcription count for each chunk
+            count_cache_key = f"transcription_count:chunk_{chunk.id}"
+            transcription_count = db_cache.cache.get(count_cache_key)
+            
+            if transcription_count is None:
+                transcription_count = self.db.query(Transcription).filter(
+                    Transcription.chunk_id == chunk.id
+                ).count()
+                db_cache.cache.set(count_cache_key, transcription_count, 300)  # 5 minutes
             
             chunk_response = AudioChunkForTranscription(
                 id=chunk.id,
@@ -222,6 +238,13 @@ class TranscriptionService:
             if session.session_id in self._active_sessions:
                 del self._active_sessions[session.session_id]
             
+            # Invalidate related caches
+            invalidate_related_caches("transcriptions", user_id)
+            
+            # Invalidate transcription count cache for affected chunks
+            for chunk_id in submitted_chunk_ids:
+                db_cache.cache.delete(f"transcription_count:chunk_{chunk_id}")
+            
             # Trigger consensus calculation for affected chunks
             self._trigger_consensus_calculation(submitted_chunk_ids)
             
@@ -283,6 +306,8 @@ class TranscriptionService:
             created_at=datetime.now(timezone.utc)
         )
     
+    @cache_result("user_transcriptions", ttl=300)  # 5 minutes cache
+    @query_optimizer.monitor_query("get_user_transcriptions")
     def get_user_transcriptions(
         self, 
         user_id: int, 
@@ -351,6 +376,8 @@ class TranscriptionService:
         self.db.refresh(transcription)
         return transcription
     
+    @cache_result("transcription_statistics", ttl=900)  # 15 minutes cache
+    @query_optimizer.monitor_query("get_transcription_statistics")
     def get_transcription_statistics(self) -> TranscriptionStatistics:
         """Get statistics about transcriptions in the database."""
         
