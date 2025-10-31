@@ -20,11 +20,9 @@ cd shrutik
 # Copy environment configuration
 cp .env.example .env
 
-# Start all services
-docker-compose up -d
-
-# Check if services are running
-docker-compose ps
+# Start all services using our development script
+chmod +x docker-dev.sh
+./docker-dev.sh start
 ```
 
 **Access the platform:**
@@ -136,17 +134,23 @@ curl http://localhost:3000
 **Services won't start:**
 ```bash
 # Check Docker logs
-docker-compose logs
+./docker-dev.sh logs
 
 # Restart services
-docker-compose restart
+./docker-dev.sh restart
+
+# Or check status
+./docker-dev.sh status
 ```
 
 **Database connection errors:**
 ```bash
-# Reset database
-docker-compose down -v
-docker-compose up -d
+# Reset database and restart
+./docker-dev.sh cleanup
+./docker-dev.sh start
+
+# Run migrations
+./docker-dev.sh migrate
 ```
 
 **Permission errors:**
@@ -166,7 +170,7 @@ chmod -R 755 uploads/
 ## 📚 Next Steps
 
 - **[Local Development Guide](local-development.md)** - Set up development environment
-- **[Docker Deployment](docker-deployment.md)** - Production deployment
+- **[Docker Local Setup](docker-local-setup.md)** - Docker development environment
 - **[API Reference](api-reference.md)** - Integrate with external systems
 - **[Contributing Guide](contributing.md)** - Contribute to the project
 - **[Architecture Overview](architecture.md)** - Understand the system design

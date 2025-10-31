@@ -5,25 +5,17 @@ from alembic import context
 import os
 import sys
 
-# Add the app directory to the Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 from app.db.database import Base
 from app.core.config import settings
-# Import all models to ensure they're registered with Base.metadata
 from app.models import *
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
 config = context.config
 
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# add your model's MetaData object here
-# for 'autogenerate' support
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,

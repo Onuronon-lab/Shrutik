@@ -27,15 +27,12 @@ Edit the `.env` file with Docker-specific settings:
 
 ```env
 # Application
-APP_NAME=Shrutik (শ্রুতিক)
+APP_NAME=Shrutik
 DEBUG=true
 VERSION=1.0.0
 
 # Database (Docker service names)
-DATABASE_URL=postgresql://postgres:password@db:5432/shrutik
-POSTGRES_DB=shrutik
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=password
+DATABASE_URL=postgresql://postgres:password@postgres:5432/voice_collection
 
 # Redis (Docker service name)
 REDIS_URL=redis://redis:6379/0
@@ -43,6 +40,7 @@ REDIS_URL=redis://redis:6379/0
 # Security
 SECRET_KEY=your-secret-key-change-in-production
 ACCESS_TOKEN_EXPIRE_MINUTES=30
+ALGORITHM=HS256
 
 # CORS (for local development)
 ALLOWED_HOSTS=["http://localhost:3000", "http://localhost:8000"]
@@ -75,17 +73,29 @@ NODE_ENV=development
 ### 4. Start All Services
 
 ```bash
-# Start all services in background
+# Make the script executable
+chmod +x docker-dev.sh
+
+# Start all services (recommended)
+./docker-dev.sh start
+
+# Or use docker-compose directly
 docker-compose up -d
-
-# Check if all services are running
-docker-compose ps
-
-# View logs (optional)
-docker-compose logs -f
 ```
 
-### 5. Access the Application
+### 5. Initialize Database
+
+```bash
+# Run database migrations
+./docker-dev.sh migrate
+
+# Create admin user
+./docker-dev.sh admin
+```
+
+Follow the prompts to create your first admin user.
+
+### 6. Access the Application
 
 - **Frontend**: http://localhost:3000
 - **Backend API**: http://localhost:8000
@@ -98,7 +108,7 @@ docker-compose logs -f
 
 | Component | Local Development | Docker |
 |-----------|------------------|---------|
-| **Database URL** | `localhost:5432` | `db:5432` |
+| **Database URL** | `localhost:5432` | `postgres:5432` |
 | **Redis URL** | `localhost:6379` | `redis:6379` |
 | **Frontend API URL** | `http://localhost:8000` | `http://localhost:8000` |
 | **File Paths** | `./uploads` | `/app/uploads` |
@@ -135,6 +145,14 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 #### 3. Database Configuration (Automatic)
 
 The `app/core/config.py` automatically reads from environment variables, so no changes needed.
+
+#### 4. Alembic Configuration (Automatic)
+
+Alembic migrations automatically use the correct database URL from environment variables:
+- **Local Development**: Uses `localhost:5432`
+- **Docker**: Uses `postgres:5432` (Docker service name)
+
+The `alembic/env.py` file is configured to read from `settings.DATABASE_URL`, so no manual changes needed when switching between local and Docker environments.
 
 ## 📋 Docker Compose Services
 
@@ -210,6 +228,39 @@ docker-compose exec backend alembic revision --autogenerate -m "Description"
 
 ### Useful Commands
 
+#### Using docker-dev.sh (Recommended)
+
+```bash
+# Stop all services
+./docker-dev.sh stop
+
+# Restart services
+./docker-dev.sh restart
+
+# View logs for all services
+./docker-dev.sh logs
+
+# View logs for specific service
+./docker-dev.sh logs backend
+
+# Check service status
+./docker-dev.sh status
+
+# Clean up everything
+./docker-dev.sh cleanup
+
+# Run database migrations
+./docker-dev.sh migrate
+
+# Create admin user
+./docker-dev.sh admin
+
+# Show help
+./docker-dev.sh help
+```
+
+#### Direct Docker Commands
+
 ```bash
 # Stop all services
 docker-compose down
@@ -225,12 +276,6 @@ docker-compose exec backend bash
 
 # Access database
 docker-compose exec db psql -U postgres -d shrutik
-
-# View service status
-docker-compose ps
-
-# Follow logs for all services
-docker-compose logs -f
 ```
 
 ## 🔍 Troubleshooting
@@ -332,14 +377,14 @@ services:
 
 3. **Start Docker**:
    ```bash
-   docker-compose up -d
+   ./docker-dev.sh start
    ```
 
 ### From Docker to Local
 
 1. **Stop Docker services**:
    ```bash
-   docker-compose down
+   ./docker-dev.sh stop
    ```
 
 2. **Update configuration**:
@@ -413,7 +458,7 @@ After getting Docker setup working:
 1. **[Contributing Guide](contributing.md)** - Start contributing to Shrutik
 2. **[API Reference](api-reference.md)** - Explore the API endpoints
 3. **[Architecture Overview](architecture.md)** - Understand the system design
-4. **[Deployment Guide](deployment-guide.md)** - Deploy to production
+4. **[Local Development Guide](local-development.md)** - Native development setup
 
 ## 🆘 Getting Help
 

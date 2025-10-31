@@ -24,7 +24,6 @@ Welcome to the comprehensive documentation for Shrutik, the open-source voice da
 ### 📋 Existing Documentation
 - **[Audio Processing Modes](AUDIO_PROCESSING_MODES.md)** - Audio processing capabilities
 - **[Job Monitoring](JOB_MONITORING.md)** - Background job monitoring
-- **[Local Development (Legacy)](LOCAL_DEVELOPMENT.md)** - Original development guide
 
 ## 🎯 Quick Navigation
 

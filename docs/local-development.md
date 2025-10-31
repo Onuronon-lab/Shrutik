@@ -91,12 +91,14 @@ SECRET_KEY=dev-secret-key-change-in-production
 #### Run Database Migrations
 
 ```bash
-# Initialize Alembic (if not done)
+# Run database migrations
 alembic upgrade head
 
 # Create admin user
 python create_admin.py
 ```
+
+Follow the prompts to create your first admin user.
 
 ### 3. Frontend Setup
 
@@ -159,6 +161,14 @@ npm run dev
 
 ## 🔧 Development Configuration
 
+### Alembic Configuration
+
+Alembic is configured to automatically use the correct database URL from your environment variables:
+
+- The `alembic/env.py` file reads from `settings.DATABASE_URL`
+- No manual configuration changes needed when switching environments
+- Migrations work seamlessly in both local and Docker environments
+
 ### Switching Between Local and Docker
 
 When switching between local development and Docker, you need to update these configurations:
@@ -202,8 +212,9 @@ pkill -f celery
 sed -i 's/localhost/db/g' .env
 sed -i 's/localhost/redis/g' .env
 
-# Start Docker
-docker-compose up -d
+# Start Docker using development script
+chmod +x docker-dev.sh
+./docker-dev.sh start
 ```
 
 **Switch to Local:**
@@ -423,7 +434,7 @@ module.exports = {
 - **[API Documentation](api-reference.md)** - Complete API reference
 - **[Architecture Overview](architecture.md)** - System design details
 - **[Contributing Guide](contributing.md)** - Contribution guidelines
-- **[Deployment Guide](docker-deployment.md)** - Production deployment
+- **[Docker Local Setup](docker-local-setup.md)** - Docker development environment
 
 ## 🆘 Troubleshooting
 

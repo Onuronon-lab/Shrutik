@@ -49,28 +49,6 @@ In a world where voice technology is rapidly advancing, millions of speakers of 
 - **Enterprise Features**: Role-based access, audit trails, and performance monitoring
 - **Docker Support**: Easy deployment with containerization
 
-## 🚀 Quick Start
-
-```bash
-# Clone the repository
-git clone https://github.com/Onuronon-lab/Shrutik.git
-cd shrutik
-
-# Start with Docker (Recommended)
-cp .env.example .env
-docker-compose up -d
-
-# Or run locally
-./scripts/setup-local.sh
-```
-
-**Access the platform:**
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:8000  
-- API Documentation: http://localhost:8000/docs
-
-**Need help with Docker setup?** See our [Docker Local Setup Guide](docs/docker-local-setup.md) for detailed instructions.
-
 ## 📚 Documentation
 
 - **[Getting Started](docs/getting-started.md)** - Setup and first steps

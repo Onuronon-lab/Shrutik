@@ -1,153 +1,31 @@
+"""
+System Monitoring and Logging API
+
+This module provides endpoints for system monitoring, logging, and performance metrics.
+All endpoints require admin privileges for security.
+"""
+
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
-from typing import List, Optional
+from typing import Optional
+from pathlib import Path
+import os
+import json
+from datetime import datetime
+
 from app.db.database import get_db
-from app.core.dependencies import require_admin, require_admin_or_sworik, get_current_active_user
-from app.models.user import User, UserRole
-from app.models.quality_review import ReviewDecision
-from app.services.admin_service import AdminService
-from app.services.auth_service import AuthService
-from app.schemas.admin import (
-    PlatformStatsResponse, UserStatsResponse, UserManagementResponse,
-    RoleUpdateRequest, QualityReviewItemResponse, FlaggedTranscriptionResponse,
-    UsageAnalyticsResponse, QualityReviewUpdateRequest
-)
-from app.schemas.auth import UserResponse
-from app.core.performance import performance_optimizer
+from app.core.dependencies import require_admin, require_admin_or_sworik
+from app.models.user import User
+from app.core.performance import performance_optimizer, performance_metrics
 from app.core.rate_limiting import rate_limit_manager
 from app.core.cache import cache_manager
 
-router = APIRouter(prefix="/admin", tags=["admin"])
+router = APIRouter(prefix="/system", tags=["system"])
 
 
-@router.get("/stats/platform", response_model=PlatformStatsResponse)
-async def get_platform_statistics(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin_or_sworik)
-):
-    """Get comprehensive platform statistics."""
-    admin_service = AdminService(db)
-    return admin_service.get_platform_statistics()
-
-
-@router.get("/stats/users", response_model=List[UserStatsResponse])
-async def get_user_statistics(
-    limit: int = Query(50, ge=1, le=200),
-    db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin_or_sworik)
-):
-    """Get detailed user statistics."""
-    admin_service = AdminService(db)
-    return admin_service.get_user_statistics(limit=limit)
-
-
-@router.get("/users", response_model=List[UserManagementResponse])
-async def get_users_for_management(
-    role: Optional[UserRole] = Query(None, description="Filter users by role"),
-    db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin)
-):
-    """Get users for management interface (admin only)."""
-    admin_service = AdminService(db)
-    return admin_service.get_users_for_management(role_filter=role)
-
-
-@router.put("/users/{user_id}/role", response_model=UserResponse)
-async def update_user_role(
-    user_id: int,
-    role_update: RoleUpdateRequest,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin)
-):
-    """Update user role (admin only)."""
-    admin_service = AdminService(db)
-    updated_user = admin_service.update_user_role(user_id, role_update.role)
-    
-    if not updated_user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
-        )
-    
-    return updated_user
-
-
-@router.delete("/users/{user_id}")
-async def delete_user(
-    user_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin)
-):
-    """Delete user (admin only)."""
-    if user_id == current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Cannot delete your own account"
-        )
-    
-    auth_service = AuthService(db)
-    success = auth_service.delete_user(user_id)
-    
-    if not success:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
-        )
-    
-    return {"message": "User deleted successfully"}
-
-
-@router.get("/quality-reviews", response_model=List[QualityReviewItemResponse])
-async def get_quality_reviews(
-    limit: int = Query(50, ge=1, le=200),
-    db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin_or_sworik)
-):
-    """Get quality review items."""
-    admin_service = AdminService(db)
-    return admin_service.get_quality_review_items(limit=limit)
-
-
-@router.get("/quality-reviews/flagged", response_model=List[FlaggedTranscriptionResponse])
-async def get_flagged_transcriptions(
-    limit: int = Query(50, ge=1, le=200),
-    db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin_or_sworik)
-):
-    """Get transcriptions flagged for review."""
-    admin_service = AdminService(db)
-    return admin_service.get_flagged_transcriptions(limit=limit)
-
-
-@router.post("/quality-reviews/{transcription_id}")
-async def create_quality_review(
-    transcription_id: int,
-    review_data: QualityReviewUpdateRequest,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin)
-):
-    """Create a quality review for a transcription (admin only)."""
-    admin_service = AdminService(db)
-    
-    try:
-        review = admin_service.create_quality_review(
-            transcription_id=transcription_id,
-            reviewer_id=current_user.id,
-            decision=review_data.decision,
-            rating=review_data.rating,
-            comment=review_data.comment
-        )
-        return {"message": "Quality review created successfully", "review_id": review.id}
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Failed to create quality review: {str(e)}"
-        )
-
-
-@router.get("/system/health")
+# Health and Status Endpoints
+@router.get("/health")
 async def get_system_health(
-    db: Session = Depends(get_db),
     current_user: User = Depends(require_admin_or_sworik)
 ):
     """Get comprehensive system health metrics."""
@@ -158,19 +36,18 @@ async def get_system_health(
     
     try:
         health_status = await run_health_check()
-        logger.info(f"Admin health check requested by user {current_user.id}")
+        logger.info(f"System health check requested by user {current_user.id}")
         return health_status
     except Exception as e:
-        logger.error(f"Admin health check failed: {e}", exc_info=True)
+        logger.error(f"System health check failed: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to retrieve system health status"
         )
 
 
-@router.get("/system/metrics")
+@router.get("/metrics")
 async def get_system_metrics(
-    db: Session = Depends(get_db),
     current_user: User = Depends(require_admin_or_sworik)
 ):
     """Get detailed system metrics."""
@@ -203,10 +80,9 @@ async def get_system_metrics(
         )
 
 
-@router.get("/system/alerts")
+@router.get("/alerts")
 async def get_recent_alerts(
     limit: int = Query(50, ge=1, le=200),
-    db: Session = Depends(get_db),
     current_user: User = Depends(require_admin_or_sworik)
 ):
     """Get recent system alerts."""
@@ -230,51 +106,15 @@ async def get_recent_alerts(
         )
 
 
-@router.get("/analytics/usage", response_model=UsageAnalyticsResponse)
-async def get_usage_analytics(
-    days: int = Query(30, ge=1, le=365, description="Number of days to analyze"),
-    db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin_or_sworik)
-):
-    """Get usage analytics for the specified period."""
-    admin_service = AdminService(db)
-    return admin_service.get_usage_analytics(days=days)
-
-
-@router.get("/system/storage")
-async def get_storage_info(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin_or_sworik)
-):
-    """Get storage usage information."""
-    # This would typically integrate with your storage system (S3, MinIO, etc.)
-    # For now, return a placeholder response
-    return {
-        "total_storage_gb": 0.0,
-        "used_storage_gb": 0.0,
-        "available_storage_gb": 0.0,
-        "storage_by_type": {
-            "recordings": 0.0,
-            "chunks": 0.0,
-            "other": 0.0
-        }
-    }
-
-
-@router.get("/system/logs")
+# Logging Endpoints
+@router.get("/logs")
 async def get_system_logs(
     log_type: str = Query("app", description="Log type: app, errors, audio_processing, security"),
     level: str = Query("INFO", description="Log level filter: DEBUG, INFO, WARNING, ERROR"),
     limit: int = Query(100, ge=1, le=1000),
-    db: Session = Depends(get_db),
     current_user: User = Depends(require_admin)
 ):
     """Get system logs (admin only)."""
-    import os
-    import json
-    from pathlib import Path
-    from datetime import datetime
-    
     try:
         # Define available log files
         log_files = {
@@ -374,14 +214,11 @@ async def get_system_logs(
         )
 
 
-@router.get("/system/logs/files")
+@router.get("/logs/files")
 async def get_log_files(
     current_user: User = Depends(require_admin)
 ):
     """Get available log files and their information (admin only)."""
-    from pathlib import Path
-    import os
-    
     try:
         log_dir = Path("logs")
         
@@ -425,14 +262,12 @@ async def get_log_files(
         )
 
 
-@router.delete("/system/logs/{log_type}")
+@router.delete("/logs/{log_type}")
 async def clear_log_file(
     log_type: str,
     current_user: User = Depends(require_admin)
 ):
     """Clear a specific log file (admin only)."""
-    from pathlib import Path
-    
     try:
         # Define available log files
         log_files = {
@@ -473,7 +308,7 @@ async def clear_log_file(
         )
 
 
-# Performance monitoring endpoints
+# Performance Monitoring Endpoints
 @router.get("/performance/dashboard")
 async def get_performance_dashboard(
     current_user: User = Depends(require_admin_or_sworik)
@@ -497,8 +332,6 @@ async def get_endpoint_performance(
 ):
     """Get performance metrics for API endpoints."""
     try:
-        from app.core.performance import performance_metrics
-        
         if endpoint:
             metrics = performance_metrics.get_endpoint_metrics(endpoint, "GET", days)
             return {"endpoint_metrics": [metrics]}
@@ -592,7 +425,8 @@ async def get_rate_limit_stats(
         )
 
 
-@router.post("/performance/cache/clear")
+# Cache Management Endpoints
+@router.post("/cache/clear")
 async def clear_cache(
     cache_type: str = Query("all", description="Type of cache to clear (all, api, db, stats)"),
     current_user: User = Depends(require_admin)
@@ -629,7 +463,7 @@ async def clear_cache(
         )
 
 
-@router.post("/performance/rate-limits/{user_id}/reset")
+@router.post("/rate-limits/{user_id}/reset")
 async def reset_user_rate_limit(
     user_id: int,
     current_user: User = Depends(require_admin)
@@ -650,7 +484,8 @@ async def reset_user_rate_limit(
         )
 
 
-@router.get("/performance/cdn")
+# CDN Status
+@router.get("/cdn")
 async def get_cdn_status(
     current_user: User = Depends(require_admin_or_sworik)
 ):
@@ -672,4 +507,65 @@ async def get_cdn_status(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to get CDN status: {str(e)}"
+        )
+
+
+# Storage Information
+@router.get("/storage")
+async def get_storage_info(
+    current_user: User = Depends(require_admin_or_sworik)
+):
+    """Get storage usage information."""
+    try:
+        import shutil
+        from pathlib import Path
+        
+        # Calculate storage usage
+        upload_dir = Path("uploads")
+        logs_dir = Path("logs")
+        
+        storage_info = {
+            "upload_directory": {
+                "path": str(upload_dir.absolute()),
+                "exists": upload_dir.exists(),
+                "size_mb": 0,
+                "file_count": 0
+            },
+            "logs_directory": {
+                "path": str(logs_dir.absolute()),
+                "exists": logs_dir.exists(),
+                "size_mb": 0,
+                "file_count": 0
+            }
+        }
+        
+        # Calculate upload directory size
+        if upload_dir.exists():
+            total_size = sum(f.stat().st_size for f in upload_dir.rglob('*') if f.is_file())
+            file_count = sum(1 for f in upload_dir.rglob('*') if f.is_file())
+            storage_info["upload_directory"]["size_mb"] = round(total_size / (1024 * 1024), 2)
+            storage_info["upload_directory"]["file_count"] = file_count
+        
+        # Calculate logs directory size
+        if logs_dir.exists():
+            total_size = sum(f.stat().st_size for f in logs_dir.rglob('*') if f.is_file())
+            file_count = sum(1 for f in logs_dir.rglob('*') if f.is_file())
+            storage_info["logs_directory"]["size_mb"] = round(total_size / (1024 * 1024), 2)
+            storage_info["logs_directory"]["file_count"] = file_count
+        
+        # Get disk usage for the current directory
+        disk_usage = shutil.disk_usage(".")
+        storage_info["disk_usage"] = {
+            "total_gb": round(disk_usage.total / (1024**3), 2),
+            "used_gb": round((disk_usage.total - disk_usage.free) / (1024**3), 2),
+            "available_gb": round(disk_usage.free / (1024**3), 2),
+            "usage_percent": round(((disk_usage.total - disk_usage.free) / disk_usage.total) * 100, 2)
+        }
+        
+        return storage_info
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get storage info: {str(e)}"
         )

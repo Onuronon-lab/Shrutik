@@ -17,7 +17,6 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # Create languages table
     op.create_table('languages',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('name', sa.String(length=100), nullable=False),
@@ -28,7 +27,6 @@ def upgrade() -> None:
     op.create_index(op.f('ix_languages_code'), 'languages', ['code'], unique=True)
     op.create_index(op.f('ix_languages_id'), 'languages', ['id'], unique=False)
 
-    # Create users table
     op.create_table('users',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('name', sa.String(length=255), nullable=False),
@@ -44,7 +42,6 @@ def upgrade() -> None:
     op.create_index(op.f('ix_users_id'), 'users', ['id'], unique=False)
     op.create_index(op.f('ix_users_role'), 'users', ['role'], unique=False)
 
-    # Create scripts table
     op.create_table('scripts',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('text', sa.Text(), nullable=False),
@@ -60,7 +57,6 @@ def upgrade() -> None:
     op.create_index(op.f('ix_scripts_id'), 'scripts', ['id'], unique=False)
     op.create_index(op.f('ix_scripts_language_id'), 'scripts', ['language_id'], unique=False)
 
-    # Create voice_recordings table
     op.create_table('voice_recordings',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('user_id', sa.Integer(), nullable=False),
@@ -83,7 +79,6 @@ def upgrade() -> None:
     op.create_index(op.f('ix_voice_recordings_status'), 'voice_recordings', ['status'], unique=False)
     op.create_index(op.f('ix_voice_recordings_user_id'), 'voice_recordings', ['user_id'], unique=False)
 
-    # Create audio_chunks table
     op.create_table('audio_chunks',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('recording_id', sa.Integer(), nullable=False),
@@ -101,7 +96,6 @@ def upgrade() -> None:
     op.create_index(op.f('ix_audio_chunks_id'), 'audio_chunks', ['id'], unique=False)
     op.create_index(op.f('ix_audio_chunks_recording_id'), 'audio_chunks', ['recording_id'], unique=False)
 
-    # Create transcriptions table
     op.create_table('transcriptions',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('chunk_id', sa.Integer(), nullable=False),
@@ -127,7 +121,6 @@ def upgrade() -> None:
     op.create_index(op.f('ix_transcriptions_language_id'), 'transcriptions', ['language_id'], unique=False)
     op.create_index(op.f('ix_transcriptions_user_id'), 'transcriptions', ['user_id'], unique=False)
 
-    # Create quality_reviews table
     op.create_table('quality_reviews',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('transcription_id', sa.Integer(), nullable=False),
@@ -146,8 +139,6 @@ def upgrade() -> None:
     op.create_index(op.f('ix_quality_reviews_reviewer_id'), 'quality_reviews', ['reviewer_id'], unique=False)
     op.create_index(op.f('ix_quality_reviews_transcription_id'), 'quality_reviews', ['transcription_id'], unique=False)
 
-    # Add performance optimization indexes
-    # Composite indexes for common query patterns
     op.create_index('ix_voice_recordings_user_status', 'voice_recordings', ['user_id', 'status'])
     op.create_index('ix_audio_chunks_recording_index', 'audio_chunks', ['recording_id', 'chunk_index'])
     op.create_index('ix_transcriptions_chunk_consensus', 'transcriptions', ['chunk_id', 'is_consensus'])
@@ -156,14 +147,12 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    # Drop performance optimization indexes
     op.drop_index('ix_quality_reviews_transcription_decision', table_name='quality_reviews')
     op.drop_index('ix_transcriptions_user_created', table_name='transcriptions')
     op.drop_index('ix_transcriptions_chunk_consensus', table_name='transcriptions')
     op.drop_index('ix_audio_chunks_recording_index', table_name='audio_chunks')
     op.drop_index('ix_voice_recordings_user_status', table_name='voice_recordings')
 
-    # Drop tables in reverse order
     op.drop_table('quality_reviews')
     op.drop_table('transcriptions')
     op.drop_table('audio_chunks')
@@ -172,7 +161,6 @@ def downgrade() -> None:
     op.drop_table('users')
     op.drop_table('languages')
 
-    # Drop enums
     op.execute('DROP TYPE IF EXISTS reviewdecision')
     op.execute('DROP TYPE IF EXISTS recordingstatus')
     op.execute('DROP TYPE IF EXISTS durationcategory')

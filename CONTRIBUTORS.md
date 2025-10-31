@@ -102,17 +102,6 @@ These contributors have made significant voice data contributions in their nativ
   - Contributions: Quality control algorithms, statistical analysis
   - Tools: Python, R, Machine Learning
 
-## 🌍 Community Leaders
-
-### Regional Coordinators
-- **[Coordinator Name]** - South Asia Region
-  - Role: Community outreach, local partnerships
-  - Languages: Bengali, Hindi, Urdu
-
-- **[Coordinator Name]** - Southeast Asia Region
-  - Role: Community building, educational initiatives
-  - Languages: Tamil, Malayalam
-
 ### Discord Moderators
 - **[Moderator Name]** - Senior Moderator
 - **[Moderator Name]** - Community Moderator
@@ -190,7 +179,7 @@ Want to see your name here? Here's how you can contribute:
 3. Join our [Discord](https://discord.gg/9hZ9eW8ARk) for technical discussions
 
 ### For Voice Contributors
-1. Visit our platform at [shrutik.org](https://shrutik.org)
+1. Visit our platform at [onuronon.org](https://onuronon.org)
 2. Register and start recording in your native language
 3. Help transcribe and review audio from others
 
