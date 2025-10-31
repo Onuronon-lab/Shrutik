@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Shrutik Logo](docs/assets/logo.png)
+![Shrutik Logo](assets/logo.png)
 
 **Empowering Communities Through Voice Technology**
 
