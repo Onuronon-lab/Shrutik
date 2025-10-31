@@ -9,6 +9,10 @@ description = "Complete documentation for Shrutik - Voice Data Collection Platfo
 [preprocessor.links]
 renderers = ["html"]
 
+[preprocessor.mermaid]
+command = "mdbook-mermaid"
+renderer = ["html"]
+
 [output.html]
 default-theme = "navy"
 preferred-dark-theme = "navy"
