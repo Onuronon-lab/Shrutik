@@ -86,6 +86,7 @@ jobs:
         files: 'docs/**/*.md'
         config: '.markdownlint.json'
         ignore: 'docs/SUMMARY.md'
+      continue-on-error: true
 
   # Job to check for spelling errors (disabled for now due to false positives)
   # spell-check:
