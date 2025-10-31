@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { MicrophoneIcon, DocumentTextIcon, ChartBarIcon } from '@heroicons/react/24/outline';
+import { MicrophoneIcon, DocumentTextIcon, ChartBarIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 import { apiService } from '../services/api';
 import { CurrentUserStats } from '../types/api';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -68,7 +68,17 @@ const HomePage: React.FC = () => {
     },
   ];
 
-  if (user?.role === 'admin' || user?.role === 'sworik_developer') {
+  if (user?.role === 'sworik_developer') {
+    features.push({
+      name: 'Export Data',
+      description: 'Download validated datasets for AI training',
+      icon: ArrowDownTrayIcon,
+      href: '/export',
+      color: 'bg-indigo-500',
+    });
+  }
+
+  if (user?.role === 'admin') {
     features.push({
       name: 'Admin Dashboard',
       description: 'Manage users, scripts, and monitor platform activity',

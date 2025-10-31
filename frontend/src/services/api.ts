@@ -1,6 +1,7 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { AuthResponse, LoginCredentials } from '../types/auth';
 import { TranscriptionSubmission } from '../types/api';
+import { DatasetExportRequest, MetadataExportRequest } from '../types/export';
 
 class ApiService {
   private api: AxiosInstance;
@@ -293,6 +294,43 @@ class ApiService {
 
   async getScriptStatistics(): Promise<any> {
     return this.get('/scripts/statistics');
+  }
+
+  // Export endpoints (Sworik developers only)
+  async exportDataset(request: DatasetExportRequest): Promise<any> {
+    return this.post('/export/dataset', request);
+  }
+
+  async exportMetadata(request: MetadataExportRequest): Promise<any> {
+    return this.post('/export/metadata', request);
+  }
+
+  async getExportHistory(params?: {
+    user_id?: number;
+    export_type?: string;
+    date_from?: string;
+    date_to?: string;
+    page?: number;
+    page_size?: number;
+  }): Promise<any> {
+    const searchParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          searchParams.append(key, value.toString());
+        }
+      });
+    }
+    const queryString = searchParams.toString();
+    return this.get(`/export/history${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async getSupportedExportFormats(): Promise<any> {
+    return this.get('/export/formats');
+  }
+
+  async getExportStatistics(): Promise<any> {
+    return this.get('/export/stats');
   }
 }
 

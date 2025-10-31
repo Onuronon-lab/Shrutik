@@ -5,6 +5,7 @@ import {
   MicrophoneIcon, 
   DocumentTextIcon, 
   Cog6ToothIcon,
+  ArrowDownTrayIcon,
   ArrowRightOnRectangleIcon,
   Bars3Icon,
   XMarkIcon
@@ -34,10 +35,16 @@ const Navbar: React.FC = () => {
       roles: ['contributor', 'admin', 'sworik_developer'],
     },
     {
+      name: 'Export Data',
+      href: '/export',
+      icon: ArrowDownTrayIcon,
+      roles: ['sworik_developer'],
+    },
+    {
       name: 'Admin',
       href: '/admin',
       icon: Cog6ToothIcon,
-      roles: ['admin', 'sworik_developer'],
+      roles: ['admin'],
     },
   ];
 

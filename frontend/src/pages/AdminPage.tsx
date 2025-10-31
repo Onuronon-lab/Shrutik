@@ -1,26 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Cog6ToothIcon, 
-  UsersIcon, 
-  DocumentTextIcon, 
+import {
+  Cog6ToothIcon,
+  UsersIcon,
+  DocumentTextIcon,
   ChartBarIcon,
   ExclamationTriangleIcon,
   CheckCircleIcon,
-  XCircleIcon
+  XCircleIcon,
+  ArrowDownTrayIcon
 } from '@heroicons/react/24/outline';
 import { apiService } from '../services/api';
 import { PlatformStats, SystemHealth } from '../types/api';
-import { 
-  UserManagement, 
-  ScriptManagement, 
-  QualityReview, 
-  StatsDashboard 
+import { useAuth } from '../contexts/AuthContext';
+import {
+  UserManagement,
+  ScriptManagement,
+  QualityReview,
+  StatsDashboard,
+  DataExport
 } from '../components/admin';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 
-type TabType = 'overview' | 'users' | 'scripts' | 'quality' | 'stats';
+type TabType = 'overview' | 'users' | 'scripts' | 'quality' | 'stats' | 'export';
 
 const AdminPage: React.FC = () => {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [platformStats, setPlatformStats] = useState<PlatformStats | null>(null);
   const [systemHealth, setSystemHealth] = useState<SystemHealth | null>(null);
@@ -55,6 +59,7 @@ const AdminPage: React.FC = () => {
     { id: 'scripts' as TabType, name: 'Scripts', icon: DocumentTextIcon },
     { id: 'quality' as TabType, name: 'Quality Review', icon: ExclamationTriangleIcon },
     { id: 'stats' as TabType, name: 'Analytics', icon: ChartBarIcon },
+    ...(user?.role === 'sworik_developer' ? [{ id: 'export' as TabType, name: 'Data Export', icon: ArrowDownTrayIcon }] : []),
   ];
 
   const renderTabContent = () => {
@@ -69,6 +74,8 @@ const AdminPage: React.FC = () => {
         return <QualityReview />;
       case 'stats':
         return <StatsDashboard />;
+      case 'export':
+        return <DataExport />;
       default:
         return renderOverview();
     }
@@ -180,7 +187,7 @@ const AdminPage: React.FC = () => {
         {/* Quick Actions */}
         <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className={`grid grid-cols-1 md:grid-cols-2 ${user?.role === 'sworik_developer' ? 'lg:grid-cols-5' : 'lg:grid-cols-4'} gap-4`}>
             <button
               onClick={() => setActiveTab('users')}
               className="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-left"
@@ -213,6 +220,16 @@ const AdminPage: React.FC = () => {
               <p className="font-medium text-gray-900">View Analytics</p>
               <p className="text-sm text-gray-600">Platform usage statistics</p>
             </button>
+            {user?.role === 'sworik_developer' && (
+              <button
+                onClick={() => setActiveTab('export')}
+                className="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-left"
+              >
+                <ArrowDownTrayIcon className="h-8 w-8 text-indigo-600 mb-2" />
+                <p className="font-medium text-gray-900">Export Data</p>
+                <p className="text-sm text-gray-600">Download datasets for AI training</p>
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -238,11 +255,10 @@ const AdminPage: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
-                  activeTab === tab.id
-                    ? 'border-purple-500 text-purple-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+                className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${activeTab === tab.id
+                  ? 'border-purple-500 text-purple-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
               >
                 <Icon className="h-5 w-5" />
                 <span>{tab.name}</span>

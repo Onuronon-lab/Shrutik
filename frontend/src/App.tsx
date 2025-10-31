@@ -8,6 +8,7 @@ import HomePage from './pages/HomePage';
 import RecordPage from './pages/RecordPage';
 import TranscribePage from './pages/TranscribePage';
 import AdminPage from './pages/AdminPage';
+import ExportPage from './pages/ExportPage';
 import UnauthorizedPage from './pages/UnauthorizedPage';
 
 function App() {
@@ -36,6 +37,11 @@ function App() {
             <Route path="/admin" element={
               <ProtectedRoute requiredRole="admin">
                 <AdminPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/export" element={
+              <ProtectedRoute requiredRole="sworik_developer">
+                <ExportPage />
               </ProtectedRoute>
             } />
           </Route>
