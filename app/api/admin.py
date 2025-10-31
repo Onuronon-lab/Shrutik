@@ -277,8 +277,8 @@ async def get_system_logs(
         "message": "Log integration not implemented yet"
     }
 
-#
- Performance monitoring endpoints
+
+# Performance monitoring endpoints
 @router.get("/performance/dashboard")
 async def get_performance_dashboard(
     current_user: User = Depends(require_admin_or_sworik)

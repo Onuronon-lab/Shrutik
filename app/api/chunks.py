@@ -7,7 +7,6 @@ from app.core.dependencies import get_current_active_user
 from app.models.user import User
 from app.core.cdn import media_delivery
 from app.core.cache import cache_result
-from app.core.performance import performance_monitor
 
 router = APIRouter(prefix="/chunks", tags=["chunks"])
 
@@ -21,7 +20,6 @@ router = APIRouter(prefix="/chunks", tags=["chunks"])
                404: {"description": "Chunk or audio file not found"},
                401: {"description": "Authentication required"}
            })
-@performance_monitor.monitor_endpoint("chunks_audio")
 async def get_chunk_audio(
     chunk_id: int,
     request: Request,

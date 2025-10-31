@@ -1,182 +1,130 @@
-# Voice Data Collection Platform
+# Shrutik (শ্রুতিক) - Voice Data Collection Platform
 
-A web-based crowdsourcing platform for collecting Bangla voice recordings and transcriptions to train Sworik AI.
+<div align="center">
 
-## Features
+![Shrutik Logo](docs/assets/logo.png)
 
-- Voice recording with script reading (2, 5, 10 minute durations)
-- Intelligent audio chunking using VAD and sentence boundary detection
-- Transcription interface with consensus validation
-- Admin dashboard for user and data management
-- Secure data export for authorized developers
-- Role-based access control
+**Empowering Communities Through Voice Technology**
 
-## Technology Stack
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/React-18+-blue.svg)](https://reactjs.org/)
 
-- **Backend**: Python FastAPI
-- **Database**: PostgreSQL
-- **Cache/Queue**: Redis
-- **Audio Processing**: librosa, pydub
-- **Background Jobs**: Celery
-- **Frontend**: React (to be implemented)
+</div>
 
-## Quick Start
+## 🌟 Vision
 
-### Prerequisites
+Shrutik (শ্রুতিক) is an open-source crowdsourcing platform designed to democratize voice technology for underrepresented languages. Named after the Bengali word meaning "listener" or "one who hears," Shrutik bridges the digital divide by enabling communities to contribute their voices and build inclusive AI systems.
 
-- Python 3.11+
-- Docker and Docker Compose
-- Node.js 18+ (for frontend)
+## 🎯 Why Shrutik?
 
-### Development Setup
+In a world where voice technology is rapidly advancing, millions of speakers of regional and minority languages are left behind. Major voice assistants and speech recognition systems work poorly or not at all for languages like Bengali, Tamil, Urdu and hundreds of others spoken by billions of people.
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd voice-data-collection
-   ```
+**Shrutik changes this narrative by:**
 
-2. **Set up Python virtual environment**
-   ```bash
-   ./scripts/setup-venv.sh
-   source venv/bin/activate
-   ```
+- 🗣️ **Empowering Communities**: Enabling native speakers to contribute voice data in their own languages
+- 🌍 **Preserving Linguistic Diversity**: Capturing the rich variations, dialects, and accents within languages  
+- 🤝 **Democratizing AI**: Making voice technology accessible to underrepresented communities
+- 🔓 **Open Source**: Ensuring the tools and data remain community-owned and accessible
+- 🎓 **Educational**: Teaching communities about AI while they contribute to its development
 
-3. **Start development services**
-   ```bash
-   ./scripts/start-dev.sh
-   ```
+## ✨ What Makes Shrutik Special
 
-4. **Access the application**
-   - API: http://localhost:8000
-   - API Documentation: http://localhost:8000/docs
-   - Health Check: http://localhost:8000/health
+### For Contributors
+- **Intuitive Interface**: Easy-to-use web platform for recording and transcribing voice data
+- **Quality Assurance**: Built-in consensus mechanisms ensure high-quality datasets
+- **Gamification**: Engaging experience with progress tracking and community leaderboards
+- **Multilingual Support**: Native support for multiple languages and scripts
 
-### Manual Setup
+### For Researchers & Developers
+- **Production-Ready**: Scalable architecture built with FastAPI and React
+- **Comprehensive API**: RESTful APIs for integration with external systems
+- **Advanced Analytics**: Real-time monitoring and quality metrics
+- **Export Capabilities**: Multiple format support for dataset export
 
-1. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
+### For Organizations
+- **Self-Hosted**: Complete control over your data and infrastructure
+- **Customizable**: Modular design allows easy customization for specific needs
+- **Enterprise Features**: Role-based access, audit trails, and performance monitoring
+- **Docker Support**: Easy deployment with containerization
 
-2. **Start PostgreSQL and Redis**
-   ```bash
-   docker-compose up -d postgres redis
-   ```
-
-3. **Run database migrations**
-   ```bash
-   alembic upgrade head
-   ```
-
-4. **Start the application**
-   ```bash
-   uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-   ```
-
-5. **Start Celery worker (in another terminal)**
-   ```bash
-   celery -A app.core.celery_app worker --loglevel=info
-   ```
-
-## Project Structure
-
-```
-├── app/
-│   ├── api/           # API routes
-│   ├── core/          # Core configuration and utilities
-│   ├── db/            # Database configuration
-│   ├── models/        # SQLAlchemy models
-│   ├── schemas/       # Pydantic schemas
-│   ├── services/      # Business logic
-│   ├── tasks/         # Celery tasks
-│   └── utils/         # Utility functions
-├── alembic/           # Database migrations
-├── scripts/           # Development scripts
-├── uploads/           # File uploads (created at runtime)
-├── docker-compose.yml # Docker services
-├── Dockerfile         # Application container
-└── requirements.txt   # Python dependencies
-```
-
-## Environment Configuration
-
-Copy `.env.example` to `.env` and update the values:
+## 🚀 Quick Start
 
 ```bash
+# Clone the repository
+git clone https://github.com/your-org/shrutik.git
+cd shrutik
+
+# Start with Docker (Recommended)
 cp .env.example .env
+docker-compose up -d
+
+# Or run locally
+./scripts/setup-local.sh
 ```
 
-Key configuration options:
-- `DATABASE_URL`: PostgreSQL connection string
-- `REDIS_URL`: Redis connection string
-- `SECRET_KEY`: JWT signing key (change in production)
-- `UPLOAD_DIR`: Directory for file uploads
-- `MAX_FILE_SIZE`: Maximum upload file size
+**Access the platform:**
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8000  
+- API Documentation: http://localhost:8000/docs
 
-## API Documentation
+**Need help with Docker setup?** See our [Docker Local Setup Guide](docs/docker-local-setup.md) for detailed instructions.
 
-Once the application is running, visit:
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
+## 📚 Documentation
 
-## Development
+- **[Getting Started](docs/getting-started.md)** - Setup and first steps
+- **[Local Development](docs/local-development.md)** - Development environment setup
+- **[Docker Deployment](docs/docker-deployment.md)** - Production deployment guide
+- **[API Documentation](docs/api-reference.md)** - Complete API reference
+- **[Contributing Guide](docs/contributing.md)** - How to contribute to Shrutik
+- **[Architecture Overview](docs/architecture.md)** - System design and components
 
-### Database Migrations
+## 🏗️ Architecture
 
-Create a new migration:
-```bash
-alembic revision --autogenerate -m "Description of changes"
-```
+Shrutik is built with modern, scalable technologies:
 
-Apply migrations:
-```bash
-alembic upgrade head
-```
+- **Backend**: FastAPI (Python) with PostgreSQL and Redis
+- **Frontend**: React with TypeScript and Tailwind CSS
+- **Audio Processing**: Librosa and PyDub for intelligent audio chunking
+- **Background Jobs**: Celery with Redis for async processing
+- **Monitoring**: Built-in performance monitoring and health checks
 
-### Running Tests
+## 🤝 Contributing
 
-```bash
-pytest
-```
+We welcome contributions from developers, linguists, designers, and community members! Whether you're fixing bugs, adding features, improving documentation, or contributing voice data, every contribution matters.
 
-### Code Quality
+**Ways to Contribute:**
+- 🎤 **Voice Data**: Record and transcribe in your native language
+- 💻 **Code**: Backend, frontend, or infrastructure improvements  
+- 📝 **Documentation**: Help improve our guides and tutorials
+- 🌐 **Localization**: Translate the interface to new languages
+- 🐛 **Testing**: Report bugs and help with quality assurance
 
-The project uses standard Python tools for code quality:
-- Black for code formatting
-- isort for import sorting
-- flake8 for linting
+See our [Contributing Guide](docs/contributing.md) for detailed instructions.
 
-## Deployment
+## 🌍 Community
 
-### Production Deployment
+Join our growing community of contributors:
 
-1. Build the Docker image:
-   ```bash
-   docker build -t voice-collection-platform .
-   ```
+- **Discord**: [Join our server](https://discord.gg/9hZ9eW8ARk) for real-time discussions
+- **GitHub Discussions**: Share ideas and ask questions
+- **Twitter**: Follow [@ShrutikVoice](https://twitter.com/ShrutikVoice) for updates
 
-2. Deploy using Docker Compose:
-   ```bash
-   docker-compose -f docker-compose.prod.yml up -d
-   ```
+## 📄 License
 
-### Environment Variables
+Shrutik is released under the [MIT License](LICENSE). This means you can freely use, modify, and distribute the software while preserving the original license and copyright notice.
 
-Set the following environment variables in production:
-- `DEBUG=false`
-- `SECRET_KEY=<secure-random-key>`
-- `DATABASE_URL=<production-database-url>`
-- `REDIS_URL=<production-redis-url>`
+## 🙏 Acknowledgments
 
-## Contributing
+Shrutik is built on the shoulders of giants. We thank the open-source community and the researchers who have made voice technology accessible. Special recognition to communities worldwide who contribute their voices to make AI more inclusive.
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Submit a pull request
+---
 
-## License
+<div align="center">
 
-[License information to be added]
+**Together, we're building a more inclusive digital future, one voice at a time.**
+
+[Get Started](docs/getting-started.md) • [Contribute](docs/contributing.md) • [Community](https://discord.gg/9hZ9eW8ARk)
+
+</div>

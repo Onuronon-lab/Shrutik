@@ -38,8 +38,8 @@ setup_logging()
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
-    title="Voice Data Collection Platform",
-    description="Crowdsourcing platform for Bangla voice recordings and transcriptions",
+    title="Shrutik (শ্রুতিক) - Voice Data Collection Platform",
+    description="Empowering communities through voice technology - A crowdsourcing platform for inclusive voice data collection",
     version="1.0.0"
 )
 
@@ -114,7 +114,13 @@ app.include_router(jobs_router, prefix="/api")
 @app.get("/")
 async def root():
     logger.info("Root endpoint accessed")
-    return {"message": "Voice Data Collection Platform API"}
+    return {
+        "message": "Shrutik (শ্রুতিক) - Voice Data Collection Platform API",
+        "description": "Empowering communities through voice technology",
+        "version": "1.0.0",
+        "docs": "/docs",
+        "health": "/health"
+    }
 
 @app.get("/health")
 async def health_check():
@@ -152,7 +158,8 @@ async def get_performance_metrics():
 @app.on_event("startup")
 async def startup_event():
     """Application startup event handler."""
-    logger.info("Voice Data Collection Platform starting up...")
+    logger.info("Shrutik (শ্রুতিক) - Voice Data Collection Platform starting up...")
+    logger.info("Empowering communities through voice technology")
     logger.info(f"Environment: {'Development' if settings.DEBUG else 'Production'}")
     logger.info(f"Database URL: {settings.DATABASE_URL.split('@')[1] if '@' in settings.DATABASE_URL else 'Not configured'}")
     logger.info(f"Redis URL: {settings.REDIS_URL}")
@@ -176,5 +183,5 @@ async def startup_event():
 @app.on_event("shutdown")
 async def shutdown_event():
     """Application shutdown event handler."""
-    logger.info("Voice Data Collection Platform shutting down...")
+    logger.info("Shrutik (শ্রুতিক) shutting down...")
     # Perform cleanup tasks here if needed

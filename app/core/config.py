@@ -7,7 +7,7 @@ import os
 class Settings(BaseSettings):
     model_config = ConfigDict(env_file=".env", case_sensitive=True)
     
-    APP_NAME: str = "Voice Data Collection Platform"
+    APP_NAME: str = "Shrutik (শ্রুতিক)"
     DEBUG: bool = False
     VERSION: str = "1.0.0"
     

@@ -19,7 +19,6 @@ router = APIRouter(prefix="/transcriptions", tags=["transcriptions"])
 
 
 @router.post("/tasks", response_model=TranscriptionTaskResponse, status_code=status.HTTP_200_OK)
-@performance_monitor.monitor_endpoint("transcription_tasks")
 async def get_transcription_task(
     task_request: TranscriptionTaskRequest,
     current_user: User = Depends(get_current_active_user),
@@ -32,8 +31,6 @@ async def get_transcription_task(
     Users can specify language preference and chunks to skip. The response
     includes a session ID for tracking the transcription batch.
     """
-    from app.core.performance import performance_monitor
-    
     transcription_service = TranscriptionService(db)
     return transcription_service.get_random_chunks_for_transcription(current_user.id, task_request)
 
@@ -73,7 +70,6 @@ async def skip_chunk(
 
 
 @router.get("/", response_model=TranscriptionListResponse)
-@performance_monitor.monitor_endpoint("user_transcriptions")
 async def get_user_transcriptions(
     skip: int = Query(0, ge=0, description="Number of transcriptions to skip"),
     limit: int = Query(100, ge=1, le=1000, description="Maximum number of transcriptions to return"),
