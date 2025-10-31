@@ -7,7 +7,6 @@ title = "Shrutik Documentation"
 description = "Complete documentation for Shrutik - Voice Data Collection Platform"
 
 [preprocessor.links]
-# Enable link checking
 renderers = ["html"]
 
 [output.html]
@@ -17,18 +16,14 @@ default-theme = "navy"
 preferred-dark-theme = "navy"
 copy-fonts = true
 mathjax-support = false
-print = { enable = true, page-break = true }
-fold = { enable = false, level = 0 }
-playground = { copyable = true, copy-js = true, line-numbers = false, editable = false }
-search = { enable = true, limit-results = 30, teaser-word-count = 30, use-boolean-and = true, boost-title = 2, boost-hierarchy = 1, boost-paragraph = 1, expand = true, heading-split-level = 3 }
 git-repository-url = "https://github.com/Onuronon-lab/Shrutik"
 git-repository-icon = "fa-github"
-edit-url-template = "https://github.com/Onuronon-lab/Shrutik/edit/main/docs/{path}"
+edit-url-template = "https://github.com/Onuronon-lab/Shrutik/edit/master/docs/{path}"
 site-url = "/Shrutik/"
-cname = "docs.shrutik.org"
 
-[output.html.redirect]
-"/index.html" = "getting-started.html"
+[output.html.print]
+enable = true
+page-break = true
 
 [output.html.fold]
 enable = true
@@ -37,6 +32,19 @@ level = 1
 [output.html.playground]
 copyable = true
 copy-js = true
+line-numbers = false
+editable = false
+
+[output.html.search]
+enable = true
+limit-results = 30
+teaser-word-count = 30
+use-boolean-and = true
+boost-title = 2
+boost-hierarchy = 1
+boost-paragraph = 1
+expand = true
+heading-split-level = 3
 
 [build]
 build-dir = "book"
