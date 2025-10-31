@@ -82,6 +82,10 @@ class ApiService {
     return response.data;
   }
 
+  async getCurrentUserStats(): Promise<any> {
+    return this.get('/auth/me/stats');
+  }
+
   // Generic request methods
   async get<T>(url: string): Promise<T> {
     const response = await this.api.get<T>(url);
@@ -190,16 +194,105 @@ class ApiService {
       const response = await this.api.get(`/chunks/${chunk_id}/audio`, {
         responseType: 'blob'
       });
-      
+
       // Create an object URL from the blob
       const audioBlob = new Blob([response.data], { type: 'audio/wav' });
       const audioUrl = URL.createObjectURL(audioBlob);
-      
+
       return audioUrl;
     } catch (error) {
       console.error('Failed to fetch audio chunk:', error);
       throw error;
     }
+  }
+
+  // Admin endpoints
+  async getPlatformStats(): Promise<any> {
+    return this.get('/admin/stats/platform');
+  }
+
+  async getUserStats(limit = 50): Promise<any> {
+    return this.get(`/admin/stats/users?limit=${limit}`);
+  }
+
+  async getUsersForManagement(role?: string): Promise<any> {
+    const params = role ? `?role=${role}` : '';
+    return this.get(`/admin/users${params}`);
+  }
+
+  async updateUserRole(userId: number, role: string): Promise<any> {
+    return this.put(`/admin/users/${userId}/role`, { role });
+  }
+
+  async deleteUser(userId: number): Promise<any> {
+    return this.delete(`/admin/users/${userId}`);
+  }
+
+  async getQualityReviews(limit = 50): Promise<any> {
+    return this.get(`/admin/quality-reviews?limit=${limit}`);
+  }
+
+  async getFlaggedTranscriptions(limit = 50): Promise<any> {
+    return this.get(`/admin/quality-reviews/flagged?limit=${limit}`);
+  }
+
+  async createQualityReview(transcriptionId: number, decision: string, rating?: number, comment?: string): Promise<any> {
+    return this.post(`/admin/quality-reviews/${transcriptionId}`, {
+      decision,
+      rating,
+      comment
+    });
+  }
+
+  async getSystemHealth(): Promise<any> {
+    return this.get('/admin/system/health');
+  }
+
+  async getUsageAnalytics(days = 30): Promise<any> {
+    return this.get(`/admin/analytics/usage?days=${days}`);
+  }
+
+  // Script management endpoints
+  async getScripts(skip = 0, limit = 100, durationCategory?: string, languageId?: number): Promise<any> {
+    const params = new URLSearchParams({
+      skip: skip.toString(),
+      limit: limit.toString()
+    });
+    if (durationCategory) {
+      params.append('duration_category', durationCategory);
+    }
+    if (languageId) {
+      params.append('language_id', languageId.toString());
+    }
+    return this.get(`/scripts?${params.toString()}`);
+  }
+
+  async getScript(scriptId: number): Promise<any> {
+    return this.get(`/scripts/${scriptId}`);
+  }
+
+  async createScript(scriptData: any): Promise<any> {
+    return this.post('/scripts', scriptData);
+  }
+
+  async updateScript(scriptId: number, scriptData: any): Promise<any> {
+    return this.put(`/scripts/${scriptId}`, scriptData);
+  }
+
+  async deleteScript(scriptId: number): Promise<any> {
+    return this.delete(`/scripts/${scriptId}`);
+  }
+
+  async validateScript(text: string, durationCategory: string): Promise<any> {
+    const params = new URLSearchParams({
+      text,
+      duration_category: durationCategory
+    });
+    return this.post(`/scripts/validate?${params.toString()}`);
+  }
+
+  async getScriptStatistics(): Promise<any> {
+    return this.get('/scripts/statistics');
   }
 }
 

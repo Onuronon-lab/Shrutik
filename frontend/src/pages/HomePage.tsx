@@ -1,10 +1,33 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { MicrophoneIcon, DocumentTextIcon, ChartBarIcon } from '@heroicons/react/24/outline';
+import { apiService } from '../services/api';
+import { CurrentUserStats } from '../types/api';
+import LoadingSpinner from '../components/common/LoadingSpinner';
 
 const HomePage: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
+  const [userStats, setUserStats] = useState<CurrentUserStats | null>(null);
+  const [statsLoading, setStatsLoading] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadUserStats();
+    }
+  }, [isAuthenticated]);
+
+  const loadUserStats = async () => {
+    try {
+      setStatsLoading(true);
+      const stats = await apiService.getCurrentUserStats();
+      setUserStats(stats);
+    } catch (error) {
+      console.error('Failed to load user stats:', error);
+    } finally {
+      setStatsLoading(false);
+    }
+  };
 
   if (!isAuthenticated) {
     return (
@@ -91,20 +114,32 @@ const HomePage: React.FC = () => {
 
       <div className="mt-12 bg-white rounded-lg shadow-md p-6 border border-gray-200">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Your Contribution Stats</h2>
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="text-center">
-            <div className="text-3xl font-bold text-indigo-600 mb-2">0</div>
-            <div className="text-gray-600">Voice Recordings</div>
+        {statsLoading ? (
+          <div className="flex justify-center py-8">
+            <LoadingSpinner />
           </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-green-600 mb-2">0</div>
-            <div className="text-gray-600">Transcriptions</div>
+        ) : (
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-indigo-600 mb-2">
+                {userStats?.recordings_count || 0}
+              </div>
+              <div className="text-gray-600">Voice Recordings</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-green-600 mb-2">
+                {userStats?.transcriptions_count || 0}
+              </div>
+              <div className="text-gray-600">Transcriptions</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-purple-600 mb-2">
+                {userStats?.avg_transcription_quality ? userStats.avg_transcription_quality.toFixed(1) : 'N/A'}
+              </div>
+              <div className="text-gray-600">Quality Score</div>
+            </div>
           </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-purple-600 mb-2">0</div>
-            <div className="text-gray-600">Quality Score</div>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

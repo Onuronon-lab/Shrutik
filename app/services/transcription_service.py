@@ -34,9 +34,11 @@ class TranscriptionSession:
 class TranscriptionService:
     """Service for managing transcriptions and transcription tasks."""
     
+    # Class variable to share sessions across all instances
+    _active_sessions: Dict[str, TranscriptionSession] = {}
+    
     def __init__(self, db: Session):
         self.db = db
-        self._active_sessions: Dict[str, TranscriptionSession] = {}
     
     def get_random_chunks_for_transcription(
         self, 

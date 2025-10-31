@@ -43,6 +43,46 @@ async def get_current_user_info(
     return current_user
 
 
+@router.get("/me/stats")
+async def get_current_user_stats(
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Get current user's contribution statistics."""
+    from sqlalchemy import func
+    from app.models.voice_recording import VoiceRecording
+    from app.models.transcription import Transcription
+    from app.models.quality_review import QualityReview
+    
+    # Count voice recordings
+    recordings_count = db.query(VoiceRecording).filter(
+        VoiceRecording.user_id == current_user.id
+    ).count()
+    
+    # Count transcriptions
+    transcriptions_count = db.query(Transcription).filter(
+        Transcription.user_id == current_user.id
+    ).count()
+    
+    # Calculate average quality score from transcriptions
+    avg_quality = db.query(func.avg(Transcription.quality)).filter(
+        Transcription.user_id == current_user.id,
+        Transcription.quality.isnot(None)
+    ).scalar()
+    
+    # Count quality reviews done by this user
+    reviews_count = db.query(QualityReview).filter(
+        QualityReview.reviewer_id == current_user.id
+    ).count()
+    
+    return {
+        "recordings_count": recordings_count,
+        "transcriptions_count": transcriptions_count,
+        "quality_reviews_count": reviews_count,
+        "avg_transcription_quality": float(avg_quality) if avg_quality else None
+    }
+
+
 @router.put("/users/{user_id}/role", response_model=UserResponse)
 async def update_user_role(
     user_id: int,
