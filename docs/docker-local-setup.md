@@ -14,7 +14,7 @@ This guide explains how to run Shrutik completely with Docker on your local mach
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/shrutik.git
+git clone https://github.com/Onuronon-lab/Shrutik.git
 cd shrutik
 
 # Copy environment file for Docker
@@ -421,8 +421,8 @@ If you encounter issues:
 
 1. Check the [troubleshooting section](#troubleshooting) above
 2. View logs: `docker-compose logs`
-3. Join our [Discord community](https://discord.gg/shrutik)
-4. Create an issue on [GitHub](https://github.com/your-org/shrutik/issues)
+3. Join our [Discord community](https://discord.gg/9hZ9eW8ARk)
+4. Create an issue on [GitHub](https://github.com/Onuronon-lab/Shrutik/issues)
 
 ---
 

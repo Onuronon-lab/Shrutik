@@ -24,7 +24,7 @@ This guide covers setting up Shrutik for local development, including all the to
 ### 1. Clone and Navigate
 
 ```bash
-git clone https://github.com/your-org/shrutik.git
+git clone https://github.com/Onuronon-lab/Shrutik.git
 cd shrutik
 ```
 
@@ -465,8 +465,8 @@ chmod 755 uploads
 If you encounter issues:
 
 1. Check the [troubleshooting section](getting-started.md#troubleshooting)
-2. Search existing [GitHub issues](https://github.com/your-org/shrutik/issues)
-3. Join our [Discord community](https://discord.gg/shrutik)
+2. Search existing [GitHub issues](https://github.com/Onuronon-lab/Shrutik/issues)
+3. Join our [Discord community](https://discord.gg/9hZ9eW8ARk)
 4. Create a new issue with detailed information
 
 Happy coding! 🎉

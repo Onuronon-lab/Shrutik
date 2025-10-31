@@ -28,7 +28,7 @@ Shrutik supports multiple deployment strategies to accommodate different use cas
 
 ```bash
 # Clone repository
-git clone https://github.com/your-org/shrutik.git
+git clone https://github.com/Onuronon-lab/Shrutik.git
 cd shrutik
 
 # Configure environment
@@ -904,7 +904,7 @@ sudo su - shrutik
 
 # 6. Clone and setup application
 cd /opt/shrutik
-git clone https://github.com/your-org/shrutik.git .
+git clone https://github.com/Onuronon-lab/Shrutik.git .
 python3.11 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt

@@ -37,10 +37,10 @@ Follow our [Local Development Guide](local-development.md) to set up your develo
 
 ### 2. Find an Issue
 
-- Browse [open issues](https://github.com/your-org/shrutik/issues)
+- Browse [open issues](https://github.com/Onuronon-lab/Shrutik/issues)
 - Look for issues labeled `good first issue` for beginners
 - Check issues labeled `help wanted` for areas needing assistance
-- Join our [Discord](https://discord.gg/shrutik) to discuss ideas
+- Join our [Discord](https://discord.gg/9hZ9eW8ARk) to discuss ideas
 
 ### 3. Fork and Clone
 
@@ -51,7 +51,7 @@ git clone https://github.com/YOUR_USERNAME/shrutik.git
 cd shrutik
 
 # Add upstream remote
-git remote add upstream https://github.com/your-org/shrutik.git
+git remote add upstream https://github.com/Onuronon-lab/Shrutik.git
 ```
 
 ## 📋 Development Workflow

@@ -238,7 +238,7 @@ show_final_instructions() {
     echo ""
     echo "📚 Documentation: docs/README.md"
     echo "🤝 Contributing: docs/contributing.md"
-    echo "💬 Community: https://discord.gg/shrutik"
+    echo "💬 Community: https://discord.gg/9hZ9eW8ARk"
     echo ""
     echo "Happy coding! 🚀"
 }

@@ -152,6 +152,9 @@ uploads/
 *.flac
 logs/
 
+# Kiro IDE files
+.kiro/
+
 # Docker
 .dockerignore
 

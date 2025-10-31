@@ -129,8 +129,8 @@ If you disagree with a moderation decision:
 
 ### Support Channels
 - **Discord Community**: https://discord.gg/9hZ9eW8ARk
-- **GitHub Discussions**: https://github.com/your-org/shrutik/discussions
-- **Community Forum**: https://community.onuronon.org
+- **GitHub Discussions**: https://github.com/Onuronon-lab/Shrutik/discussions
+- **Community Forum**: https://community.shrutik.org
 
 ### Educational Resources
 - **Inclusive Language Guide**: https://shrutik.org/inclusive-language
@@ -172,7 +172,7 @@ For answers to common questions about this code of conduct, see the FAQ at https
 
 * **General Conduct Questions**: conduct@shrutik.org
 * **Appeals**: appeals@shrutik.org
-* **Community Team**: community@onuronon.org
+* **Community Team**: community@shrutik.org
 
 ---
 

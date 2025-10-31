@@ -877,4 +877,4 @@ Import our [Postman collection](https://api.yourdomain.com/postman/shrutik-api.j
 
 ---
 
-This API reference provides comprehensive documentation for integrating with Shrutik. For additional support, join our [Discord community](https://discord.gg/shrutik) or check our [GitHub repository](https://github.com/your-org/shrutik).
+This API reference provides comprehensive documentation for integrating with Shrutik. For additional support, join our [Discord community](https://discord.gg/9hZ9eW8ARk) or check our [GitHub repository](https://github.com/Onuronon-lab/Shrutik).

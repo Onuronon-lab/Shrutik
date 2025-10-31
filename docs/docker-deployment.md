@@ -45,7 +45,7 @@ newgrp docker
 
 ```bash
 # Clone repository
-git clone https://github.com/your-org/shrutik.git
+git clone https://github.com/Onuronon-lab/Shrutik.git
 cd shrutik
 
 # Copy and configure environment
@@ -539,8 +539,8 @@ curl http://localhost:8000/metrics
 For deployment issues:
 
 1. Check the [troubleshooting section](#troubleshooting)
-2. Review [GitHub issues](https://github.com/your-org/shrutik/issues)
-3. Join our [Discord community](https://discord.gg/shrutik)
+2. Review [GitHub issues](https://github.com/Onuronon-lab/Shrutik/issues)
+3. Join our [Discord community](https://discord.gg/9hZ9eW8ARk)
 4. Contact support at deploy@shrutik.org
 
 Happy deploying! 🚀

@@ -53,7 +53,7 @@ In a world where voice technology is rapidly advancing, millions of speakers of 
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/shrutik.git
+git clone https://github.com/Onuronon-lab/Shrutik.git
 cd shrutik
 
 # Start with Docker (Recommended)

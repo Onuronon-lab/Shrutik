@@ -87,9 +87,9 @@ Welcome to the comprehensive documentation for Shrutik, the open-source voice da
 ## 🌍 Community & Support
 
 ### Get Help
-- **[Discord Community](https://discord.gg/shrutik)** - Real-time community support
-- **[GitHub Issues](https://github.com/your-org/shrutik/issues)** - Bug reports and feature requests
-- **[GitHub Discussions](https://github.com/your-org/shrutik/discussions)** - Community discussions
+- **[Discord Community](https://discord.gg/9hZ9eW8ARk)** - Real-time community support
+- **[GitHub Issues](https://github.com/Onuronon-lab/Shrutik/issues)** - Bug reports and feature requests
+- **[GitHub Discussions](https://github.com/Onuronon-lab/Shrutik/discussions)** - Community discussions
 
 ### Contribute
 - **[Voice Data](contributing.md#voice-data-contribution)** - Contribute recordings and transcriptions
@@ -98,7 +98,7 @@ Welcome to the comprehensive documentation for Shrutik, the open-source voice da
 - **[Translation](contributing.md#internationalization)** - Translate to new languages
 
 ### Stay Updated
-- **[GitHub Repository](https://github.com/your-org/shrutik)** - Source code and releases
+- **[GitHub Repository](https://github.com/Onuronon-lab/Shrutik)** - Source code and releases
 - **[Twitter](https://twitter.com/ShrutikVoice)** - Latest updates and announcements
 - **[Blog](https://blog.shrutik.org)** - Technical articles and case studies
 
@@ -138,9 +138,9 @@ Welcome to the comprehensive documentation for Shrutik, the open-source voice da
 
 ---
 
-**Need help?** Join our [Discord community](https://discord.gg/shrutik) or check our [GitHub discussions](https://github.com/your-org/shrutik/discussions).
+**Need help?** Join our [Discord community](https://discord.gg/9hZ9eW8ARk) or check our [GitHub discussions](https://github.com/Onuronon-lab/Shrutik/discussions).
 
-**Found an issue?** Please [report it on GitHub](https://github.com/your-org/shrutik/issues/new).
+**Found an issue?** Please [report it on GitHub](https://github.com/Onuronon-lab/Shrutik/issues/new).
 
 **Want to contribute?** Read our [Contributing Guide](contributing.md) to get started.
 
