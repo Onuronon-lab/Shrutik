@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 from app.core.celery_app import celery_app
 from app.db.database import SessionLocal
 from app.services.audio_processing_service import audio_chunking_service, AudioProcessingError
+from app.services.notification_service import notification_service, NotificationLevel
 from app.models.voice_recording import VoiceRecording, RecordingStatus
 from app.models.audio_chunk import AudioChunk
 
@@ -29,7 +30,15 @@ def get_db() -> Session:
         raise
 
 
-@celery_app.task(bind=True, name="process_audio_recording")
+@celery_app.task(
+    bind=True, 
+    name="process_audio_recording",
+    autoretry_for=(AudioProcessingError,),
+    retry_kwargs={'max_retries': 3, 'countdown': 60},
+    retry_backoff=True,
+    retry_backoff_max=600,
+    retry_jitter=True
+)
 def process_audio_recording(self, recording_id: int) -> dict:
     """
     Process an uploaded audio recording by chunking it intelligently.
@@ -106,6 +115,20 @@ def process_audio_recording(self, recording_id: int) -> dict:
         }
         
         logger.info(f"Successfully completed audio processing for recording {recording_id}")
+        
+        # Send success notification
+        notification_service.send_job_notification(
+            job_id=self.request.id,
+            job_name="Audio Processing",
+            status="success",
+            message=f"Successfully processed recording into {len(audio_chunks)} chunks",
+            level=NotificationLevel.INFO,
+            metadata={
+                "recording_id": recording_id,
+                "chunks_created": len(audio_chunks)
+            }
+        )
+        
         return result
         
     except AudioProcessingError as e:
@@ -126,6 +149,19 @@ def process_audio_recording(self, recording_id: int) -> dict:
         self.update_state(
             state='FAILURE',
             meta={'error': str(e), 'recording_id': recording_id}
+        )
+        
+        # Send failure notification
+        notification_service.send_job_notification(
+            job_id=self.request.id,
+            job_name="Audio Processing",
+            status="failed",
+            message=f"Audio processing failed: {str(e)}",
+            level=NotificationLevel.ERROR,
+            metadata={
+                "recording_id": recording_id,
+                "error": str(e)
+            }
         )
         
         return {
@@ -341,7 +377,14 @@ def cleanup_orphaned_chunks() -> dict:
         db.close()
 
 
-@celery_app.task(bind=True, name="calculate_consensus_for_chunks")
+@celery_app.task(
+    bind=True, 
+    name="calculate_consensus_for_chunks",
+    autoretry_for=(Exception,),
+    retry_kwargs={'max_retries': 2, 'countdown': 30},
+    retry_backoff=True,
+    retry_backoff_max=300
+)
 def calculate_consensus_for_chunks(self, chunk_ids: List[int]) -> dict:
     """
     Calculate consensus for multiple audio chunks.
@@ -457,6 +500,7 @@ def recalculate_all_consensus() -> dict:
         # Find chunks with multiple transcriptions
         from app.models.transcription import Transcription
         from app.models.audio_chunk import AudioChunk
+        from app.services.consensus_service import ConsensusService
         
         chunks_with_multiple_transcriptions = db.query(AudioChunk.id).join(Transcription).group_by(
             AudioChunk.id

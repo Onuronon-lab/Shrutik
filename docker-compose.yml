@@ -75,7 +75,46 @@ services:
       - ./app:/app/app
       - ./uploads:/app/uploads
       - ./.env:/app/.env
-    command: celery -A app.core.celery_app worker --loglevel=info
+    command: celery -A app.core.celery_app worker --loglevel=info --queues=default,audio_processing,consensus,batch_processing,maintenance
+    restart: unless-stopped
+
+  celery-beat:
+    build: .
+    container_name: voice_collection_celery_beat
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/voice_collection
+      - REDIS_URL=redis://redis:6379/0
+      - DEBUG=true
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    volumes:
+      - ./app:/app/app
+      - ./uploads:/app/uploads
+      - ./.env:/app/.env
+    command: celery -A app.core.celery_app beat --loglevel=info
+    restart: unless-stopped
+
+  celery-flower:
+    build: .
+    container_name: voice_collection_flower
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/voice_collection
+      - REDIS_URL=redis://redis:6379/0
+      - DEBUG=true
+    depends_on:
+      redis:
+        condition: service_healthy
+    ports:
+      - "5555:5555"
+    volumes:
+      - ./app:/app/app
+      - ./.env:/app/.env
+    command: celery -A app.core.celery_app flower --port=5555
     restart: unless-stopped
 
   frontend:

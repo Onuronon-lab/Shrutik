@@ -15,6 +15,14 @@ class Settings(BaseSettings):
     
     REDIS_URL: str = "redis://localhost:6379/0"
     
+    # Job monitoring settings
+    JOB_RESULT_EXPIRES: int = 3600  # 1 hour
+    JOB_MAX_RETRIES: int = 3
+    JOB_RETRY_DELAY: int = 60  # 1 minute
+    
+    # Development settings
+    USE_CELERY: bool = True  # Set to False to disable Celery and use synchronous processing
+    
     SECRET_KEY: str = "your-secret-key-change-in-production"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     ALGORITHM: str = "HS256"

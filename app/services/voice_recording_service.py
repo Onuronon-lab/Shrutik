@@ -444,22 +444,108 @@ class VoiceRecordingService:
     def _trigger_audio_processing(self, recording_id: int) -> None:
         """Trigger background audio processing for a recording."""
         try:
-            from app.tasks.audio_processing import process_audio_recording
-            
-            # Queue the audio processing task
-            task = process_audio_recording.delay(recording_id)
-            
-            # Update recording metadata with task ID for tracking
-            recording = self.get_recording_by_id(recording_id)
-            if recording:
-                if recording.meta_data is None:
-                    recording.meta_data = {}
-                recording.meta_data["processing_task_id"] = task.id
-                self.db.commit()
+            # Try Celery first
+            if self._is_celery_available():
+                self._trigger_celery_processing(recording_id)
+            else:
+                # Fall back to synchronous processing
+                print(f"Celery not available, processing recording {recording_id} synchronously...")
+                self._process_audio_synchronously(recording_id)
                 
         except Exception as e:
             # Log error but don't fail the upload
             print(f"Warning: Failed to trigger audio processing for recording {recording_id}: {e}")
+    
+    def _is_celery_available(self) -> bool:
+        """Check if Celery workers are available."""
+        # Check configuration first
+        if not settings.USE_CELERY:
+            return False
+            
+        try:
+            from app.core.celery_app import celery_app
+            
+            # Try to get worker stats to see if any workers are active
+            inspect = celery_app.control.inspect()
+            stats = inspect.stats()
+            
+            # If we get stats back, workers are available
+            return stats is not None and len(stats) > 0
+            
+        except Exception:
+            return False
+    
+    def _trigger_celery_processing(self, recording_id: int) -> None:
+        """Trigger Celery background processing."""
+        from app.tasks.audio_processing import process_audio_recording
+        
+        # Queue the audio processing task
+        task = process_audio_recording.delay(recording_id)
+        
+        # Update recording metadata with task ID for tracking
+        recording = self.get_recording_by_id(recording_id)
+        if recording:
+            if recording.meta_data is None:
+                recording.meta_data = {}
+            recording.meta_data["processing_task_id"] = task.id
+            recording.meta_data["processing_mode"] = "celery"
+            self.db.commit()
+            
+        print(f"Queued audio processing task {task.id} for recording {recording_id}")
+    
+    def _process_audio_synchronously(self, recording_id: int) -> None:
+        """Process audio synchronously when Celery is not available."""
+        from app.services.audio_processing_service import audio_chunking_service
+        from app.models.voice_recording import RecordingStatus
+        
+        try:
+            # Get recording
+            recording = self.get_recording_by_id(recording_id)
+            if not recording:
+                raise Exception(f"Recording {recording_id} not found")
+            
+            if recording.status != RecordingStatus.UPLOADED:
+                print(f"Recording {recording_id} status is {recording.status}, skipping processing")
+                return
+            
+            # Update status to processing
+            recording.status = RecordingStatus.PROCESSING
+            if recording.meta_data is None:
+                recording.meta_data = {}
+            recording.meta_data["processing_mode"] = "synchronous"
+            recording.meta_data["processing_started_at"] = datetime.now(timezone.utc).isoformat()
+            self.db.commit()
+            
+            print(f"Starting synchronous audio processing for recording {recording_id}")
+            
+            # Process the recording
+            audio_chunks = audio_chunking_service.process_recording(
+                recording_id=recording_id,
+                file_path=recording.file_path,
+                db=self.db
+            )
+            
+            # Update status to processed
+            recording.status = RecordingStatus.PROCESSED
+            recording.meta_data["processing_completed_at"] = datetime.now(timezone.utc).isoformat()
+            recording.meta_data["chunks_created"] = len(audio_chunks)
+            self.db.commit()
+            
+            print(f"Successfully processed recording {recording_id} into {len(audio_chunks)} chunks")
+            
+        except Exception as e:
+            # Update status to failed
+            recording = self.get_recording_by_id(recording_id)
+            if recording:
+                recording.status = RecordingStatus.FAILED
+                if recording.meta_data is None:
+                    recording.meta_data = {}
+                recording.meta_data["processing_error"] = str(e)
+                recording.meta_data["processing_failed_at"] = datetime.now(timezone.utc).isoformat()
+                self.db.commit()
+            
+            print(f"Failed to process recording {recording_id}: {e}")
+            raise
     
     def get_processing_task_status(self, recording_id: int) -> Optional[Dict[str, Any]]:
         """Get the status of the background processing task for a recording."""

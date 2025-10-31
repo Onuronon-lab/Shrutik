@@ -10,6 +10,7 @@ from app.api.chunks import router as chunks_router
 from app.api.consensus import router as consensus_router
 from app.api.admin import router as admin_router
 from app.api.export import router as export_router
+from app.api.jobs import router as jobs_router
 
 # Import all models to ensure they're registered with SQLAlchemy
 import app.models
@@ -39,6 +40,7 @@ app.include_router(chunks_router, prefix="/api")
 app.include_router(consensus_router)
 app.include_router(admin_router, prefix="/api")
 app.include_router(export_router)
+app.include_router(jobs_router, prefix="/api")
 
 @app.get("/")
 async def root():
