@@ -34,7 +34,7 @@ jobs:
 
     - name: Setup Pages
       id: pages
-      uses: actions/configure-pages@v3
+      uses: actions/configure-pages@v4
 
     - name: Build documentation
       run: |
@@ -51,14 +51,14 @@ jobs:
         # echo "docs.shrutik.org" > book/CNAME
 
     - name: Upload artifact
-      uses: actions/upload-pages-artifact@v2
+      uses: actions/upload-pages-artifact@v3
       with:
         path: ./book
 
     - name: Deploy to GitHub Pages
       id: deployment
       if: github.ref == 'refs/heads/master'
-      uses: actions/deploy-pages@v2
+      uses: actions/deploy-pages@v4
 
   # Job to check documentation links and formatting
   check-docs:
