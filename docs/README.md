@@ -4,6 +4,10 @@ Welcome to the comprehensive documentation for **Shrutik** (শ্রুতি�
 
 > 🎤 **Shrutik** means "listener" in Bengali, reflecting our mission to listen to and preserve diverse voices from around the world.
 
+## 📖 About This Documentation
+
+This documentation is built with [mdBook](https://rust-lang.github.io/mdBook/) and provides comprehensive guides, API references, and tutorials for users, developers, and administrators.
+
 ## 📚 Documentation Overview
 
 ### 🚀 Getting Started
