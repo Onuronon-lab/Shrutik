@@ -10,8 +10,6 @@ description = "Complete documentation for Shrutik - Voice Data Collection Platfo
 renderers = ["html"]
 
 [output.html]
-additional-css = ["theme/custom.css"]
-additional-js = ["theme/custom.js"]
 default-theme = "navy"
 preferred-dark-theme = "navy"
 copy-fonts = true
