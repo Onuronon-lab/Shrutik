@@ -1,6 +1,8 @@
-# Shrutik (শ্রুতিক) Documentation
+# Shrutik Documentation
 
-Welcome to the comprehensive documentation for Shrutik, the open-source voice data collection platform that empowers communities through voice technology.
+Welcome to the comprehensive documentation for **Shrutik** (শ্রুতিক), the open-source voice data collection platform designed to help communities build high-quality voice datasets in their native languages.
+
+> 🎤 **Shrutik** means "listener" in Bengali, reflecting our mission to listen to and preserve diverse voices from around the world.
 
 ## 📚 Documentation Overview
 

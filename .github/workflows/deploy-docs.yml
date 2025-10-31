@@ -1,0 +1,101 @@
+name: Deploy Documentation
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'docs/**'
+      - 'book.toml'
+      - '.github/workflows/deploy-docs.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'docs/**'
+      - 'book.toml'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup mdBook
+      uses: peaceiris/actions-mdbook@v1
+      with:
+        mdbook-version: 'latest'
+
+    - name: Setup Pages
+      id: pages
+      uses: actions/configure-pages@v3
+
+    - name: Build documentation
+      run: |
+        # Create missing directories if they don't exist
+        mkdir -p docs/theme
+        
+        # Build the book
+        mdbook build
+        
+        # Create .nojekyll file to bypass Jekyll processing
+        touch book/.nojekyll
+        
+        # Create CNAME file for custom domain (if needed)
+        # echo "docs.shrutik.org" > book/CNAME
+
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v2
+      with:
+        path: ./book
+
+    - name: Deploy to GitHub Pages
+      id: deployment
+      if: github.ref == 'refs/heads/main'
+      uses: actions/deploy-pages@v2
+
+  # Job to check documentation links and formatting
+  check-docs:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup mdBook
+      uses: peaceiris/actions-mdbook@v1
+      with:
+        mdbook-version: 'latest'
+
+    - name: Check documentation
+      run: |
+        # Check if the book builds without errors
+        mdbook build
+        
+        # Check for broken internal links
+        mdbook test
+
+    - name: Validate markdown
+      uses: DavidAnson/markdownlint-action@v1
+      with:
+        files: 'docs/**/*.md'
+        config: '.markdownlint.json'
+        ignore: 'docs/SUMMARY.md'
+
+  # Job to check for spelling errors
+  spell-check:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Check spelling
+      uses: crate-ci/typos@master
+      with:
+        files: docs/
+        config: .typos.toml

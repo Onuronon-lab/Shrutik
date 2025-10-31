@@ -29,6 +29,22 @@ In a world where voice technology is rapidly advancing, millions of speakers of 
 - 🔓 **Open Source**: Ensuring the tools and data remain community-owned and accessible
 - 🎓 **Educational**: Teaching communities about AI while they contribute to its development
 
+## 📚 Documentation
+
+**📖 [Complete Documentation](https://onuronon-lab.github.io/Shrutik/)** - Comprehensive guides, API reference, and tutorials
+
+### Quick Links
+- **🚀 [Getting Started](https://onuronon-lab.github.io/Shrutik/getting-started.html)** - Set up Shrutik in 5 minutes
+- **🐳 [Docker Setup](https://onuronon-lab.github.io/Shrutik/docker-local-setup.html)** - Run with Docker (recommended)
+- **💻 [Local Development](https://onuronon-lab.github.io/Shrutik/local-development.html)** - Native development setup
+- **🏗️ [Architecture](https://onuronon-lab.github.io/Shrutik/architecture.html)** - System design and components
+- **🔌 [API Reference](https://onuronon-lab.github.io/Shrutik/api-reference.html)** - Complete API documentation
+- **🤝 [Contributing](https://onuronon-lab.github.io/Shrutik/contributing.html)** - How to contribute
+- **❓ [FAQ](https://onuronon-lab.github.io/Shrutik/faq.html)** - Frequently asked questions
+- **🔧 [Troubleshooting](https://onuronon-lab.github.io/Shrutik/troubleshooting.html)** - Common issues and solutions
+
+> 💡 **Tip**: The documentation includes search functionality, mobile-friendly design, and copy-paste code examples!
+
 ## ✨ What Makes Shrutik Special
 
 ### For Contributors
@@ -87,7 +103,7 @@ Join our growing community of contributors:
 
 - **Discord**: [Join our server](https://discord.gg/9hZ9eW8ARk) for real-time discussions
 - **GitHub Discussions**: Share ideas and ask questions
-- **Twitter**: Follow [@ShrutikVoice](https://twitter.com/ShrutikVoice) for updates
+- **Twitter**: Follow [@OnurononAI](https://twitter.com/ShrutikVoice) for updates
 
 ## 📄 License
 
