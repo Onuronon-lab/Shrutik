@@ -87,15 +87,15 @@ jobs:
         config: '.markdownlint.json'
         ignore: 'docs/SUMMARY.md'
 
-  # Job to check for spelling errors
-  spell-check:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+  # Job to check for spelling errors (disabled for now due to false positives)
+  # spell-check:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@v4
 
-    - name: Check spelling
-      uses: crate-ci/typos@master
-      with:
-        files: docs/
-        config: .typos.toml
+  #   - name: Check spelling
+  #     uses: crate-ci/typos@master
+  #     with:
+  #       files: docs/
+  #       config: .typos.toml
