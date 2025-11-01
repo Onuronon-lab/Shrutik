@@ -6,7 +6,7 @@
 
 **Empowering Communities Through Voice Technology**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-18+-blue.svg)](https://reactjs.org/)
@@ -107,7 +107,15 @@ Join our growing community of contributors:
 
 ## 📄 License
 
-Shrutik is released under the [MIT License](LICENSE). This means you can freely use, modify, and distribute the software while preserving the original license and copyright notice.
+Shrutik is released under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](LICENSE). This means you can:
+
+- ✅ **Use for learning and education** - Study and understand the code
+- ✅ **Modify and adapt** - Create your own versions and improvements  
+- ✅ **Share for non-commercial purposes** - Use in hobby projects and open source
+- ✅ **Attribution required** - Give credit to the original creator
+- ❌ **No commercial use** - Commercial use requires separate permission
+
+If you modify and distribute this work, you must use the same license and provide attribution.
 
 ## 🙏 Acknowledgments
 

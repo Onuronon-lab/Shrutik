@@ -133,7 +133,7 @@ This documentation is built with [mdBook](https://rust-lang.github.io/mdBook/) a
 
 ## License & Legal
 
-- **[MIT License](../LICENSE)** - Open source license
+- **[CC BY-NC-SA 4.0 License](../LICENSE)** - Creative Commons license for non-commercial use
 - **[Privacy Policy](privacy-policy.md)** - Data privacy and protection
 - **[Terms of Service](terms-of-service.md)** - Platform usage terms
 - **[Code of Conduct](../CODE_OF_CONDUCT.md)** - Community guidelines

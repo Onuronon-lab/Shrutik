@@ -465,7 +465,7 @@ We are committed to providing a welcoming and inclusive environment. Please read
 
 ## 📄 License
 
-By contributing to Shrutik, you agree that your contributions will be licensed under the [MIT License](LICENSE).
+By contributing to Shrutik, you agree that your contributions will be licensed under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](../LICENSE). This ensures that all contributions remain available for educational and non-commercial use while requiring attribution to the original creators.
 
 ---
 

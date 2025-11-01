@@ -12,7 +12,7 @@ Shrutik is designed to support any language. Currently, it comes pre-configured 
 
 ### Is Shrutik free to use?
 
-Yes! Shrutik is completely free and open-source under the MIT License. You can use it, modify it, and distribute it freely.
+Yes! Shrutik is free and open-source under the Creative Commons BY-NC-SA 4.0 License. You can use it for learning, education, and non-commercial projects. Commercial use requires separate permission.
 
 ## Technical Questions
 
