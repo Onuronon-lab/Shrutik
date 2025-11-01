@@ -152,3 +152,25 @@ async def get_usage_analytics(
     """Get usage analytics for the specified period."""
     admin_service = AdminService(db)
     return admin_service.get_usage_analytics(days=days)
+
+
+@router.get("/system/health")
+async def get_admin_system_health(
+    current_user: User = Depends(require_admin_or_sworik)
+):
+    """Get system health information for admin dashboard."""
+    from app.core.monitoring import run_health_check
+    from app.core.logging_config import get_logger
+    
+    logger = get_logger(__name__)
+    
+    try:
+        health_status = await run_health_check()
+        logger.info(f"Admin system health check requested by user {current_user.id}")
+        return health_status
+    except Exception as e:
+        logger.error(f"Admin system health check failed: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve system health status"
+        )
