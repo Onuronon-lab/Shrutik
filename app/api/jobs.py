@@ -23,8 +23,6 @@ from app.services.notification_service import notification_service
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
 
-
-# Pydantic models for API responses
 class JobInfoResponse(BaseModel):
     """Response model for job information."""
     task_id: str
@@ -353,7 +351,6 @@ async def get_system_notifications(
     return notification_service.get_system_notifications(limit=limit)
 
 
-# Admin-only endpoints for system management
 @router.post("/system/restart-workers")
 async def restart_workers(
     current_user: User = Depends(require_admin)

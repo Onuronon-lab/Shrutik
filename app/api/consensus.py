@@ -128,10 +128,8 @@ async def update_chunk_validation(
     consensus_service = ConsensusService(db)
     
     try:
-        # First evaluate consensus
         consensus_result = consensus_service.evaluate_chunk_consensus(chunk_id)
-        
-        # Then update validation status
+
         validation_status = consensus_service.update_chunk_validation_status(consensus_result)
         
         return ValidationStatusResponse(
@@ -162,7 +160,6 @@ async def trigger_batch_consensus_calculation(
     for the specified chunks. Returns a task ID for tracking progress.
     """
     try:
-        # Queue the consensus calculation task
         task = calculate_consensus_for_chunks.delay(chunk_ids)
         
         return {
@@ -189,7 +186,6 @@ async def trigger_full_consensus_recalculation(
     for all chunks that have multiple transcriptions.
     """
     try:
-        # Queue the full recalculation task
         task = recalculate_all_consensus.delay()
         
         return {
@@ -337,7 +333,6 @@ async def get_chunk_validation_status(
     from app.models.audio_chunk import AudioChunk
     
     try:
-        # Get chunk and its transcriptions
         chunk = db.query(AudioChunk).filter(AudioChunk.id == chunk_id).first()
         if not chunk:
             raise HTTPException(
@@ -358,12 +353,10 @@ async def get_chunk_validation_status(
                 "has_consensus": False,
                 "requires_review": False
             }
-        
-        # Check validation and consensus status
+
         is_validated = any(t.is_validated for t in transcriptions)
         has_consensus = any(t.is_consensus for t in transcriptions)
-        
-        # Check if requires review from metadata
+
         requires_review = False
         for transcription in transcriptions:
             if (transcription.meta_data and 

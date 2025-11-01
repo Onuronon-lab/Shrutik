@@ -25,14 +25,12 @@ router = APIRouter(prefix="/api/export", tags=["export"])
 
 def get_client_info(request: Request) -> tuple[Optional[str], Optional[str]]:
     """Extract client IP and user agent from request."""
-    # Get IP address (considering proxy headers)
     ip_address = (
         request.headers.get("X-Forwarded-For", "").split(",")[0].strip() or
         request.headers.get("X-Real-IP") or
         request.client.host if request.client else None
     )
-    
-    # Get user agent
+
     user_agent = request.headers.get("User-Agent")
     
     return ip_address, user_agent
@@ -163,8 +161,7 @@ async def get_export_history(
     from datetime import datetime
     
     export_service = ExportService(db)
-    
-    # Parse date strings if provided
+
     parsed_date_from = None
     parsed_date_to = None
     

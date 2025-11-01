@@ -36,8 +36,7 @@ async def get_chunk_audio(
     - **Returns**: Audio file (WAV format) or redirect to CDN
     """
     from app.models.audio_chunk import AudioChunk
-    
-    # Get optimized audio response with CDN support
+
     user_agent = request.headers.get("user-agent", "")
     optimization = media_delivery.get_optimized_audio_response(chunk_id, user_agent)
     
@@ -46,8 +45,7 @@ async def get_chunk_audio(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=optimization["error"]
         )
-    
-    # If CDN is enabled and URL is different from local, redirect to CDN
+
     cdn_url = optimization.get("url", "")
     if cdn_url and not cdn_url.startswith("/api/"):
         # Add cache headers to redirect response
@@ -57,26 +55,22 @@ async def get_chunk_audio(
             status_code=status.HTTP_302_FOUND,
             headers=headers
         )
-    
-    # Serve file locally with optimization
+
     chunk = db.query(AudioChunk).filter(AudioChunk.id == chunk_id).first()
     if not chunk:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Audio chunk not found"
         )
-    
-    # Check if file exists
+
     if not os.path.exists(chunk.file_path):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Audio file not found on disk"
         )
-    
-    # Get cache headers from optimization
+
     cache_headers = optimization.get("cache_headers", {})
-    
-    # Add performance headers
+
     headers = {
         "Accept-Ranges": "bytes",
         "Access-Control-Allow-Origin": "*",
@@ -84,8 +78,7 @@ async def get_chunk_audio(
         "Access-Control-Allow-Headers": "*",
         **cache_headers
     }
-    
-    # Add preload hint if recommended
+
     if optimization.get("preload", False):
         headers["Link"] = f'<{cdn_url}>; rel=preload; as=audio'
     
@@ -98,7 +91,7 @@ async def get_chunk_audio(
 
 
 @router.get("/{chunk_id}/info")
-@cache_result("chunk_info", ttl=3600)  # 1 hour cache
+@cache_result("chunk_info", ttl=3600)
 async def get_chunk_info(
     chunk_id: int,
     current_user: User = Depends(get_current_active_user),
@@ -119,13 +112,11 @@ async def get_chunk_info(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Audio chunk not found"
         )
-    
-    # Get transcription count
+
     transcription_count = db.query(Transcription).filter(
         Transcription.chunk_id == chunk_id
     ).count()
-    
-    # Get optimization info
+
     optimization = media_delivery.get_optimized_audio_response(chunk_id)
     
     return {

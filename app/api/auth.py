@@ -54,23 +54,19 @@ async def get_current_user_stats(
     from app.models.transcription import Transcription
     from app.models.quality_review import QualityReview
     
-    # Count voice recordings
     recordings_count = db.query(VoiceRecording).filter(
         VoiceRecording.user_id == current_user.id
     ).count()
-    
-    # Count transcriptions
+
     transcriptions_count = db.query(Transcription).filter(
         Transcription.user_id == current_user.id
     ).count()
-    
-    # Calculate average quality score from transcriptions
+
     avg_quality = db.query(func.avg(Transcription.quality)).filter(
         Transcription.user_id == current_user.id,
         Transcription.quality.isnot(None)
     ).scalar()
-    
-    # Count quality reviews done by this user
+
     reviews_count = db.query(QualityReview).filter(
         QualityReview.reviewer_id == current_user.id
     ).count()
