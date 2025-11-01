@@ -2,42 +2,39 @@
 
 Welcome to the comprehensive documentation for **Shrutik** (শ্রুতিক), the open-source voice data collection platform designed to help communities build high-quality voice datasets in their native languages.
 
-> 🎤 **Shrutik** means "listener" in Bengali, reflecting our mission to listen to and preserve diverse voices from around the world.
+> **Shrutik** means "listener" in Bengali, reflecting our mission to listen to and preserve diverse voices from around the world.
 
-## 📖 About This Documentation
+## About This Documentation
 
 This documentation is built with [mdBook](https://rust-lang.github.io/mdBook/) and provides comprehensive guides, API references, and tutorials for users, developers, and administrators.
 
-## 📚 Documentation Overview
+## Documentation Overview
 
-### 🚀 Getting Started
+### Getting Started
 - **[Getting Started Guide](getting-started.md)** - Quick setup and first steps
 - **[Docker Local Setup](docker-local-setup.md)** - Complete Docker development guide
 - **[Local Development](local-development.md)** - Native development environment setup
-- **[Docker Deployment](docker-deployment.md)** - Production deployment with Docker
-- **[Deployment Guide](deployment-guide.md)** - Comprehensive deployment options
 
-### 🏗️ Architecture & Design
+### Architecture & Design
 - **[System Architecture](architecture.md)** - Complete system design overview
 - **[API Reference](api-reference.md)** - Comprehensive API documentation
 - **[Flowcharts](flowcharts/)** - Visual system flow documentation
 
-### 🤝 Contributing
+### Contributing
 - **[Contributing Guide](contributing.md)** - How to contribute to Shrutik
 - **[Code of Conduct](../CODE_OF_CONDUCT.md)** - Community guidelines
-- **[Development Workflow](contributing.md#development-workflow)** - Git workflow and standards
 
-### 📋 Existing Documentation
+### Additional Resources
 - **[Audio Processing Modes](AUDIO_PROCESSING_MODES.md)** - Audio processing capabilities
-- **[Job Monitoring](JOB_MONITORING.md)** - Background job monitoring
+- **[Troubleshooting](troubleshooting.md)** - Common issues and solutions
+- **[FAQ](faq.md)** - Frequently asked questions
 
-## 🎯 Quick Navigation
+## Quick Navigation
 
 ### For New Users
 1. **[Getting Started](getting-started.md)** - Set up Shrutik in minutes
 2. **[Docker Local Setup](docker-local-setup.md)** - Run everything with Docker
 3. **[User Guide](getting-started.md#first-steps)** - Learn how to contribute voice data
-4. **[Community](getting-started.md#welcome-to-the-community)** - Join our community
 
 ### For Developers
 1. **[Docker Local Setup](docker-local-setup.md)** - Quick Docker development setup
@@ -47,7 +44,7 @@ This documentation is built with [mdBook](https://rust-lang.github.io/mdBook/) a
 5. **[Contributing Guide](contributing.md)** - Contribute code and features
 
 ### For System Administrators
-1. **[Docker Deployment](docker-deployment.md)** - Deploy with Docker
+1. **[Docker Local Setup](docker-local-setup.md)** - Deploy with Docker
 2. **[Deployment Guide](deployment-guide.md)** - Production deployment strategies
 3. **[Monitoring & Health Checks](docker-deployment.md#monitoring-and-logging)** - System monitoring
 
@@ -56,7 +53,7 @@ This documentation is built with [mdBook](https://rust-lang.github.io/mdBook/) a
 2. **[Architecture](architecture.md#data-architecture)** - Understand data structure
 3. **[Quality Control](architecture.md#consensus-algorithm)** - Data quality processes
 
-## 🔍 Visual Documentation
+## Visual Documentation
 
 ### System Flows
 - **[System Architecture](flowcharts/system-architecture.md)** - High-level system overview
@@ -68,7 +65,7 @@ This documentation is built with [mdBook](https://rust-lang.github.io/mdBook/) a
 - **[Database Operations](flowcharts/database-operations.md)** - Data flow patterns
 - **[Caching Strategy](flowcharts/caching-strategy.md)** - Performance optimization
 
-## 🛠️ Development Resources
+## Development Resources
 
 ### Setup & Configuration
 - **[Environment Setup](local-development.md#setup-instructions)** - Development environment
@@ -80,7 +77,7 @@ This documentation is built with [mdBook](https://rust-lang.github.io/mdBook/) a
 - **[API Design](architecture.md#api-design)** - RESTful API principles
 - **[Database Design](architecture.md#data-architecture)** - Schema and patterns
 
-## 🚀 Deployment Options
+## Deployment Options
 
 | Option | Complexity | Use Case | Documentation |
 |--------|------------|----------|---------------|
@@ -89,7 +86,7 @@ This documentation is built with [mdBook](https://rust-lang.github.io/mdBook/) a
 | **Cloud Platforms** | Medium | Managed Services | [Deployment Guide](deployment-guide.md#cloud-platform-deployments) |
 | **Bare Metal** | Medium | On-Premises | [Deployment Guide](deployment-guide.md#bare-metal-deployment) |
 
-## 🌍 Community & Support
+## Community & Support
 
 ### Get Help
 - **[Discord Community](https://discord.gg/9hZ9eW8ARk)** - Real-time community support
@@ -107,7 +104,7 @@ This documentation is built with [mdBook](https://rust-lang.github.io/mdBook/) a
 - **[Twitter](https://twitter.com/ShrutikVoice)** - Latest updates and announcements
 - **[Blog](https://blog.shrutik.org)** - Technical articles and case studies
 
-## 📖 Additional Resources
+## Additional Resources
 
 ### External Links
 - **[FastAPI Documentation](https://fastapi.tiangolo.com/)** - Backend framework
@@ -120,21 +117,21 @@ This documentation is built with [mdBook](https://rust-lang.github.io/mdBook/) a
 - **[Crowdsourcing for Language Technology](https://example.com/paper2)** - Methodology
 - **[Quality Control in Voice Datasets](https://example.com/paper3)** - Quality assurance
 
-## 🎉 What's New
+## What's New
 
 ### Recent Updates
-- ✨ **Performance Optimization** - Added comprehensive caching and rate limiting
-- 🚀 **CDN Integration** - Optimized audio delivery with CDN support
-- 📊 **Enhanced Monitoring** - Real-time performance metrics and dashboards
-- 🔒 **Security Improvements** - Advanced authentication and authorization
+- **Performance Optimization** - Added comprehensive caching and rate limiting
+- **CDN Integration** - Optimized audio delivery with CDN support
+- **Enhanced Monitoring** - Real-time performance metrics and dashboards
+- **Security Improvements** - Advanced authentication and authorization
 
 ### Coming Soon
-- 📱 **Mobile App** - Native mobile applications for iOS and Android
-- 🤖 **AI Assistance** - ML-powered transcription assistance
-- 🌐 **Multi-language UI** - Interface translations for global accessibility
-- ☁️ **Cloud Integration** - Enhanced cloud platform support
+- **Mobile App** - Native mobile applications for iOS and Android
+- **AI Assistance** - ML-powered transcription assistance
+- **Multi-language UI** - Interface translations for global accessibility
+- **Cloud Integration** - Enhanced cloud platform support
 
-## 📄 License & Legal
+## License & Legal
 
 - **[MIT License](../LICENSE)** - Open source license
 - **[Privacy Policy](privacy-policy.md)** - Data privacy and protection
@@ -155,6 +152,6 @@ This documentation is built with [mdBook](https://rust-lang.github.io/mdBook/) a
 
 **Together, we're building a more inclusive digital future, one voice at a time.**
 
-[🏠 Home](../README.md) • [🚀 Get Started](getting-started.md) • [💻 Develop](local-development.md) • [🤝 Contribute](contributing.md)
+[Home](../README.md) • [Get Started](getting-started.md) • [Develop](local-development.md) • [Contribute](contributing.md)
 
 </div>

@@ -2,7 +2,7 @@
 
 This guide covers common issues and their solutions when working with Shrutik.
 
-## 🐳 Docker Issues
+## Docker Issues
 
 ### Services Won't Start
 
@@ -84,7 +84,7 @@ docker-compose exec redis redis-cli ping
 docker-compose restart redis
 ```
 
-## 🖥️ Local Development Issues
+## Local Development Issues
 
 ### Virtual Environment Issues
 
@@ -141,7 +141,7 @@ chmod -R 755 uploads/
 sudo chown -R $USER:$USER .
 ```
 
-## 🔧 Application Issues
+## Application Issues
 
 ### Admin User Creation Fails
 
@@ -233,7 +233,7 @@ rm -rf .next
 npm run build
 ```
 
-## 🔍 Debugging Tips
+## Debugging Tips
 
 ### Enable Debug Logging
 
@@ -269,7 +269,7 @@ df -h
 free -h
 ```
 
-## 🆘 Getting Help
+## Getting Help
 
 If you're still experiencing issues:
 

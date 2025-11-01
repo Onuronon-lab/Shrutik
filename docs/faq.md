@@ -241,4 +241,4 @@ If your question isn't answered here:
 3. Join our [Discord community](https://discord.gg/9hZ9eW8ARk)
 4. Create a new issue on GitHub
 
-We're here to help! 🎉
+We're here to help!

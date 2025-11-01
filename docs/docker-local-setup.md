@@ -2,7 +2,7 @@
 
 This guide explains how to run Shrutik completely with Docker on your local machine, including all the configuration changes needed to switch from local development to Docker.
 
-## 🐳 Quick Docker Setup
+## Quick Docker Setup
 
 ### Prerequisites
 
@@ -114,7 +114,7 @@ Follow the prompts to create your first admin user.
 - **API Documentation**: http://localhost:8000/docs
 - **Health Check**: http://localhost:8000/health
 
-## 🔧 Configuration Changes Explained
+## Configuration Changes Explained
 
 ### Key Differences: Local vs Docker
 
@@ -166,7 +166,7 @@ Alembic migrations automatically use the correct database URL from environment v
 
 The `alembic/env.py` file is configured to read from `settings.DATABASE_URL`, so no manual changes needed when switching between local and Docker environments.
 
-## 📋 Docker Compose Services
+## Docker Compose Services
 
 ### Service Overview
 
@@ -205,7 +205,7 @@ services:
 - **Port**: 3000 (exposed to host)
 - **Features**: React app with hot reload
 
-## 🛠️ Development Workflow
+## Development Workflow
 
 ### Starting Development
 
@@ -290,7 +290,7 @@ docker-compose exec backend bash
 docker-compose exec db psql -U postgres -d shrutik
 ```
 
-## 🔍 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -365,7 +365,7 @@ services:
           memory: 1G
 ```
 
-## 🔄 Switching Between Local and Docker
+## Switching Between Local and Docker
 
 ### From Local to Docker
 
@@ -411,7 +411,7 @@ services:
    ./scripts/start-dev.sh
    ```
 
-## 📊 Monitoring Docker Services
+## Monitoring Docker Services
 
 ### Health Checks
 
@@ -447,7 +447,7 @@ docker-compose logs worker
 docker-compose logs --tail=50 backend
 ```
 
-## 🚀 Production-Like Local Setup
+## Production-Like Local Setup
 
 For testing production configurations locally:
 
@@ -461,7 +461,7 @@ cp .env.example .env.production
 docker-compose --env-file .env.production up -d
 ```
 
-## 📚 Next Steps
+## Next Steps
 
 After getting Docker setup working:
 
@@ -470,7 +470,7 @@ After getting Docker setup working:
 3. **[Architecture Overview](architecture.md)** - Understand the system design
 4. **[Local Development Guide](local-development.md)** - Native development setup
 
-## 🆘 Getting Help
+## Getting Help
 
 If you encounter issues:
 

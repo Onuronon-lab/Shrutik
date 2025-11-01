@@ -2,11 +2,11 @@
 
 Welcome to Shrutik! This guide will help you set up and start using the platform in just a few minutes.
 
-## 🎯 Overview
+## Overview
 
 Shrutik is a voice data collection platform that allows communities to contribute voice recordings and transcriptions in their native languages. You can either contribute data or set up your own instance of the platform.
 
-## 🚀 Quick Setup Options
+## Quick Setup Options
 
 ### Option 1: Docker (Recommended)
 
@@ -30,7 +30,7 @@ chmod +x docker-dev.sh
 - Backend API: http://localhost:8000
 - API Documentation: http://localhost:8000/docs
 
-> **📋 Need detailed Docker setup?** See our comprehensive [Docker Local Setup Guide](docker-local-setup.md) for configuration details, troubleshooting, and switching between local/Docker environments.
+> **Note:** For detailed Docker setup instructions, see our comprehensive [Docker Local Setup Guide](docker-local-setup.md) for configuration details, troubleshooting, and switching between local/Docker environments.
 
 ### Option 2: Local Development
 
@@ -48,7 +48,7 @@ cd shrutik
 ./scripts/start-dev.sh
 ```
 
-## 🔧 Initial Configuration
+## Initial Configuration
 
 ### 1. Environment Variables
 
@@ -95,7 +95,7 @@ curl http://localhost:8000/health
 curl http://localhost:3000
 ```
 
-## 👤 First Steps
+## First Steps
 
 ### For Contributors
 
@@ -111,7 +111,7 @@ curl http://localhost:3000
 3. **Manage Users**: Review user registrations and assign roles
 4. **Monitor Quality**: Review transcription quality and consensus
 
-## 🎤 Contributing Voice Data
+## Contributing Voice Data
 
 ### Recording Guidelines
 
@@ -127,7 +127,7 @@ curl http://localhost:3000
 - **Quality**: Rate the audio quality honestly
 - **Consensus**: Multiple transcriptions improve dataset quality
 
-## 🔍 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -167,7 +167,7 @@ chmod -R 755 uploads/
 - **Discord**: Join our community for real-time help
 - **Email**: Contact us at support@shrutik.org
 
-## 📚 Next Steps
+## Next Steps
 
 - **[Local Development Guide](local-development.md)** - Set up development environment
 - **[Docker Local Setup](docker-local-setup.md)** - Docker development environment
@@ -175,7 +175,7 @@ chmod -R 755 uploads/
 - **[Contributing Guide](contributing.md)** - Contribute to the project
 - **[Architecture Overview](architecture.md)** - Understand the system design
 
-## 🎉 Welcome to the Community!
+## Welcome to the Community
 
 You're now ready to start using Shrutik! Whether you're contributing voice data, developing features, or deploying your own instance, you're part of a global movement to make voice technology more inclusive.
 
