@@ -114,13 +114,12 @@ cleanup() {
 
 # Function to run database migrations
 run_migrations() {
-    print_status "Running database migrations..."
-    docker-compose exec backend python -c "
-from app.db.database import create_tables
-create_tables()
-print('Database tables created successfully!')
-"
-    print_success "Migrations completed!"
+    print_status "Running database initialization..."
+    
+    # Copy the initialization script to the container and run it
+    docker-compose exec backend python scripts/init-db.py
+    
+    print_success "Database initialization completed!"
 }
 
 # Function to create admin user
