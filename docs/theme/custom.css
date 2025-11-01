@@ -99,7 +99,7 @@ pre {
   box-shadow: var(--shrutik-shadow);
   position: relative;
   overflow-x: auto;
-  font-size: 0.9rem;
+  font-size: 1.2rem;
   line-height: 1.6;
 }
 
