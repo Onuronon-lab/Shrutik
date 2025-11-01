@@ -1,6 +1,10 @@
 # Transcription Workflow
 
+<div class="badge badge-info">Interactive Diagrams</div> <div class="badge badge-success">Zoom & Pan Enabled</div>
+
 This flowchart details the complete transcription process in Shrutik, including task assignment, transcription submission, consensus building, and quality control.
+
+> **💡 Pro Tip:** All diagrams below are interactive! Use your mouse wheel to zoom, drag to pan, and double-click to reset. Click the fullscreen button for a better view of complex diagrams.
 
 ## Complete Transcription Process
 
