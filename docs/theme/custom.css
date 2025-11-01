@@ -99,6 +99,8 @@ pre {
   box-shadow: var(--shrutik-shadow);
   position: relative;
   overflow-x: auto;
+  font-size: 0.9rem;
+  line-height: 1.6;
 }
 
 pre::before {
@@ -117,14 +119,17 @@ code {
   color: var(--shrutik-primary-dark);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
-  font-size: 0.875rem;
+  font-size: 0.95rem;
   font-weight: 500;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 }
 
 pre code {
   background: none;
   color: #e2e8f0;
   padding: 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
 }
 
 /* Enhanced Tables */
@@ -342,6 +347,20 @@ li::marker {
     justify-content: center;
     margin-top: 1rem;
   }
+  
+  /* Larger code font on mobile for better readability */
+  code {
+    font-size: 1rem;
+  }
+  
+  pre code {
+    font-size: 0.95rem;
+  }
+  
+  pre {
+    font-size: 0.95rem;
+    padding: 1rem;
+  }
 }
 
 /* Print Styles */
@@ -409,6 +428,11 @@ li::marker {
 .navy code {
   background-color: rgba(99, 102, 241, 0.2);
   color: var(--shrutik-primary);
+  font-size: 0.95rem;
+}
+
+.navy pre code {
+  font-size: 0.9rem;
 }
 
 /* Animation for page transitions */
