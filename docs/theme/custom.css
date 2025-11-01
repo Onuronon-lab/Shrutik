@@ -375,6 +375,42 @@ li::marker {
   background-color: rgba(99, 102, 241, 0.1);
 }
 
+/* Improve text contrast in dark theme */
+.navy {
+  --shrutik-text-primary: #e2e8f0;
+  --shrutik-text-secondary: #cbd5e1;
+  --shrutik-text-muted: #94a3b8;
+}
+
+.navy .content {
+  color: var(--shrutik-text-primary);
+}
+
+.navy p, .navy li, .navy td {
+  color: var(--shrutik-text-secondary);
+}
+
+.navy .mermaid-tooltip {
+  color: var(--shrutik-text-muted);
+}
+
+/* Better contrast for mermaid diagrams in dark theme */
+.navy .mermaid {
+  background: #2d3748;
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+/* Improve code block contrast */
+.navy pre {
+  background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+.navy code {
+  background-color: rgba(99, 102, 241, 0.2);
+  color: var(--shrutik-primary);
+}
+
 /* Animation for page transitions */
 .content {
   animation: fadeIn 0.3s ease-in-out;

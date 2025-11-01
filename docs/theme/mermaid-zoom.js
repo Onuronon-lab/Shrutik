@@ -15,8 +15,27 @@
     // Initialize Mermaid with custom configuration
     function initMermaid() {
         if (typeof mermaid !== 'undefined') {
-            mermaid.initialize({
-                startOnLoad: true,
+            // Detect if we're in dark theme
+            const isDarkTheme = document.documentElement.classList.contains('navy') || 
+                               document.documentElement.classList.contains('coal') ||
+                               document.documentElement.classList.contains('ayu');
+            
+            const themeConfig = isDarkTheme ? {
+                theme: 'dark',
+                themeVariables: {
+                    primaryColor: '#6366f1',
+                    primaryTextColor: '#e2e8f0',
+                    primaryBorderColor: '#4f46e5',
+                    lineColor: '#94a3b8',
+                    secondaryColor: '#8b5cf6',
+                    tertiaryColor: '#06b6d4',
+                    background: '#2d3748',
+                    mainBkg: '#2d3748',
+                    secondBkg: '#4a5568',
+                    tertiaryBkg: '#1a202c',
+                    darkMode: true
+                }
+            } : {
                 theme: 'default',
                 themeVariables: {
                     primaryColor: '#6366f1',
@@ -29,7 +48,12 @@
                     mainBkg: '#ffffff',
                     secondBkg: '#f8fafc',
                     tertiaryBkg: '#f1f5f9'
-                },
+                }
+            };
+            
+            mermaid.initialize({
+                startOnLoad: true,
+                ...themeConfig,
                 flowchart: {
                     useMaxWidth: true,
                     htmlLabels: true,
