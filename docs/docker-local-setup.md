@@ -10,15 +10,12 @@ This guide explains how to run Shrutik completely with Docker on your local mach
 - Docker Compose 2.0+
 - Git
 
-### 1. Clone and Setup
+### 1. Clone the repo
 
 ```bash
 # Clone the repository
 git clone https://github.com/Onuronon-lab/Shrutik.git
 cd shrutik
-
-# Copy environment file for Docker
-cp .env.example .env
 ```
 
 ### 2. Configure Environment for Docker
@@ -39,7 +36,7 @@ Or manually edit the `.env` file with Docker-specific settings:
 
 ```env
 # Application
-APP_NAME=Shrutik
+APP_NAME=Voice Data Collection Platform
 DEBUG=true
 VERSION=1.0.0
 
@@ -72,14 +69,8 @@ LOG_LEVEL=DEBUG
 
 ### 3. Frontend Configuration
 
-Edit `frontend/.env.local`:
-
-```env
-# API Configuration (Docker backend service)
-NEXT_PUBLIC_API_URL=http://localhost:8000
-
-# Development Settings
-NODE_ENV=development
+```bash
+cp .env.example .env
 ```
 
 ### 4. Start All Services
@@ -141,17 +132,6 @@ DATABASE_URL=postgresql://postgres:password@postgres:5432/voice_collection
 REDIS_URL=redis://redis:6379/0
 ```
 
-#### 2. Frontend Configuration (`frontend/.env.local`)
-
-**Local Development:**
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8000
-```
-
-**Docker:**
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8000
-```
 *Note: This stays the same because we're accessing from the host machine*
 
 #### 3. Database Configuration (Automatic)
@@ -172,7 +152,7 @@ The `alembic/env.py` file is configured to read from `settings.DATABASE_URL`, so
 
 ```yaml
 services:
-  db:          # PostgreSQL database
+  postgres:          # PostgreSQL database
   redis:       # Redis cache and queue
   backend:     # FastAPI application
   worker:      # Celery background worker
@@ -182,26 +162,26 @@ services:
 ### Service Details
 
 #### Database (PostgreSQL)
-- **Container Name**: `shrutik-db`
+- **Container Name**: `voice_collection_postgres`
 - **Port**: 5432 (internal)
 - **Data**: Persisted in Docker volume
 
 #### Redis
-- **Container Name**: `shrutik-redis`
+- **Container Name**: `voice_collection_redis`
 - **Port**: 6379 (internal)
 - **Usage**: Cache and Celery queue
 
 #### Backend (FastAPI)
-- **Container Name**: `shrutik-backend`
+- **Container Name**: `voice_collection_backend`
 - **Port**: 8000 (exposed to host)
 - **Features**: API server with hot reload
 
 #### Worker (Celery)
-- **Container Name**: `shrutik-worker`
+- **Container Name**: `voice_collection_flower, voice_collection_celery_beat, voice_collection_celery`
 - **Purpose**: Background job processing
 
 #### Frontend (Next.js)
-- **Container Name**: `shrutik-frontend`
+- **Container Name**: `voice_collection_frontend`
 - **Port**: 3000 (exposed to host)
 - **Features**: React app with hot reload
 

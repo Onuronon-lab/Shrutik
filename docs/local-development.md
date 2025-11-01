@@ -110,18 +110,7 @@ cd frontend
 npm install
 
 # Copy environment file
-cp .env.example .env.local
-```
-
-Edit `frontend/.env.local`:
-
-```env
-# API Configuration
-NEXT_PUBLIC_API_URL=http://localhost:8000
-NEXT_PUBLIC_WS_URL=ws://localhost:8000
-
-# Development Settings
-NODE_ENV=development
+cp .env.example .env
 ```
 
 ### 4. Start Development Services
@@ -156,7 +145,7 @@ celery -A app.tasks.celery_app worker --loglevel=info
 **Terminal 3 - Frontend:**
 ```bash
 cd frontend
-npm run dev
+npm start
 ```
 
 ## Development Configuration
@@ -187,17 +176,6 @@ DATABASE_URL=postgresql://postgres:password@postgres:5432/voice_collection
 REDIS_URL=redis://redis:6379/0
 ```
 
-#### 2. Frontend Configuration (`frontend/.env.local`)
-
-**Local Development:**
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8000
-```
-
-**Docker:**
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8000
-```
 *Note: This stays the same for local Docker since we access from host*
 
 #### 3. Quick Switch Commands
