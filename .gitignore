@@ -165,3 +165,7 @@ logs/
 # Temporary files
 *.tmp
 *.temp
+
+# mdBook generated files
+book/
+*.html

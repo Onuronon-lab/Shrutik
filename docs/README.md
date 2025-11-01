@@ -8,6 +8,20 @@ Welcome to the comprehensive documentation for **Shrutik** (শ্রুতি�
 
 This documentation is built with [mdBook](https://rust-lang.github.io/mdBook/) and provides comprehensive guides, API references, and tutorials for users, developers, and administrators.
 
+### Enhanced Features
+- **Interactive Mermaid Diagrams**: Zoom, pan, and view complex flowcharts in fullscreen
+- **Professional Styling**: Custom theme with Shrutik branding and improved readability
+- **Responsive Design**: Optimized experience on desktop and mobile devices
+- **Status Badges**: Color-coded indicators for different content types
+- **Enhanced Navigation**: Improved sidebar, search, and user experience
+
+### Interactive Diagram Controls
+- **Zoom**: Use mouse wheel or +/- buttons to zoom in/out
+- **Pan**: Drag to move around when zoomed in
+- **Reset**: Double-click or press '0' to reset view
+- **Fullscreen**: Click the fullscreen button for better viewing
+- **Mobile**: Touch-friendly controls for mobile devices
+
 ## Documentation Overview
 
 ### Getting Started
