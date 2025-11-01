@@ -195,7 +195,7 @@ curl -X GET http://localhost:8000/api/auth/me \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-## 🌐 Frontend Issues
+## Frontend Issues
 
 ### Frontend Won't Load
 

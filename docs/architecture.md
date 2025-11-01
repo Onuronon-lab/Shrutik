@@ -2,7 +2,7 @@
 
 This document provides a comprehensive overview of Shrutik's system architecture, design principles, and technical decisions.
 
-## 🏗️ System Architecture
+## System Architecture
 
 Shrutik follows a modern, microservices-inspired architecture with clear separation of concerns and scalable design patterns.
 
@@ -72,7 +72,7 @@ graph TB
     API --> MONITORING
 ```
 
-## 🎯 Design Principles
+## Design Principles
 
 ### 1. Modularity
 - **Service-Oriented**: Clear separation between different business domains
@@ -99,7 +99,7 @@ graph TB
 - **Documentation**: Comprehensive API and code documentation
 - **Testing**: High test coverage with unit, integration, and E2E tests
 
-## 🔧 Technology Stack
+## Technology Stack
 
 ### Backend Technologies
 
@@ -139,7 +139,7 @@ graph TB
 | **Logging** | Structured logging | Centralized log management |
 | **CI/CD** | GitHub Actions | Automated testing and deployment |
 
-## 📊 Data Architecture
+## Data Architecture
 
 ### Database Schema Design
 
@@ -255,7 +255,7 @@ User Request → API → Database Query → Cache Check → Response → User In
 Transcription Submit → Background Job → Collect Related → Calculate Similarity → Weight Quality → Update Consensus → Notify Users
 ```
 
-## 🔄 API Design
+## API Design
 
 ### RESTful API Principles
 
@@ -326,7 +326,7 @@ sequenceDiagram
     A-->>C: Protected Resource
 ```
 
-## 🚀 Performance Architecture
+## Performance Architecture
 
 ### Caching Strategy
 
@@ -382,7 +382,7 @@ graph LR
 - **Read Replicas**: Separate read replicas for analytics queries
 - **Partitioning**: Table partitioning for large datasets
 
-## 🔒 Security Architecture
+## Security Architecture
 
 ### Security Layers
 
@@ -436,7 +436,7 @@ graph TB
 - **Rate Limiting**: Protection against abuse and DoS attacks
 - **File Upload Security**: Secure file upload with type validation
 
-## 📈 Monitoring & Observability
+## Monitoring & Observability
 
 ### Monitoring Stack
 
@@ -495,7 +495,7 @@ graph LR
 - **Cache Performance**: Hit rates, memory usage
 - **Network**: Bandwidth usage, connection counts
 
-## 🔄 Deployment Architecture
+## Deployment Architecture
 
 ### Environment Strategy
 
@@ -543,7 +543,7 @@ graph LR
 7. **Health Checks**: Automated health verification
 8. **Monitoring**: Continuous monitoring and alerting
 
-## 🔮 Future Architecture Considerations
+## Future Architecture Considerations
 
 ### Scalability Enhancements
 - **Microservices**: Further decomposition into microservices

@@ -2,7 +2,7 @@
 
 This flowchart details the complete process of voice recording in Shrutik, from user interaction to final storage and processing.
 
-## 🎤 Complete Voice Recording Process
+## Complete Voice Recording Process
 
 ```mermaid
 flowchart TD
@@ -102,7 +102,7 @@ flowchart TD
     class BG_START,VALIDATE_FILE,CHUNK_AUDIO,SAVE_CHUNKS,UPDATE_STATUS background
 ```
 
-## 📋 Process Breakdown
+## Process Breakdown
 
 ### 1. User Authentication & Setup
 ```mermaid
@@ -204,7 +204,7 @@ sequenceDiagram
 - **User Permissions**: Recording quota limits
 - **Session Validation**: Valid recording session
 
-## ⚡ Performance Optimizations
+## Performance Optimizations
 
 ### Frontend Optimizations
 - **Progressive Upload**: Chunked file upload
@@ -218,7 +218,7 @@ sequenceDiagram
 - **Caching**: Redis caching for frequent data
 - **CDN Integration**: Optimized file delivery
 
-## 🚨 Error Handling
+## Error Handling
 
 ### Common Error Scenarios
 1. **Microphone Access Denied**
@@ -262,7 +262,7 @@ flowchart LR
     ALTERNATIVE --> CONTINUE
 ```
 
-## 📊 Monitoring & Analytics
+## Monitoring & Analytics
 
 ### Key Metrics
 - **Recording Success Rate**: Percentage of successful recordings

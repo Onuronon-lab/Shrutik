@@ -2,7 +2,7 @@
 
 This diagram shows the high-level architecture of the Shrutik voice data collection platform, including all major components and their interactions.
 
-## 🏗️ Overall System Architecture
+## Overall System Architecture
 
 ```mermaid
 graph TB
@@ -96,7 +96,7 @@ graph TB
     class AUDIO_PROC,CONSENSUS,EXPORT processing
 ```
 
-## 🔧 Component Descriptions
+## Component Descriptions
 
 ### Client Layer
 - **Web Browser**: Primary interface for contributors using React/Next.js frontend
@@ -140,7 +140,7 @@ graph TB
 - **Consensus Engine**: Quality control and transcription consensus algorithms
 - **Data Export**: Multiple format support for dataset export
 
-## 🔄 Data Flow Patterns
+## Data Flow Patterns
 
 ### 1. Voice Recording Flow
 ```
@@ -177,7 +177,7 @@ Client → Nginx → Backend → Cache/Database → Response → Client
 - **Health Checks**: Automated monitoring and alerting
 - **Backup Strategy**: Regular automated backups
 
-## 🔒 Security Architecture
+## Security Architecture
 
 ### Authentication & Authorization
 - JWT-based authentication with refresh tokens
@@ -196,7 +196,7 @@ Client → Nginx → Backend → Cache/Database → Response → Client
 - Security headers and CORS configuration
 - Regular security audits and updates
 
-## 📊 Monitoring & Observability
+## Monitoring & Observability
 
 ### Metrics Collection
 - Application performance metrics
@@ -216,7 +216,7 @@ Client → Nginx → Backend → Cache/Database → Response → Client
 - External service dependency monitoring
 - Automated failover mechanisms
 
-## 🔄 Deployment Architecture
+## Deployment Architecture
 
 ### Development Environment
 - Local development with Docker Compose

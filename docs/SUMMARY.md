@@ -31,4 +31,3 @@
 
 - [Troubleshooting](troubleshooting.md)
 - [FAQ](faq.md)
-- [Changelog](../CHANGELOG.md)

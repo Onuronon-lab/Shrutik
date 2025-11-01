@@ -7,7 +7,7 @@ This document provides comprehensive documentation for the Shrutik API, includin
 - **Development**: `http://localhost:8000`
 - **Production**: `https://api.yourdomain.com`
 
-## 🔐 Authentication
+## Authentication
 
 Shrutik uses JWT (JSON Web Token) based authentication with refresh tokens for secure API access.
 
@@ -103,7 +103,7 @@ Include the JWT token in the Authorization header for all protected endpoints:
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
-## 📊 Response Format
+## Response Format
 
 All API responses follow a consistent format:
 
@@ -150,7 +150,7 @@ All API responses follow a consistent format:
 }
 ```
 
-## 🎤 Voice Recordings API
+## Voice Recordings API
 
 ### Create Recording Session
 
@@ -264,7 +264,7 @@ Authorization: Bearer <token>
 }
 ```
 
-## 📝 Transcriptions API
+## Transcriptions API
 
 ### Get Transcription Task
 
@@ -396,7 +396,7 @@ Authorization: Bearer <token>
 }
 ```
 
-## 🎵 Audio Chunks API
+## Audio Chunks API
 
 ### Get Chunk Audio
 
@@ -447,7 +447,7 @@ Authorization: Bearer <token>
 }
 ```
 
-## 👥 Admin API
+## Admin API
 
 ### Platform Statistics
 
@@ -527,7 +527,7 @@ Authorization: Bearer <admin_token>
 }
 ```
 
-## 📤 Export API
+## Export API
 
 ### Create Dataset Export
 
@@ -582,7 +582,7 @@ Authorization: Bearer <token>
 }
 ```
 
-## 📋 Scripts API
+## Scripts API
 
 ### Get Available Scripts
 
@@ -616,7 +616,7 @@ Authorization: Bearer <token>
 }
 ```
 
-## 🌐 Languages API
+## Languages API
 
 ### Get Supported Languages
 
@@ -652,7 +652,7 @@ GET /api/languages
 }
 ```
 
-## 🔍 Search API
+## Search API
 
 ### Search Transcriptions
 
@@ -663,7 +663,7 @@ GET /api/search/transcriptions?q=greeting&language_id=1&limit=20
 Authorization: Bearer <admin_token>
 ```
 
-## ❤️ Health Check
+## Health Check
 
 ### System Health
 
@@ -694,7 +694,7 @@ GET /health
 }
 ```
 
-## 📊 Metrics
+## Metrics
 
 ### Performance Metrics
 
@@ -705,7 +705,7 @@ GET /metrics
 Authorization: Bearer <admin_token>
 ```
 
-## 🚨 Error Codes
+## Error Codes
 
 ### HTTP Status Codes
 
@@ -736,7 +736,7 @@ Authorization: Bearer <admin_token>
 | `PROCESSING_ERROR` | Audio processing failed |
 | `CONSENSUS_PENDING` | Transcription consensus not yet reached |
 
-## 🔧 Rate Limits
+## Rate Limits
 
 ### Default Limits
 
@@ -765,7 +765,7 @@ X-RateLimit-Reset: 1640995200
 Retry-After: 60
 ```
 
-## 🔒 Security
+## Security
 
 ### API Security Best Practices
 
@@ -783,7 +783,7 @@ Retry-After: 60
 Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; media-src 'self' blob:; connect-src 'self' wss:
 ```
 
-## 📚 SDKs and Libraries
+## SDKs and Libraries
 
 ### JavaScript/TypeScript SDK
 
@@ -847,7 +847,7 @@ client.transcriptions.submit(
 )
 ```
 
-## 🧪 Testing
+## Testing
 
 ### API Testing with curl
 

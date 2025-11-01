@@ -2,34 +2,34 @@
 
 Thank you for your interest in contributing to Shrutik! This guide will help you get started with contributing to our open-source voice data collection platform.
 
-## 🌟 Ways to Contribute
+## Ways to Contribute
 
-### 🎤 Voice Data Contribution
+### Voice Data Contribution
 - **Record Voice Samples**: Contribute voice recordings in your native language
 - **Transcribe Audio**: Help transcribe audio clips to improve dataset quality
 - **Quality Review**: Review and validate transcriptions from other contributors
 - **Language Support**: Help add support for new languages and dialects
 
-### 💻 Code Contribution
+### Code Contribution
 - **Bug Fixes**: Fix reported issues and improve stability
 - **Feature Development**: Implement new features and enhancements
 - **Performance Optimization**: Improve system performance and scalability
 - **Testing**: Write and improve test coverage
 - **Documentation**: Improve code documentation and API references
 
-### 📝 Documentation
+### Documentation
 - **User Guides**: Improve setup and usage documentation
 - **Developer Docs**: Enhance technical documentation
 - **Translations**: Translate documentation to other languages
 - **Tutorials**: Create tutorials and examples
 
-### 🎨 Design & UX
+### Design & UX
 - **UI/UX Improvements**: Enhance user interface and experience
 - **Accessibility**: Improve accessibility features
 - **Mobile Responsiveness**: Optimize for mobile devices
 - **Branding**: Improve visual design and branding
 
-## 🚀 Getting Started
+## Getting Started
 
 ### 1. Set Up Development Environment
 
@@ -54,7 +54,7 @@ cd shrutik
 git remote add upstream https://github.com/Onuronon-lab/Shrutik.git
 ```
 
-## 📋 Development Workflow
+## Development Workflow
 
 ### 1. Create a Branch
 
@@ -102,7 +102,7 @@ git push origin feature/your-feature-name
 # Create a Pull Request on GitHub
 ```
 
-## 📝 Commit Message Guidelines
+## Commit Message Guidelines
 
 We follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
 
@@ -133,7 +133,7 @@ docs(readme): update installation instructions
 test(voice): add unit tests for audio processing
 ```
 
-## 🧪 Testing Guidelines
+## Testing Guidelines
 
 ### Running Tests
 
@@ -192,7 +192,7 @@ test('renders voice recorder component', () => {
 - Include edge cases and error scenarios
 - Test both happy path and error conditions
 
-## 🎨 Coding Standards
+## Coding Standards
 
 ### Python (Backend)
 
@@ -313,7 +313,7 @@ def downgrade():
     op.drop_column('transcriptions', 'quality_score')
 ```
 
-## 📚 Documentation Standards
+## Documentation Standards
 
 ### Code Documentation
 
@@ -336,7 +336,7 @@ def downgrade():
 - Test all instructions on a fresh environment
 - Keep documentation up-to-date with code changes
 
-## 🔍 Code Review Process
+## Code Review Process
 
 ### Submitting a Pull Request
 
@@ -383,7 +383,7 @@ Reviewers will check for:
 - **Performance**: Are there any performance implications?
 - **Security**: Are there any security concerns?
 
-## 🌍 Internationalization
+## Internationalization
 
 ### Adding New Languages
 
@@ -416,7 +416,7 @@ Reviewers will check for:
 - **Punctuation**: Include appropriate punctuation
 - **Quality Rating**: Rate audio quality honestly
 
-## 🏆 Recognition
+## Recognition
 
 ### Contributor Recognition
 
@@ -432,7 +432,7 @@ Reviewers will check for:
 - Code contributor levels
 - Community helper recognition
 
-## 📞 Getting Help
+## Getting Help
 
 ### Community Support
 

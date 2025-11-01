@@ -2,7 +2,7 @@
 
 This flowchart details the complete transcription process in Shrutik, including task assignment, transcription submission, consensus building, and quality control.
 
-## 📝 Complete Transcription Process
+## Complete Transcription Process
 
 ```mermaid
 flowchart TD
@@ -107,7 +107,7 @@ flowchart TD
     class BG_CONSENSUS,COLLECT_TRANSCRIPTIONS,CALCULATE_SIMILARITY,WEIGHT_QUALITY background
 ```
 
-## 🎯 Task Assignment Algorithm
+## Task Assignment Algorithm
 
 ```mermaid
 flowchart LR
@@ -151,7 +151,7 @@ flowchart LR
     QUALITY --> FINAL
 ```
 
-## 📊 Consensus Algorithm
+## Consensus Algorithm
 
 ```mermaid
 flowchart TD
@@ -194,7 +194,7 @@ flowchart TD
     COMBINED --> CLUSTER
 ```
 
-## 🔄 Quality Control Process
+## Quality Control Process
 
 ```mermaid
 sequenceDiagram
@@ -235,7 +235,7 @@ sequenceDiagram
     end
 ```
 
-## 📈 Progress Tracking
+## Progress Tracking
 
 ### Individual User Progress
 ```mermaid
@@ -287,7 +287,7 @@ graph TD
     SPEAKER_DIVERSITY --> DOMAIN_COVERAGE
 ```
 
-## 🎯 Optimization Strategies
+## Optimization Strategies
 
 ### Performance Optimizations
 - **Caching**: Cache frequently accessed chunks and user data
@@ -307,7 +307,7 @@ graph TD
 - **Real-time Feedback**: Immediate quality feedback
 - **Consensus Weighting**: Weight transcriptions by contributor reliability
 
-## 🚨 Error Handling & Recovery
+## Error Handling & Recovery
 
 ### Common Error Scenarios
 1. **Session Timeout**

@@ -271,8 +271,7 @@ async def trigger_audio_processing(
     for their recordings, or admins to reprocess failed recordings.
     """
     recording_service = VoiceRecordingService(db)
-    
-    # Verify user has access to this recording
+
     user_id = current_user.id if current_user.role not in ["admin", "sworik_developer"] else None
     recording = recording_service.get_recording_by_id(recording_id, user_id)
     if not recording:
@@ -280,15 +279,13 @@ async def trigger_audio_processing(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Recording not found"
         )
-    
-    # Check if recording is in a processable state
+
     if recording.status not in [RecordingStatus.UPLOADED, RecordingStatus.FAILED]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Recording cannot be processed in current status: {recording.status}"
         )
-    
-    # Trigger processing
+
     recording_service._trigger_audio_processing(recording_id)
     
     return {
@@ -311,8 +308,7 @@ async def get_processing_status(
     current status, progress, and any error messages.
     """
     recording_service = VoiceRecordingService(db)
-    
-    # Verify user has access to this recording
+
     user_id = current_user.id if current_user.role not in ["admin", "sworik_developer"] else None
     recording = recording_service.get_recording_by_id(recording_id, user_id)
     if not recording:
@@ -320,8 +316,7 @@ async def get_processing_status(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Recording not found"
         )
-    
-    # Get task status
+
     task_status = recording_service.get_processing_task_status(recording_id)
     
     return {
@@ -361,8 +356,7 @@ async def batch_process_recordings(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="No valid recordings found"
         )
-    
-    # Trigger batch processing
+
     task = batch_task.delay(valid_recordings)
     
     return {
@@ -384,8 +378,7 @@ async def reprocess_failed_recordings(
     Useful for recovering from system issues or processing improvements.
     """
     from app.tasks.audio_processing import reprocess_failed_recordings as reprocess_task
-    
-    # Trigger reprocessing
+
     task = reprocess_task.delay()
     
     return {
@@ -406,8 +399,7 @@ async def cleanup_orphaned_chunks(
     Useful for cleaning up after failed processing or data corruption.
     """
     from app.tasks.audio_processing import cleanup_orphaned_chunks as cleanup_task
-    
-    # Trigger cleanup
+
     task = cleanup_task.delay()
     
     return {

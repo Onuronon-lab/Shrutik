@@ -2,7 +2,7 @@
 
 This guide covers setting up Shrutik for local development, including all the tools and configurations needed for contributing to the project.
 
-## 🛠️ Prerequisites
+## Prerequisites
 
 ### System Requirements
 
@@ -19,7 +19,7 @@ This guide covers setting up Shrutik for local development, including all the to
 - **Database GUI**: pgAdmin or DBeaver
 - **Redis GUI**: RedisInsight
 
-## 🚀 Setup Instructions
+## Setup Instructions
 
 ### 1. Clone and Navigate
 
@@ -159,7 +159,7 @@ cd frontend
 npm run dev
 ```
 
-## 🔧 Development Configuration
+## Development Configuration
 
 ### Alembic Configuration
 
@@ -228,7 +228,7 @@ cp .env.development .env
 ./scripts/start-dev.sh
 ```
 
-> **📋 Complete Docker Guide**: For detailed Docker setup instructions, troubleshooting, and configuration explanations, see our [Docker Local Setup Guide](docker-local-setup.md).
+> **Complete Docker Guide**: For detailed Docker setup instructions, troubleshooting, and configuration explanations, see our [Docker Local Setup Guide](docker-local-setup.md).
 
 ### Environment Files Summary
 
@@ -286,7 +286,7 @@ pytest tests/integration/
 docker-compose -f docker-compose.test.yml down -v
 ```
 
-## 🔍 Debugging
+## Debugging
 
 ### Backend Debugging
 
@@ -335,7 +335,7 @@ Install recommended extensions:
 - Prettier - Code formatter
 - ESLint
 
-## 📊 Database Management
+## Database Management
 
 ### Migrations
 
@@ -370,7 +370,7 @@ python create_admin.py
 python scripts/load_sample_data.py
 ```
 
-## 🔧 Common Development Tasks
+## Common Development Tasks
 
 ### Adding New API Endpoints
 
@@ -397,7 +397,7 @@ python scripts/load_sample_data.py
 4. Apply migration: `alembic upgrade head`
 5. Update tests and documentation
 
-## 🚀 Performance Optimization
+## Performance Optimization
 
 ### Development Performance
 
@@ -428,14 +428,14 @@ module.exports = {
 }
 ```
 
-## 📚 Additional Resources
+## Additional Resources
 
 - **[API Documentation](api-reference.md)** - Complete API reference
 - **[Architecture Overview](architecture.md)** - System design details
 - **[Contributing Guide](contributing.md)** - Contribution guidelines
 - **[Docker Local Setup](docker-local-setup.md)** - Docker development environment
 
-## 🆘 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 

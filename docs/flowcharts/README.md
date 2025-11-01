@@ -2,7 +2,7 @@
 
 This directory contains visual documentation of Shrutik's system flows and processes using Mermaid diagrams. These flowcharts help developers and contributors understand the system architecture and data flow.
 
-## 📊 Available Flowcharts
+## Available Flowcharts
 
 ### Core System Flows
 - **[Overall System Architecture](system-architecture.md)** - High-level system overview
@@ -17,7 +17,7 @@ This directory contains visual documentation of Shrutik's system flows and proce
 - **[Caching Strategy](caching-strategy.md)** - Caching and performance optimization
 - **[Background Jobs](background-jobs.md)** - Celery task processing
 
-## 🎯 How to Read These Diagrams
+## How to Read These Diagrams
 
 ### Symbols and Conventions
 
@@ -63,7 +63,7 @@ graph TD
 - **[API Documentation](../api-reference.md)**
 - **[Development Guide](../local-development.md)**
 
-## 🤝 Contributing
+## Contributing
 
 To contribute new flowcharts or update existing ones:
 
