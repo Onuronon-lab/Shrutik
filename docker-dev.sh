@@ -116,10 +116,18 @@ cleanup() {
 run_migrations() {
     print_status "Running database initialization..."
     
-    # Copy the initialization script to the container and run it
-    docker-compose exec backend python scripts/init-db.py
-    
-    print_success "Database initialization completed!"
+    # Try the comprehensive initialization script first
+    if docker-compose exec backend python scripts/init-db.py; then
+        print_success "Database initialization completed!"
+    else
+        print_warning "Comprehensive initialization failed, trying simple approach..."
+        if docker-compose exec backend python scripts/simple-init.py; then
+            print_success "Simple database initialization completed!"
+        else
+            print_error "Both initialization methods failed!"
+            return 1
+        fi
+    fi
 }
 
 # Function to create admin user

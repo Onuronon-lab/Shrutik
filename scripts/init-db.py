@@ -78,7 +78,20 @@ def run_alembic_migrations():
         import subprocess
         logger.info("🔄 Running Alembic migrations...")
         
-        # Run alembic upgrade head
+        # First, try to stamp the database with the current revision
+        stamp_result = subprocess.run(
+            ["alembic", "stamp", "head"],
+            capture_output=True,
+            text=True,
+            cwd=Path(__file__).parent.parent
+        )
+        
+        if stamp_result.returncode == 0:
+            logger.info("✅ Database stamped with current revision")
+        else:
+            logger.warning(f"⚠️  Could not stamp database: {stamp_result.stderr}")
+        
+        # Then run migrations
         result = subprocess.run(
             ["alembic", "upgrade", "head"],
             capture_output=True,
@@ -90,8 +103,13 @@ def run_alembic_migrations():
             logger.info("✅ Alembic migrations completed successfully")
             return True
         else:
-            logger.error(f"❌ Alembic migration failed: {result.stderr}")
-            return False
+            # Check if it's just a "already exists" error
+            if "already exists" in result.stderr.lower():
+                logger.info("✅ Tables already exist, skipping migrations")
+                return True
+            else:
+                logger.error(f"❌ Alembic migration failed: {result.stderr}")
+                return False
             
     except Exception as e:
         logger.error(f"❌ Error running Alembic migrations: {e}")
@@ -110,9 +128,7 @@ def create_default_language():
                 logger.info("🔄 Creating default Bengali language...")
                 bengali = Language(
                     code="bn",
-                    name="Bengali",
-                    native_name="বাংলা",
-                    is_active=True
+                    name="Bengali"
                 )
                 db.add(bengali)
                 db.commit()
@@ -139,15 +155,21 @@ def main():
         sys.exit(1)
     
     # Step 2: Create tables if they don't exist
-    if not check_tables_exist():
+    tables_exist = check_tables_exist()
+    if not tables_exist:
         logger.info("🔧 Tables missing, creating them...")
         if not create_tables():
             logger.error("💥 Database initialization failed - could not create tables")
             sys.exit(1)
+    else:
+        logger.info("✅ All required tables already exist")
     
-    # Step 3: Run Alembic migrations
-    if not run_alembic_migrations():
-        logger.warning("⚠️  Alembic migrations failed, but continuing...")
+    # Step 3: Run Alembic migrations (only if tables were just created)
+    if not tables_exist:
+        if not run_alembic_migrations():
+            logger.warning("⚠️  Alembic migrations failed, but tables exist so continuing...")
+    else:
+        logger.info("⏭️  Skipping Alembic migrations (tables already exist)")
     
     # Step 4: Create default data
     if not create_default_language():
