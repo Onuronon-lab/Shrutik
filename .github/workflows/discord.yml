@@ -16,7 +16,7 @@ jobs:
         with:
           webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
           username: "Shrutik Update"
-          avatar-url: "https://raw.githubusercontent.com/Onuronon-lab/Shrutik/master/assets/logo.png"
+          avatar-url: "https://raw.githubusercontent.com/Onuronon-lab/Shrutik/refs/heads/master/assets/shrutik.png"
           embed-title: "${{ github.event_name == 'push' && '📦 New Push' || github.event_name == 'pull_request' && '🔀 Pull Request' || '📋 Issue Update' }}"
           embed-description: |
             ${{ github.event_name == 'push' && format('**{0}** pushed to `{1}`', github.actor, github.ref_name) || github.event_name == 'pull_request' && format('**{0}** {1} PR #{2}: {3}', github.actor, github.event.action, github.event.pull_request.number, github.event.pull_request.title) || format('**{0}** {1} issue #{2}: {3}', github.actor, github.event.action, github.event.issue.number, github.event.issue.title) }}
