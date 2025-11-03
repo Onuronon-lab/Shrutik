@@ -1,0 +1,27 @@
+name: Discord Notifications
+
+on:
+  push:
+  pull_request:
+    types: [opened, reopened, closed]
+  issues:
+    types: [opened, edited, closed]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Discord
+        uses: tsickert/discord-webhook@v6.0.0
+        with:
+          webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
+          username: "Shrutik Update"
+          avatar-url: "https://raw.githubusercontent.com/Onuronon-lab/Shrutik/master/assets/logo.png"
+          embed-title: "${{ github.event_name == 'push' && '📦 New Push' || github.event_name == 'pull_request' && '🔀 Pull Request' || '📋 Issue Update' }}"
+          embed-description: |
+            ${{ github.event_name == 'push' && format('**{0}** pushed to `{1}`', github.actor, github.ref_name) || github.event_name == 'pull_request' && format('**{0}** {1} PR #{2}: {3}', github.actor, github.event.action, github.event.pull_request.number, github.event.pull_request.title) || format('**{0}** {1} issue #{2}: {3}', github.actor, github.event.action, github.event.issue.number, github.event.issue.title) }}
+          embed-url: "${{ github.event.pull_request.html_url || github.event.issue.html_url || github.event.head_commit.url }}"
+          embed-color: "${{ github.event_name == 'push' && 5814002 || github.event.action == 'opened' && 5763719 || github.event.action == 'closed' && 15548997 || 5814002 }}"
+          embed-author-name: "${{ github.actor }}"
+          embed-author-url: "https://github.com/${{ github.actor }}"
+          embed-author-icon-url: "https://github.com/${{ github.actor }}.png"
