@@ -13,47 +13,16 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ secrets.DISCORD_WEBHOOK != '' }}
     steps:
-      - name: Notify Discord on Push
-        if: github.event_name == 'push'
-        uses: tsickert/discord-webhook@v5.3.0
+      - name: Send Discord notification
+        uses: Ilshidur/action-discord@master
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         with:
-          webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
-          username: "Shrutik Update"
-          avatar-url: "https://raw.githubusercontent.com/Onuronon-lab/Shrutik/refs/heads/master/assets/shrutik.png"
-          embed-title: "📦 New Push"
-          embed-description: "**${{ github.actor }}** pushed to `${{ github.ref_name }}`"
-          embed-url: "${{ github.event.repository.html_url }}"
-          embed-color: 5814002
-          embed-author-name: "${{ github.actor }}"
-          embed-author-url: "https://github.com/${{ github.actor }}"
-          embed-author-icon-url: "https://github.com/${{ github.actor }}.png"
-
-      - name: Notify Discord on PR
-        if: github.event_name == 'pull_request'
-        uses: tsickert/discord-webhook@v5.3.0
-        with:
-          webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
-          username: "Shrutik Update"
-          avatar-url: "https://raw.githubusercontent.com/Onuronon-lab/Shrutik/refs/heads/master/assets/shrutik.png"
-          embed-title: "🔀 Pull Request"
-          embed-description: "**${{ github.actor }}** ${{ github.event.action }} PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}"
-          embed-url: "${{ github.event.pull_request.html_url }}"
-          embed-color: "${{ github.event.action == 'opened' && 5763719 || github.event.action == 'closed' && 15548997 || 5814002 }}"
-          embed-author-name: "${{ github.actor }}"
-          embed-author-url: "https://github.com/${{ github.actor }}"
-          embed-author-icon-url: "https://github.com/${{ github.actor }}.png"
-
-      - name: Notify Discord on Issue
-        if: github.event_name == 'issues'
-        uses: tsickert/discord-webhook@v5.3.0
-        with:
-          webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
-          username: "Shrutik Update"
-          avatar-url: "https://raw.githubusercontent.com/Onuronon-lab/Shrutik/refs/heads/master/assets/shrutik.png"
-          embed-title: "📋 Issue Update"
-          embed-description: "**${{ github.actor }}** ${{ github.event.action }} issue #${{ github.event.issue.number }}: ${{ github.event.issue.title }}"
-          embed-url: "${{ github.event.issue.html_url }}"
-          embed-color: "${{ github.event.action == 'opened' && 5763719 || github.event.action == 'closed' && 15548997 || 5814002 }}"
-          embed-author-name: "${{ github.actor }}"
-          embed-author-url: "https://github.com/${{ github.actor }}"
-          embed-author-icon-url: "https://github.com/${{ github.actor }}.png"
+          args: |
+            🚀 **Shrutik Update**
+            
+            ${{ github.event_name == 'push' && format('📦 **{0}** pushed to `{1}`', github.actor, github.ref_name) || '' }}
+            ${{ github.event_name == 'pull_request' && format('🔀 **{0}** {1} PR #{2}: {3}', github.actor, github.event.action, github.event.pull_request.number, github.event.pull_request.title) || '' }}
+            ${{ github.event_name == 'issues' && format('📋 **{0}** {1} issue #{2}: {3}', github.actor, github.event.action, github.event.issue.number, github.event.issue.title) || '' }}
+            
+            🔗 [View on GitHub](${{ github.event.pull_request.html_url || github.event.issue.html_url || github.event.repository.html_url }})
