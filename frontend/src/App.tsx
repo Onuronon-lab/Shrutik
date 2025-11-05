@@ -10,6 +10,7 @@ import TranscribePage from './pages/TranscribePage';
 import AdminPage from './pages/AdminPage';
 import ExportPage from './pages/ExportPage';
 import UnauthorizedPage from './pages/UnauthorizedPage';
+import RegisterForm from './components/auth/RegisterForm';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/login" element={<LoginForm />} />
+          <Route path="/register" element={<RegisterForm />} />
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
           <Route path="/" element={<Layout />}>
             <Route index element={

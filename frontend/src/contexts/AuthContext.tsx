@@ -71,11 +71,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem('user');
   };
 
+
+  const register = async (name: string, email: string, password: string): Promise<boolean> => {
+  try {
+    setIsLoading(true);
+    const response = await apiService.register({ name, email, password }); // apiService.register should return AuthResponse if successful
+
+    setUser(response.user);
+    setToken(response.token);
+
+    localStorage.setItem('auth_token', response.token);
+    localStorage.setItem('user', JSON.stringify(response.user));
+
+    setIsLoading(false);
+    return true;
+  } catch (error) {
+    setIsLoading(false);
+    console.error('Registration failed:', error);
+    return false;
+  }
+};
+
+
   const value: AuthContextType = {
     user,
     token,
     login,
     logout,
+    register, 
     isAuthenticated: !!user && !!token,
     isLoading,
   };
