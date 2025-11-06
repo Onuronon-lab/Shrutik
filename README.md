@@ -94,7 +94,7 @@ Join our growing community of contributors:
 
 - **Discord**: [Join our server](https://discord.gg/9hZ9eW8ARk) for real-time discussions
 - **GitHub Discussions**: Share ideas and ask questions
-- **Twitter**: Follow [@OnurononAI](https://twitter.com/ShrutikVoice) for updates
+- **Twitter**: Follow [@ShrutikVoice](https://twitter.com/ShrutikVoice) for updates
 
 ## 📄 License
 
