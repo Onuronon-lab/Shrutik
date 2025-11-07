@@ -33,7 +33,7 @@ Thank you for your interest in contributing to Shrutik! This guide will help you
 
 ### 1. Set Up Development Environment
 
-Follow our [Local Development Guide](local-development.md) to set up your development environment.
+Follow our [Local Development Guide](https://onuronon-lab.github.io/Shrutik/local-development.html) to set up your development environment. also you can setup with docker as well. See [Docker Local Setup](https://onuronon-lab.github.io/Shrutik/docker-local-setup.html)
 
 ### 2. Find an Issue
 
@@ -60,8 +60,8 @@ git remote add upstream https://github.com/Onuronon-lab/Shrutik.git
 
 ```bash
 # Update your main branch
-git checkout main
-git pull upstream main
+git checkout master
+git pull upstream master
 
 # Create a feature branch
 git checkout -b feature/your-feature-name

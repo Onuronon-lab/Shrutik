@@ -5,7 +5,7 @@ Thank you to all the amazing people who have contributed to Shrutik (শ্র�
 ## 🏆 Core Team
 
 ### Project Founders
-- **[Your Name]** - Project Creator & Lead Developer
+- **[Ifrun Kader Ruhin]** - Project Creator & Lead Developer
   - GitHub: [@ifrunruhin12](https://github.com/ifrunruhin12)
   - Role: Architecture, Backend Development, Project Vision
 
@@ -35,9 +35,9 @@ Thank you to all the amazing people who have contributed to Shrutik (শ্র�
   - Languages: TypeScript, React
 
 ### First-Time Contributors
-- **[Contributor Name]** - [@username](https://github.com/username)
+- **[Furqan Ahmed]** - [@furqanRupom](https://github.com/furqanRupom)
   - First contribution: Bug fix in audio validation
-  - Date: 2024-01-15
+  - Date: 2025-11-02
 
 ## 🎤 Voice Data Contributors
 

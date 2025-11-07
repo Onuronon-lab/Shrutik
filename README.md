@@ -86,7 +86,7 @@ We welcome contributions from developers, linguists, designers, and community me
 - **Localization**: Translate the interface to new languages
 - **Testing**: Report bugs and help with quality assurance
 
-See our [Contributing Guide](docs/contributing.md) for detailed instructions.
+See our [Contributing Guide](https://onuronon-lab.github.io/Shrutik/contributing.html) for detailed instructions.
 
 ## Community
 
@@ -94,7 +94,7 @@ Join our growing community of contributors:
 
 - **Discord**: [Join our server](https://discord.gg/9hZ9eW8ARk) for real-time discussions
 - **GitHub Discussions**: Share ideas and ask questions
-- **Twitter**: Follow [@OnurononAI](https://twitter.com/ShrutikVoice) for updates
+- **Twitter**: Follow [@OnurononAI](https://x.com/OnurononAI) for updates
 
 ## 📄 License
 
@@ -118,6 +118,6 @@ Shrutik is built on the shoulders of giants. We thank the open-source community 
 
 **Together, we're building a more inclusive digital future, one voice at a time.**
 
-[Get Started](docs/getting-started.md) • [Contribute](docs/contributing.md) • [Community](https://discord.gg/9hZ9eW8ARk)
+[Get Started](https://onuronon-lab.github.io/Shrutik/getting-started.html) • [Contribute](https://onuronon-lab.github.io/Shrutik/contributing.html) • [Community](https://discord.gg/9hZ9eW8ARk)
 
 </div>
