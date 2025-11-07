@@ -2,10 +2,10 @@
 
 Thank you to all the amazing people who have contributed to Shrutik (শ্রুতিক)! This project exists because of the collective effort of developers, linguists, designers, and community members from around the world.
 
-## 🏆 Core Team
+## Core Team
 
 ### Project Founders
-- **[Your Name]** - Project Creator & Lead Developer
+- **[Ifrun Kader Ruhin]** - Project Creator & Lead Developer
   - GitHub: [@ifrunruhin12](https://github.com/ifrunruhin12)
   - Role: Architecture, Backend Development, Project Vision
 
@@ -35,11 +35,11 @@ Thank you to all the amazing people who have contributed to Shrutik (শ্র�
   - Languages: TypeScript, React
 
 ### First-Time Contributors
-- **[Contributor Name]** - [@username](https://github.com/username)
+- **[Furqan Ahmed]** - [@furqanRupom](https://github.com/furqanRupom)
   - First contribution: Bug fix in audio validation
-  - Date: 2024-01-15
+  - Date: 2025-11-02
 
-## 🎤 Voice Data Contributors
+## Voice Data Contributors
 
 ### Language Champions
 These contributors have made significant voice data contributions in their native languages:
@@ -54,7 +54,7 @@ These contributors have made significant voice data contributions in their nativ
 - **[Reviewer Name]** - 1500+ transcription reviews
 - **[Reviewer Name]** - 1200+ transcription reviews
 
-## 📝 Documentation Contributors
+## Documentation Contributors
 
 ### Documentation Team
 - **[Doc Contributor]** - [@username](https://github.com/username)
@@ -70,7 +70,7 @@ These contributors have made significant voice data contributions in their nativ
 - **[Translator Name]** - Hindi translation lead
 - **[Translator Name]** - Tamil translation lead
 
-## 🎨 Design Contributors
+## Design Contributors
 
 ### UI/UX Designers
 - **[Designer Name]** - [@username](https://github.com/username)
@@ -86,7 +86,7 @@ These contributors have made significant voice data contributions in their nativ
   - Contributions: Accessibility audits, WCAG compliance
   - Specialty: Screen reader optimization
 
-## 🔬 Research Contributors
+## Research Contributors
 
 ### Academic Researchers
 - **Dr. [Researcher Name]** - [University/Institution]
@@ -137,7 +137,7 @@ These contributors have made significant voice data contributions in their nativ
 #### 🤝 Community Champion
 **[Winner Name]** - For building bridges between technical and linguistic communities
 
-#### 🔧 Technical Excellence
+#### Technical Excellence
 **[Winner Name]** - For innovative solutions and architectural improvements
 
 ## 📊 Contribution Statistics
@@ -174,7 +174,7 @@ These contributors have made significant voice data contributions in their nativ
 Want to see your name here? Here's how you can contribute:
 
 ### For Developers
-1. Check our [Contributing Guide](docs/contributing.md)
+1. Check our [Contributing Guide](https://onuronon-lab.github.io/Shrutik/contributing.html)
 2. Look for issues labeled `good first issue`
 3. Join our [Discord](https://discord.gg/9hZ9eW8ARk) for technical discussions
 
@@ -205,12 +205,12 @@ Want to see your name here? Here's how you can contribute:
 ### Inspiration
 This project is inspired by the belief that technology should serve all communities, regardless of the language they speak. We're grateful to everyone who shares this vision and contributes to making it a reality.
 
-## 📞 Recognition Requests
+## Recognition Requests
 
 If you've contributed to Shrutik but don't see your name here:
 
 1. **Open an issue** with the "recognition" label
-2. **Email us** at contributors@shrutik.org
+2. **Email us** at onuronon.dev@gmail.com
 3. **Message us** on Discord
 
 We want to make sure everyone gets the recognition they deserve!
@@ -223,6 +223,6 @@ This file is updated monthly to recognize new contributors. The next update is s
 
 ---
 
-**Thank you to everyone who makes Shrutik possible!** Your contributions, big and small, are building a more inclusive digital future. 🎤✨
+**Thank you to everyone who makes Shrutik possible!** Your contributions, big and small, are building a more inclusive digital future. ✨
 
 *"Alone we can do so little; together we can do so much."* - Helen Keller

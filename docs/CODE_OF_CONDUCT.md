@@ -170,9 +170,9 @@ For answers to common questions about this code of conduct, see the FAQ at https
 
 ## Contact Information
 
-* **General Conduct Questions**: conduct@shrutik.org
-* **Appeals**: appeals@shrutik.org
-* **Community Team**: community@shrutik.org
+* **General Conduct Questions**: conduct@shrutik.org (not there yet, for now contact onuronon.dev@gmail.com)
+* **Appeals**: appeals@shrutik.org (not there yet)
+* **Community Team**: community@shrutik.org (not there yet)
 
 ---
 
