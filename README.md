@@ -19,7 +19,7 @@ Shrutik (শ্রুতিক) is an open-source crowdsourcing platform designe
 
 ## Why Shrutik?
 
-In a world where voice technology is rapidly advancing, millions of speakers of regional and minority languages are left behind. Major voice assistants and speech recognition systems work poorly or not at all for languages like Bengali, Tamil, Urdu and hundreds of others spoken by billions of people.
+In a world where voice technology is rapidly advancing, millions of speakers of regional and minority languages are left behind. Major voice assistants and speech recognition systems work poorly or not at all for languages like Bengali, Tamil, Urdu, and hundreds of others spoken by billions of people.
 
 **Shrutik changes this narrative by:**
 
