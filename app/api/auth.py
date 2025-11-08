@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.db.database import get_db
-from app.schemas.auth import UserCreate, UserLogin, UserResponse, Token
+from app.schemas.auth import UserCreate, UserCreateAdmin, UserLogin, UserResponse, Token
 from app.services.auth_service import AuthService
 from app.core.dependencies import get_current_active_user, require_admin
 from app.models.user import User, UserRole
@@ -100,3 +100,15 @@ async def list_users(
     """List all users (admin only)."""
     users = db.query(User).all()
     return users
+
+
+@router.post("/users", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+async def create_user_with_role(
+    user_data: UserCreateAdmin,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin)
+):
+    """Create a new user with specified role (admin only)."""
+    auth_service = AuthService(db)
+    user = auth_service.create_user_with_role(user_data)
+    return user
