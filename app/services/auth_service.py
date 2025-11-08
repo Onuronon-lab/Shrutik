@@ -2,7 +2,7 @@ from typing import Optional
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from app.models.user import User, UserRole
-from app.schemas.auth import UserCreate, UserLogin
+from app.schemas.auth import UserCreate, UserCreateAdmin, UserLogin
 from app.core.security import verify_password, get_password_hash, create_access_token
 from datetime import timedelta
 from app.core.config import settings
@@ -15,7 +15,7 @@ class AuthService:
         self.db = db
     
     def create_user(self, user_data: UserCreate) -> User:
-        """Create a new user with hashed password."""
+        """Create a new user with hashed password (public registration - always CONTRIBUTOR)."""
         existing_user = self.db.query(User).filter(User.email == user_data.email).first()
         if existing_user:
             raise HTTPException(
@@ -28,7 +28,29 @@ class AuthService:
             name=user_data.name,
             email=user_data.email,
             password_hash=hashed_password,
-            role=UserRole.CONTRIBUTOR
+            role=UserRole.CONTRIBUTOR  # Always CONTRIBUTOR for public registration
+        )
+        
+        self.db.add(db_user)
+        self.db.commit()
+        self.db.refresh(db_user)
+        return db_user
+    
+    def create_user_with_role(self, user_data: UserCreateAdmin) -> User:
+        """Create a new user with specified role (admin-only operation)."""
+        existing_user = self.db.query(User).filter(User.email == user_data.email).first()
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email already registered"
+            )
+
+        hashed_password = get_password_hash(user_data.password)
+        db_user = User(
+            name=user_data.name,
+            email=user_data.email,
+            password_hash=hashed_password,
+            role=user_data.role  # Use specified role (admin operation)
         )
         
         self.db.add(db_user)
