@@ -50,7 +50,6 @@ def main():
             print(f"User not found ({target})", file=sys.stderr)
             return 1
 
-        # Match the app's token claims so dependencies.get_current_user works.
         token_data = {
             "sub": user.email,
             "user_id": user.id,
