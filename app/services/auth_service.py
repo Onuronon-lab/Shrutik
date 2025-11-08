@@ -28,7 +28,7 @@ class AuthService:
             name=user_data.name,
             email=user_data.email,
             password_hash=hashed_password,
-            role=user_data.role
+            role=UserRole.CONTRIBUTOR
         )
         
         self.db.add(db_user)
