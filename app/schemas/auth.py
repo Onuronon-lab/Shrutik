@@ -6,11 +6,14 @@ from app.models.user import UserRole
 class UserBase(BaseModel):
     name: str
     email: EmailStr
-    role: UserRole = UserRole.CONTRIBUTOR
+   
 
 
 class UserCreate(UserBase):
     password: str
+    
+    class Config:
+        extra = "forbid"  
 
 
 class UserLogin(BaseModel):
