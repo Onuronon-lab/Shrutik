@@ -8,8 +8,8 @@ Requires direct database access.
 from __future__ import annotations
 
 import argparse
-import sys
 import os
+import sys
 from pathlib import Path
 from getpass import getpass
 
@@ -63,7 +63,6 @@ def create_admin_user(name: str, email: str, password: str, role: UserRole = Use
 
 def main():
     # Safety check: Require explicit confirmation in production
-    import os
     if os.getenv("ENVIRONMENT") == "production":
         confirm = input("⚠️  WARNING: Running in PRODUCTION environment. Continue? (yes/no): ")
         if confirm.lower() != "yes":

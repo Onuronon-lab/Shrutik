@@ -24,6 +24,11 @@ def check_database_connection() -> bool:
 def get_table_info(table_name: str) -> Optional[Dict[str, Any]]:
     """Get information about a database table"""
     try:
+        import re
+        if not re.match(r'^[a-zA-Z0-9_]+$', table_name):
+            logger.error(f"Invalid table name: {table_name}")
+            return None
+        
         db = SessionLocal()
 
         query = text("""
@@ -44,6 +49,7 @@ def get_table_info(table_name: str) -> Optional[Dict[str, Any]]:
             for row in result
         ]
 
+        # Safe to use f-string after validation
         count_query = text(f"SELECT COUNT(*) as count FROM {table_name}")
         count_result = db.execute(count_query)
         row_count = count_result.scalar()
@@ -79,6 +85,12 @@ def get_database_stats() -> Dict[str, Any]:
         table_stats = {}
         for table_name in table_names:
             try:
+                # Validate table name to prevent SQL injection
+                import re
+                if not re.match(r'^[a-zA-Z0-9_]+$', table_name):
+                    logger.warning(f"Skipping invalid table name: {table_name}")
+                    continue
+                
                 count_query = text(f"SELECT COUNT(*) as count FROM {table_name}")
                 count_result = db.execute(count_query)
                 table_stats[table_name] = count_result.scalar()

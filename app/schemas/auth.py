@@ -30,6 +30,7 @@ class UserLogin(BaseModel):
 
 class UserResponse(UserBase):
     id: int
+    role: UserRole
     
     model_config = {"from_attributes": True}
 
