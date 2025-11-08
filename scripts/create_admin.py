@@ -9,7 +9,14 @@ from __future__ import annotations
 
 import argparse
 import sys
+import os
+from pathlib import Path
 from getpass import getpass
+
+# Add project root to Python path
+script_dir = Path(__file__).resolve().parent
+project_root = script_dir.parent
+sys.path.insert(0, str(project_root))
 
 from app.core.security import get_password_hash
 from app.db.database import SessionLocal
