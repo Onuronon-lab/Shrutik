@@ -29,7 +29,15 @@ const LoginForm: React.FC = () => {
     setError('');
     setIsLoading(true);
 
-    const success = await login(email, password);
+    const trimmedEmail = email.trim();  
+    if (!/^\S+@\S+\.\S+$/.test(trimmedEmail)) {
+      setError('Invalid email format');
+      setIsLoading(false);
+      return;
+    }
+
+    
+    const success = await login(trimmedEmail, password);
 
     if (success) {
       navigate(from, { replace: true });
@@ -65,7 +73,7 @@ const LoginForm: React.FC = () => {
               <input
                 id="email"
                 name="email"
-                type="email"
+                type="text"
                 autoComplete="email"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
