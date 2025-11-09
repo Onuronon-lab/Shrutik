@@ -42,7 +42,7 @@ function App() {
               </ProtectedRoute>
             } />
             <Route path="/export" element={
-              <ProtectedRoute requiredRole="sworik_developer">
+              <ProtectedRoute requiredRole={['admin', 'sworik_developer']}>
                 <ExportPage />
               </ProtectedRoute>
             } />

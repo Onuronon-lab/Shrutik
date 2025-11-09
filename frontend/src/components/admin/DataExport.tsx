@@ -202,7 +202,7 @@ const DataExport: React.FC = () => {
   };
 
   // Check if user has export permissions
-  if (user?.role !== 'sworik_developer') {
+  if (user?.role !== 'sworik_developer' && user?.role !== 'admin') {
     return (
       <div className="bg-red-50 border border-red-200 rounded-lg p-6">
         <div className="flex items-center">
@@ -210,7 +210,7 @@ const DataExport: React.FC = () => {
           <div>
             <h3 className="text-lg font-medium text-red-800">Access Denied</h3>
             <p className="text-red-700 mt-1">
-              Data export functionality is restricted to Sworik developers only.
+              Data export functionality is restricted to Admins and Sworik developers only.
             </p>
           </div>
         </div>
