@@ -38,7 +38,7 @@ const Navbar: React.FC = () => {
       name: 'Export Data',
       href: '/export',
       icon: ArrowDownTrayIcon,
-      roles: ['sworik_developer'],
+      roles: ['admin', 'sworik_developer'],
     },
     {
       name: 'Admin',

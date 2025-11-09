@@ -96,6 +96,6 @@ describe('DataExport Access Control', () => {
     
     // Check if access denied message is shown
     expect(screen.getByText('Access Denied')).toBeInTheDocument();
-    expect(screen.getByText('Data export functionality is restricted to Sworik developers only.')).toBeInTheDocument();
+    expect(screen.getByText('Data export functionality is restricted to Admins and Sworik developers only.')).toBeInTheDocument();
   });
 });

@@ -5,7 +5,7 @@ import LoadingSpinner from '../common/LoadingSpinner';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: 'contributor' | 'admin' | 'sworik_developer';
+  requiredRole?: 'contributor' | 'admin' | 'sworik_developer' | ('admin' | 'sworik_developer')[];
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole }) => {
@@ -21,9 +21,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole 
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (requiredRole && user?.role !== requiredRole) {
-    // User doesn't have required role
-    return <Navigate to="/unauthorized" replace />;
+  if (requiredRole) {
+    // Support both single role and array of roles
+    const allowedRoles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
+    if (!user?.role || !allowedRoles.includes(user.role as any)) {
+      // User doesn't have required role
+      return <Navigate to="/unauthorized" replace />;
+    }
   }
 
   return <>{children}</>;
