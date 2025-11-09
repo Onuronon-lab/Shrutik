@@ -93,7 +93,7 @@ docker-compose up -d
 ./docker-dev.sh migrate
 
 # Create admin user
-./docker-dev.sh admin
+DATABASE_URL="postgresql://postgres:password@localhost:5432/voice_collection" python scripts/create_admin.py --name "Admin" --email admin@example.com
 ```
 
 Follow the prompts to create your first admin user.
