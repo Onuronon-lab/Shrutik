@@ -82,23 +82,22 @@ class PermissionChecker:
             "record_voice",
             "transcribe_audio",
             "view_own_data",
-            "manage_users",
-            "manage_scripts",
+            "manage_users",        # Only admins manage users
+            "manage_scripts",      # Only admins manage scripts
             "view_all_data",
             "quality_review",
             "view_statistics",
+            "export_data",
         },
         UserRole.SWORIK_DEVELOPER: {
             "record_voice",
             "transcribe_audio",
             "view_own_data",
-            "manage_users",
-            "manage_scripts",
-            "view_all_data",
-            "quality_review",
-            "view_statistics",
-            "export_data",
-            "access_raw_data",
+            "view_all_data",       # Can view data for research
+            "quality_review",      # Can review quality
+            "view_statistics",     # Can view stats
+            "export_data",         # Can export for research
+            "access_raw_data",     # Can access raw data for development
         }
     }
     
