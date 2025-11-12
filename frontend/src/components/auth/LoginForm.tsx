@@ -76,10 +76,15 @@ const LoginForm: React.FC = () => {
                 type="text"
                 autoComplete="email"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${
+                  error ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500'
+                } placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-2 sm:text-sm`}
                 placeholder="Email address"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (error) setError(''); // Clear error when user starts typing
+                }}
               />
             </div>
 
@@ -91,10 +96,15 @@ const LoginForm: React.FC = () => {
                 type={showPassword ? 'text' : 'password'}
                 autoComplete="current-password"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className={`appearance-none rounded-none relative block w-full px-3 py-2 pr-10 border ${
+                  error ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500'
+                } placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-2 sm:text-sm`}
                 placeholder="Password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (error) setError(''); // Clear error when user starts typing
+                }}
               />
               <button
                 type="button"
