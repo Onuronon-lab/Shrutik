@@ -14,34 +14,40 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing token on app load
     const storedToken = localStorage.getItem('auth_token');
-    const storedUser = localStorage.getItem('user');
-
-    if (storedToken && storedUser) {
+    
+    if (storedToken) {
       setToken(storedToken);
-      setUser(JSON.parse(storedUser));
-      // Validate token with backend
-      validateStoredToken(storedToken);
+      validateStoredToken(storedToken); 
+
     } else {
       setIsLoading(false);
     }
-  }, []);
 
+  }, []);
+ 
   const validateStoredToken = async (storedToken: string) => {
     try {
-      const userData = await apiService.validateToken();
-      setUser(userData);
+      const response = await apiService.validateToken();
+
+      
+      if (response.token) {
+        localStorage.setItem('auth_token', response.token);
+        setToken(response.token);
+      }
+
+      // Always set the real verified user
+      setUser(response.user || response);
+
       setIsLoading(false);
     } catch (error) {
-      // Token is invalid, clear storage
       localStorage.removeItem('auth_token');
-      localStorage.removeItem('user');
       setToken(null);
       setUser(null);
       setIsLoading(false);
     }
   };
+
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
@@ -51,9 +57,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(response.user);
       setToken(response.token);
       
-      // Store in localStorage
       localStorage.setItem('auth_token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
       
       setIsLoading(false);
       return true;
@@ -68,7 +72,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUser(null);
     setToken(null);
     localStorage.removeItem('auth_token');
-    localStorage.removeItem('user');
   };
 
 
@@ -81,8 +84,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setToken(response.token);
 
     localStorage.setItem('auth_token', response.token);
-    localStorage.setItem('user', JSON.stringify(response.user));
-
     setIsLoading(false);
     return true;
   } catch (error) {
