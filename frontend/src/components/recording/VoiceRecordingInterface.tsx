@@ -407,8 +407,8 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Duration Selection */}
       {!selectedDuration && (
-        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+        <div className="bg-card rounded-lg shadow-md p-6 border border-border">
+          <h2 className="text-xl font-semibold text-foreground mb-4 flex items-center">
             <ClockIcon className="w-5 h-5 mr-2" />
             Select Recording Duration
           </h2>
@@ -417,10 +417,10 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
               <button
                 key={option.value}
                 onClick={() => handleDurationSelect(option)}
-                className="p-4 border-2 border-gray-200 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-200 text-left"
+                className="p-4 border-2 border-border rounded-lg hover:border-primary hover:bg-nutral transition-all duration-200 text-left"
               >
-                <div className="font-semibold text-gray-900">{option.label}</div>
-                <div className="text-sm text-gray-600 mt-1">{option.description}</div>
+                <div className="font-semibold text-foreground">{option.label}</div>
+                <div className="text-sm text-secondary-foreground mt-1">{option.description}</div>
               </button>
             ))}
           </div>
@@ -429,15 +429,15 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
 
       {/* Script Display */}
       {selectedDuration && (
-        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+        <div className="bg-card rounded-lg shadow-md p-6 border border-border">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900 flex items-center">
+            <h2 className="text-xl font-semibold text-foreground flex items-center">
               <DocumentTextIcon className="w-5 h-5 mr-2" />
               Script ({selectedDuration.label})
             </h2>
             <button
               onClick={() => setSelectedDuration(null)}
-              className="text-sm text-indigo-600 hover:text-indigo-800"
+              className="text-sm text-primary hover:text-primary-hover"
             >
               Change Duration
             </button>
@@ -446,23 +446,23 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
               <LoadingSpinner size="md" />
-              <span className="ml-2 text-gray-600">Loading script...</span>
+              <span className="ml-2 text-secondary-foreground">Loading script...</span>
             </div>
           ) : currentScript ? (
-            <div className="bg-gray-50 rounded-lg p-4 mb-4">
-              <div className="text-lg leading-relaxed text-gray-900 font-bengali">
+            <div className="bg-nutral rounded-lg p-4 mb-4">
+              <div className="text-lg leading-relaxed text-foreground font-bengali">
                 {currentScript.text}
               </div>
             </div>
           ) : error ? (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-              <div className="flex items-center text-red-800">
+            <div className="bg-destructive border border-distructive-border rounded-lg p-4 mb-4">
+              <div className="flex items-center text-destructive-foreground">
                 <ExclamationTriangleIcon className="w-5 h-5 mr-2" />
                 {error}
               </div>
               <button
                 onClick={() => selectedDuration && loadScript(selectedDuration)}
-                className="mt-2 text-sm text-red-600 hover:text-red-800"
+                className="mt-2 text-sm text-destructive-foreground hover:text-destructive-foreground hover:underline"
               >
                 Try Again
               </button>
@@ -473,15 +473,15 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
 
       {/* Recording Controls */}
       {currentScript && recordingSession && (
-        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Recording Controls</h3>
+        <div className="bg-card rounded-lg shadow-md p-6 border border-border">
+          <h3 className="text-lg font-semibold text-foreground mb-4">Recording Controls</h3>
 
           {/* Recording Status */}
           <div className="text-center mb-6">
-            <div className="text-3xl font-mono font-bold text-gray-900 mb-2">
+            <div className="text-3xl font-mono font-bold text-foreground mb-2">
               {formatTime(recordingState.recordingTime)}
             </div>
-            <div className="text-sm text-gray-500 mb-4">
+            <div className="text-sm text-secondary-foreground mb-4">
               {recordingState.isRecording
                 ? (recordingState.isPaused ? 'Paused' : 'Recording...')
                 : recordingState.audioBlob
@@ -504,14 +504,14 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
             {/* Progress Bar */}
             {(recordingState.isRecording || recordingState.recordingTime > 0) && (
               <div className="mb-4">
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-background rounded-full h-2">
                   <div
-                    className={`h-2 rounded-full transition-all duration-1000 ${recordingState.isRecording ? 'bg-red-500' : 'bg-indigo-600'
+                    className={`h-2 rounded-full transition-all duration-1000 ${recordingState.isRecording ? 'bg-destructive' : 'bg-primary'
                       }`}
                     style={{ width: `${getProgressPercentage()}%` }}
                   />
                 </div>
-                <div className="text-xs text-gray-500 mt-1">
+                <div className="text-xs text-secondary-foreground mt-1">
                   {formatTime(getRemainingTime())} remaining
                 </div>
               </div>
@@ -523,7 +523,7 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
             {!recordingState.isRecording && !recordingState.audioBlob && (
               <button
                 onClick={startRecording}
-                className="w-16 h-16 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl"
+                className="w-16 h-16 rounded-full bg-primary hover:bg-primary-hover text-primary-foreground flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl"
               >
                 <MicrophoneIcon className="w-8 h-8" />
               </button>
@@ -533,7 +533,7 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
               <>
                 <button
                   onClick={togglePauseRecording}
-                  className="w-12 h-12 rounded-full bg-yellow-600 hover:bg-yellow-700 text-white flex items-center justify-center transition-all duration-200 shadow-lg"
+                  className="w-12 h-12 rounded-full bg-warning hover:bg-warning-hover text-warning-foreground flex items-center justify-center transition-all duration-200 shadow-lg"
                 >
                   {recordingState.isPaused ? (
                     <PlayIcon className="w-6 h-6" />
@@ -543,7 +543,7 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
                 </button>
                 <button
                   onClick={stopRecording}
-                  className={`w-16 h-16 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center transition-all duration-200 shadow-lg ${!recordingState.isPaused ? 'recording-pulse' : ''
+                  className={`w-16 h-16 rounded-full bg-destructive hover:bg-destructive-hover text-destructive-foreground flex items-center justify-center transition-all duration-200 shadow-lg ${!recordingState.isPaused ? 'recording-pulse' : ''
                     }`}
                 >
                   <StopIcon className="w-8 h-8" />
@@ -555,13 +555,13 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
               <>
                 <button
                   onClick={playRecording}
-                  className="w-12 h-12 rounded-full bg-green-600 hover:bg-green-700 text-white flex items-center justify-center transition-all duration-200"
+                  className="w-12 h-12 rounded-full bg-success hover:bg-success-hover text-success-foreground flex items-center justify-center transition-all duration-200"
                 >
                   <PlayIcon className="w-6 h-6" />
                 </button>
                 <button
                   onClick={resetRecording}
-                  className="w-12 h-12 rounded-full bg-gray-600 hover:bg-gray-700 text-white flex items-center justify-center transition-all duration-200"
+                  className="w-12 h-12 rounded-full bg-muted hover:bg-muted-hover text-muted-foreground flex items-center justify-center transition-all duration-200"
                 >
                   <ArrowPathIcon className="w-6 h-6" />
                 </button>
@@ -585,7 +585,7 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
               <button
                 onClick={uploadRecording}
                 disabled={uploadStatus === 'uploading'}
-                className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white py-3 px-4 rounded-lg font-medium transition-all duration-200 flex items-center justify-center"
+                className="w-full bg-info hover:bg-info-hover disabled:bg-muted text-info-foreground py-3 px-4 rounded-lg font-medium transition-all duration-200 flex items-center justify-center"
               >
                 {uploadStatus === 'uploading' ? (
                   <>
@@ -601,7 +601,7 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
 
           {/* Success Message */}
           {uploadStatus === 'success' && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center text-green-800">
+            <div className="bg-success-50 border border-success-border rounded-lg p-4 flex items-center text-success-foreground">
               <CheckCircleIcon className="w-5 h-5 mr-2" />
               Recording uploaded successfully! It will be processed for transcription.
             </div>
@@ -609,7 +609,7 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
 
           {/* Error Message */}
           {error && uploadStatus === 'error' && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center text-red-800">
+            <div className="bg-destructive border border-destructive-border rounded-lg p-4 flex items-center text-destructive-foreground">
               <ExclamationTriangleIcon className="w-5 h-5 mr-2" />
               {error}
             </div>

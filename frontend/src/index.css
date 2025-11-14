@@ -2,96 +2,188 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom slider styles */
-.slider {
-  -webkit-appearance: none;
-  appearance: none;
-  background: transparent;
-  cursor: pointer;
-}
-
-.slider::-webkit-slider-track {
-  background: #e5e7eb;
-  height: 8px;
-  border-radius: 4px;
-}
-
-.slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  background: #4f46e5;
-  height: 16px;
-  width: 16px;
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-.slider::-moz-range-track {
-  background: #e5e7eb;
-  height: 8px;
-  border-radius: 4px;
-  border: none;
-}
-
-.slider::-moz-range-thumb {
-  background: #4f46e5;
-  height: 16px;
-  width: 16px;
-  border-radius: 50%;
-  cursor: pointer;
-  border: none;
-}
+@import "tw-animate-css";
 
 /* Bangla font support */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@300;400;500;600;700&display=swap");
 
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+@layer base {
+  :root {
+    --radius: 0.65rem;
+
+    --background: hsl(0 0% 100%);
+    --foreground: hsl(235 36% 15%);
+
+    --card: hsl(0 0% 100%);
+    --card-foreground: hsl(235 36% 15%);
+    --popover: hsl(0 0% 100%);
+    --popover-foreground: hsl(235 36% 15%);
+
+    --primary: hsl(265 85% 60%);
+    --primary-foreground: hsl(0 0% 100%);
+    --primary-border: hsl(265 85% 54%);
+    --primary-hover: hsl(265 85% 55%);
+    --primary-active: hsl(265 85% 50%);
+
+    --secondary: hsl(230 25% 95%);
+    --secondary-foreground: hsl(235 40% 20%);
+    --secondary-border: hsl(230 20% 85%);
+    --secondary-hover: hsl(230 25% 92%);
+    --secondary-active: hsl(230 25% 88%);
+
+    --accent: hsl(230 25% 95%);
+    --accent-foreground: hsl(235 40% 20%);
+    --accent-border: hsl(230 20% 85%);
+    --accent-hover: hsl(230 25% 92%);
+    --accent-active: hsl(230 25% 88%);
+
+    --muted: hsl(230 25% 95%);
+    --muted-foreground: hsl(230 15% 45%);
+    --muted-border: hsl(230 20% 85%);
+
+    --destructive: hsl(0 84% 62%);
+    --destructive-foreground: hsl(0 0% 100%);
+    --destructive-border: hsl(0 84% 52%);
+    --destructive-hover: hsl(0 84% 58%);
+    --destructive-active: hsl(0 84% 50%);
+
+    --success: hsl(142 70% 40%);
+    --success-foreground: hsl(0 0% 100%);
+    --success-border: hsl(142 70% 35%);
+    --success-hover: hsl(142 70% 36%);
+    --success-active: hsl(142 70% 32%);
+
+    --warning: hsl(45 95% 55%);
+    --warning-foreground: hsl(0 0% 20%);
+    --warning-border: hsl(45 95% 48%);
+    --warning-hover: hsl(45 95% 52%);
+    --warning-active: hsl(45 95% 45%);
+
+    --info: hsl(205 92% 45%);
+    --info-foreground: hsl(0 0% 98%);
+    --info-border: hsl(205 92% 40%);
+    --info-hover: hsl(205 92% 43%);
+    --info-active: hsl(205 92% 38%);
+
+    --neutral: hsl(230 15% 90%);
+    --neutral-foreground: hsl(235 40% 20%);
+    --neutral-border: hsl(230 12% 80%);
+
+    --border: hsl(230 12% 85%);
+    --input: hsl(230 12% 90%);
+    --ring: hsl(265 85% 60%);
+  }
+
+  .dark {
+    --background: hsl(250 28% 10%);
+    --foreground: hsl(0 0% 98%);
+
+    --card: hsl(250 28% 12%);
+    --card-foreground: hsl(0 0% 98%);
+
+    --popover: hsl(250 28% 12%);
+    --popover-foreground: hsl(0 0% 98%);
+
+    --primary: hsl(265 85% 65%);
+    --primary-foreground: hsl(0 0% 100%);
+    --primary-border: hsl(265 85% 55%);
+    --primary-hover: hsl(265 85% 62%);
+    --primary-active: hsl(265 85% 58%);
+
+    --secondary: hsl(245 20% 20%);
+    --secondary-foreground: hsl(0 0% 98%);
+    --secondary-border: hsl(245 20% 30%);
+    --secondary-hover: hsl(245 20% 25%);
+    --secondary-active: hsl(245 20% 22%);
+
+    --accent: hsl(245 20% 20%);
+    --accent-foreground: hsl(0 0% 98%);
+    --accent-border: hsl(245 20% 30%);
+    --accent-hover: hsl(245 20% 26%);
+    --accent-active: hsl(245 20% 23%);
+
+    --muted: hsl(245 20% 20%);
+    --muted-foreground: hsl(220 15% 65%);
+    --muted-border: hsl(245 20% 30%);
+
+    --destructive: hsl(0 70% 38%);
+    --destructive-foreground: hsl(0 0% 98%);
+    --destructive-border: hsl(0 70% 48%);
+    --destructive-hover: hsl(0 70% 42%);
+    --destructive-active: hsl(0 70% 36%);
+
+    --success: hsl(142 70% 32%);
+    --success-foreground: hsl(140 90% 96%);
+    --success-border: hsl(142 70% 26%);
+    --success-hover: hsl(142 70% 29%);
+    --success-active: hsl(142 70% 24%);
+
+    --warning: hsl(45 86% 45%);
+    --warning-foreground: hsl(45 100% 97%);
+    --warning-border: hsl(45 86% 38%);
+    --warning-hover: hsl(45 86% 42%);
+    --warning-active: hsl(45 86% 36%);
+
+    --info: hsl(205 85% 40%);
+    --info-foreground: hsl(200 100% 98%);
+    --info-border: hsl(205 85% 35%);
+    --info-hover: hsl(205 85% 38%);
+    --info-active: hsl(205 85% 32%);
+
+    --neutral: hsl(245 15% 18%);
+    --neutral-foreground: hsl(0 0% 98%);
+    --neutral-border: hsl(245 15% 28%);
+
+    --border: hsl(245 15% 22%);
+    --input: hsl(245 15% 20%);
+    --ring: hsl(265 85% 65%);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    transition: background-color .25s ease, color .25s ease;
+  }
+
+  .card { background: var(--card); color: var(--card-foreground); }
+  .popover { background: var(--popover); color: var(--popover-foreground); }
+
+  input, textarea, select {
+    background: var(--input);
+    border-color: var(--border);
+    color: var(--foreground);
+  }
+
+  .font-bengali {
+    font-family: "Noto Sans Bengali", "Segoe UI", sans-serif;
+    line-height: 1.8;
+    font-size: 1.1em;
+  }
 }
 
-/* Bangla text specific styling */
-.font-bengali {
-  font-family: 'Noto Sans Bengali', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.8;
-  font-size: 1.1em;
-}
-
-/* Recording interface specific styles */
+/* RECORDING EFFECT */
 .recording-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: pulse 2s cubic-bezier(.4,0,.6,1) infinite;
 }
+@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:.5;} }
 
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: .5;
-  }
-}
-
-/* Audio waveform visualization */
+/* AUDIO WAVES */
 .audio-visualizer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 60px;
-  gap: 2px;
+  display:flex; align-items:center; justify-content:center;
+  height:60px; gap:2px;
 }
-
 .audio-bar {
-  width: 3px;
-  background: #4f46e5;
-  border-radius: 2px;
-  animation: audioWave 1.5s ease-in-out infinite;
+  width:3px; background:#6d28d9;
+  border-radius:2px;
+  animation:audioWave 1.5s ease-in-out infinite;
 }
-
-.audio-bar:nth-child(2) { animation-delay: 0.1s; }
-.audio-bar:nth-child(3) { animation-delay: 0.2s; }
-.audio-bar:nth-child(4) { animation-delay: 0.3s; }
-.audio-bar:nth-child(5) { animation-delay: 0.4s; }
+.audio-bar:nth-child(2){animation-delay:.1s;}
+.audio-bar:nth-child(3){animation-delay:.2s;}
+.audio-bar:nth-child(4){animation-delay:.3s;}
+.audio-bar:nth-child(5){animation-delay:.4s;}
 
 @keyframes audioWave {
-  0%, 100% { height: 10px; }
-  50% { height: 40px; }
+  0%,100%{height:10px;}
+  50%{height:40px;}
 }

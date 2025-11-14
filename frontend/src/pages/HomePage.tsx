@@ -33,16 +33,16 @@ const HomePage: React.FC = () => {
     return (
       <div className="text-center">
         <div className="max-w-3xl mx-auto">
-          <MicrophoneIcon className="mx-auto h-16 w-16 text-indigo-600 mb-8" />
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <MicrophoneIcon className="mx-auto h-16 w-16 text-primary mb-8" />
+          <h1 className="text-4xl font-bold text-foreground mb-4">
             Voice Collection Platform
           </h1>
-          <p className="text-xl text-gray-600 mb-8">
+          <p className="text-xl text-secondary-foreground mb-8">
             Help us build better AI by contributing your voice and transcription skills
           </p>
           <Link
             to="/login"
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg text-lg font-medium transition-colors"
+            className="bg-primary hover:bg-primary-hover text-primary-foreground px-8 py-3 rounded-lg text-lg font-medium transition-colors"
           >
             Get Started
           </Link>
@@ -57,14 +57,16 @@ const HomePage: React.FC = () => {
       description: 'Read Bangla scripts and contribute voice recordings',
       icon: MicrophoneIcon,
       href: '/record',
-      color: 'bg-blue-500',
+      bgcolor: 'bg-primary',
+      color: 'text-primary-foreground',
     },
     {
       name: 'Transcribe Audio',
       description: 'Listen to audio clips and provide accurate transcriptions',
       icon: DocumentTextIcon,
       href: '/transcribe',
-      color: 'bg-green-500',
+      bgcolor: 'bg-success',
+      color: 'text-success-foreground',
     },
   ];
 
@@ -74,7 +76,8 @@ const HomePage: React.FC = () => {
       description: 'Download validated datasets for AI training',
       icon: ArrowDownTrayIcon,
       href: '/export',
-      color: 'bg-indigo-500',
+      bgcolor: 'bg-info',
+      color: 'text-info-foreground',
     });
   }
 
@@ -84,17 +87,18 @@ const HomePage: React.FC = () => {
       description: 'Manage users, scripts, and monitor platform activity',
       icon: ChartBarIcon,
       href: '/admin',
-      color: 'bg-purple-500',
+      bgcolor: 'bg-info',
+      color: 'text-info-foreground',
     });
   }
 
   return (
     <div className="max-w-6xl mx-auto">
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
+        <h1 className="text-4xl font-bold text-foreground mb-4">
           Welcome back, {user?.name}!
         </h1>
-        <p className="text-xl text-gray-600">
+        <p className="text-xl text-secondary-foreground">
           Choose how you'd like to contribute today
         </p>
       </div>
@@ -106,15 +110,15 @@ const HomePage: React.FC = () => {
             <Link
               key={feature.name}
               to={feature.href}
-              className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 border border-gray-200"
+              className="bg-card rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 border border-border"
             >
-              <div className={`w-12 h-12 ${feature.color} rounded-lg flex items-center justify-center mb-4`}>
-                <Icon className="h-6 w-6 text-white" />
+              <div className={`w-12 h-12 ${feature.bgcolor} rounded-lg flex items-center justify-center mb-4`}>
+                <Icon className={`h-6 w-6 ${feature.color}`} />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              <h3 className="text-xl font-semibold text-card-foreground mb-2">
                 {feature.name}
               </h3>
-              <p className="text-gray-600">
+              <p className="text-secondary-foreground">
                 {feature.description}
               </p>
             </Link>
@@ -122,8 +126,8 @@ const HomePage: React.FC = () => {
         })}
       </div>
 
-      <div className="mt-12 bg-white rounded-lg shadow-md p-6 border border-gray-200">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Your Contribution Stats</h2>
+      <div className="mt-12 bg-card rounded-lg shadow-md p-6 border border-border">
+        <h2 className="text-2xl font-bold text-foreground mb-4">Your Contribution Stats</h2>
         {statsLoading ? (
           <div className="flex justify-center py-8">
             <LoadingSpinner />
@@ -131,22 +135,22 @@ const HomePage: React.FC = () => {
         ) : (
           <div className="grid md:grid-cols-3 gap-6">
             <div className="text-center">
-              <div className="text-3xl font-bold text-indigo-600 mb-2">
+              <div className="text-3xl font-bold text-primary mb-2">
                 {userStats?.recordings_count || 0}
               </div>
-              <div className="text-gray-600">Voice Recordings</div>
+              <div className="text-secondary-foreground">Voice Recordings</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-green-600 mb-2">
+              <div className="text-3xl font-bold text-success mb-2">
                 {userStats?.transcriptions_count || 0}
               </div>
-              <div className="text-gray-600">Transcriptions</div>
+              <div className="text-secondary-foreground">Transcriptions</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-purple-600 mb-2">
+              <div className="text-3xl font-bold text-info mb-2">
                 {userStats?.avg_transcription_quality ? userStats.avg_transcription_quality.toFixed(1) : 'N/A'}
               </div>
-              <div className="text-gray-600">Quality Score</div>
+              <div className="text-secondary-foreground">Quality Score</div>
             </div>
           </div>
         )}

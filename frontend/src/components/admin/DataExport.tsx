@@ -204,12 +204,12 @@ const DataExport: React.FC = () => {
   // Check if user has export permissions
   if (user?.role !== 'sworik_developer' && user?.role !== 'admin') {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+      <div className="bg-destructive border border-destructive-border rounded-lg p-6">
         <div className="flex items-center">
-          <ExclamationTriangleIcon className="h-6 w-6 text-red-600 mr-3" />
+          <ExclamationTriangleIcon className="h-6 w-6 text-destructive-foreground mr-3" />
           <div>
-            <h3 className="text-lg font-medium text-red-800">Access Denied</h3>
-            <p className="text-red-700 mt-1">
+            <h3 className="text-lg font-medium text-destructive-foreground">Access Denied</h3>
+            <p className="text-destructive-foreground mt-1">
               Data export functionality is restricted to Admins and Sworik developers only.
             </p>
           </div>
@@ -227,43 +227,43 @@ const DataExport: React.FC = () => {
   return (
     <div className="max-w-6xl mx-auto">
       <div className="text-center mb-8">
-        <ArrowDownTrayIcon className="mx-auto h-16 w-16 text-blue-600 mb-4" />
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Data Export</h1>
-        <p className="text-gray-600">
+        <ArrowDownTrayIcon className="mx-auto h-16 w-16 text-primary mb-4" />
+        <h1 className="text-3xl font-bold text-foreground mb-2">Data Export</h1>
+        <p className="text-secondary-foreground">
           Export validated datasets and platform metadata for AI training
         </p>
       </div>
 
       {/* Platform Statistics Overview */}
       {platformStats && (
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8 border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <InformationCircleIcon className="h-6 w-6 text-blue-600 mr-2" />
+        <div className="bg-card rounded-lg shadow-md p-6 mb-8 border border-border">
+          <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center">
+            <InformationCircleIcon className="h-6 w-6 text-primary mr-2" />
             Platform Overview
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
-              <p className="text-2xl font-bold text-gray-900">{platformStats.statistics?.total_recordings || 0}</p>
-              <p className="text-sm text-gray-600">Total Recordings</p>
+              <p className="text-2xl font-bold text-foreground">{platformStats.statistics?.total_recordings || 0}</p>
+              <p className="text-sm text-secondary-foreground">Total Recordings</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-gray-900">{platformStats.statistics?.total_chunks || 0}</p>
-              <p className="text-sm text-gray-600">Audio Chunks</p>
+              <p className="text-2xl font-bold text-foreground">{platformStats.statistics?.total_chunks || 0}</p>
+              <p className="text-sm text-secondary-foreground">Audio Chunks</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-gray-900">{platformStats.statistics?.total_transcriptions || 0}</p>
-              <p className="text-sm text-gray-600">Transcriptions</p>
+              <p className="text-2xl font-bold text-foreground">{platformStats.statistics?.total_transcriptions || 0}</p>
+              <p className="text-sm text-secondary-foreground">Transcriptions</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-gray-900">{platformStats.statistics?.validated_transcriptions || 0}</p>
-              <p className="text-sm text-gray-600">Validated</p>
+              <p className="text-2xl font-bold text-foreground">{platformStats.statistics?.validated_transcriptions || 0}</p>
+              <p className="text-sm text-secondary-foreground">Validated</p>
             </div>
           </div>
         </div>
       )}
 
       {/* Tab Navigation */}
-      <div className="border-b border-gray-200 mb-8">
+      <div className="border-b border-border mb-8">
         <nav className="-mb-px flex space-x-8">
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -273,8 +273,8 @@ const DataExport: React.FC = () => {
                 onClick={() => setActiveTab(tab.id)}
                 className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
                   activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-primary-border text-primary'
+                    : 'border-transparent text-secondary-foreground hover:text-primary hover:border-primary-border'
                 }`}
               >
                 <Icon className="h-5 w-5" />
@@ -287,19 +287,19 @@ const DataExport: React.FC = () => {
 
       {/* Error/Success Messages */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+        <div className="bg-destructive border border-destructive-border rounded-lg p-4 mb-6">
           <div className="flex items-center">
             <ExclamationTriangleIcon className="h-5 w-5 text-red-600 mr-2" />
-            <p className="text-red-800">{error}</p>
+            <p className="text-destructive">{error}</p>
           </div>
         </div>
       )}
 
       {success && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+        <div className="bg-success border border-success-border rounded-lg p-4 mb-6">
           <div className="flex items-center">
-            <CheckCircleIcon className="h-5 w-5 text-green-600 mr-2" />
-            <p className="text-green-800">{success}</p>
+            <CheckCircleIcon className="h-5 w-5 text-success-foreground mr-2" />
+            <p className="text-success-foreground">{success}</p>
           </div>
         </div>
       )}
@@ -307,9 +307,9 @@ const DataExport: React.FC = () => {
       {/* Tab Content */}
       <div className="min-h-96">
         {activeTab === 'dataset' && (
-          <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
-              <DocumentArrowDownIcon className="h-6 w-6 text-blue-600 mr-2" />
+          <div className="bg-card rounded-lg shadow-md p-6 border border-border">
+            <h3 className="text-lg font-semibold text-foreground mb-6 flex items-center">
+              <DocumentArrowDownIcon className="h-6 w-6 text-primary mr-2" />
               Export Dataset
             </h3>
             
@@ -318,7 +318,7 @@ const DataExport: React.FC = () => {
               <div className="space-y-6">
                 {/* Format Selection */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Export Format
                   </label>
                   <select
@@ -327,7 +327,7 @@ const DataExport: React.FC = () => {
                       ...prev, 
                       format: e.target.value as any 
                     }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring"
                   >
                     <option value="json">JSON - Standard format with nested structure</option>
                     <option value="csv">CSV - Comma-separated values (flattened)</option>
@@ -338,7 +338,7 @@ const DataExport: React.FC = () => {
 
                 {/* Quality Filters */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                  <label className="block text-sm font-medium text-secondary-foreground mb-3">
                     Quality Filters
                   </label>
                   <div className="space-y-3">
@@ -355,9 +355,9 @@ const DataExport: React.FC = () => {
                             validated_only: prev.quality_filters?.validated_only || false
                           }
                         }))}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-primary focus:ring-ring border-ring rounded"
                       />
-                      <label htmlFor="consensus_only" className="ml-2 text-sm text-gray-700">
+                      <label htmlFor="consensus_only" className="ml-2 text-sm text-secondary-foreground">
                         Consensus transcriptions only
                       </label>
                     </div>
@@ -374,16 +374,16 @@ const DataExport: React.FC = () => {
                             consensus_only: prev.quality_filters?.consensus_only || false
                           }
                         }))}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-primary focus:ring-ring border-ring rounded"
                       />
-                      <label htmlFor="validated_only" className="ml-2 text-sm text-gray-700">
+                      <label htmlFor="validated_only" className="ml-2 text-sm text-secondary-foreground">
                         Validated transcriptions only
                       </label>
                     </div>
                     
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-xs text-gray-600 mb-1">Min Confidence</label>
+                        <label className="block text-xs text-secondary-foreground mb-1">Min Confidence</label>
                         <input
                           type="number"
                           min="0"
@@ -399,12 +399,12 @@ const DataExport: React.FC = () => {
                               validated_only: prev.quality_filters?.validated_only || false
                             }
                           }))}
-                          className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
+                          className="w-full px-2 py-1 text-sm border border-border rounded focus:ring-1 focus:ring-ring"
                           placeholder="0.0-1.0"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs text-gray-600 mb-1">Min Quality</label>
+                        <label className="block text-xs text-secondary-foreground mb-1">Min Quality</label>
                         <input
                           type="number"
                           min="0"
@@ -420,7 +420,7 @@ const DataExport: React.FC = () => {
                               validated_only: prev.quality_filters?.validated_only || false
                             }
                           }))}
-                          className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
+                          className="w-full px-2 py-1 text-sm border border-border rounded focus:ring-1 focus:ring-ring"
                           placeholder="0.0-1.0"
                         />
                       </div>
@@ -435,7 +435,7 @@ const DataExport: React.FC = () => {
                   </label>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs text-gray-600 mb-1">From</label>
+                      <label className="block text-xs text-secondary-foreground mb-1">From</label>
                       <input
                         type="date"
                         value={datasetRequest.date_from || ''}
@@ -443,11 +443,11 @@ const DataExport: React.FC = () => {
                           ...prev, 
                           date_from: e.target.value || undefined 
                         }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-gray-600 mb-1">To</label>
+                      <label className="block text-xs text-secondary-foreground mb-1">To</label>
                       <input
                         type="date"
                         value={datasetRequest.date_to || ''}
@@ -455,7 +455,7 @@ const DataExport: React.FC = () => {
                           ...prev, 
                           date_to: e.target.value || undefined 
                         }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring"
                       />
                     </div>
                   </div>
@@ -463,7 +463,7 @@ const DataExport: React.FC = () => {
 
                 {/* Max Records */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-secondary-foreground mb-2">
                     Maximum Records (Optional)
                   </label>
                   <input
@@ -474,7 +474,7 @@ const DataExport: React.FC = () => {
                       ...prev, 
                       max_records: e.target.value ? parseInt(e.target.value) : undefined 
                     }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring"
                     placeholder="Leave empty for all records"
                   />
                 </div>
@@ -483,7 +483,7 @@ const DataExport: React.FC = () => {
               {/* Export Options */}
               <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                  <label className="block text-sm font-medium text-secondary-foreground mb-3">
                     Include Options
                   </label>
                   <div className="space-y-3">
@@ -496,9 +496,9 @@ const DataExport: React.FC = () => {
                           ...prev, 
                           include_metadata: e.target.checked 
                         }))}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-primary focus:ring-ring border-border rounded"
                       />
-                      <label htmlFor="include_metadata" className="ml-2 text-sm text-gray-700">
+                      <label htmlFor="include_metadata" className="ml-2 text-sm text-secondary-foreground">
                         Include detailed metadata
                       </label>
                     </div>
@@ -511,9 +511,9 @@ const DataExport: React.FC = () => {
                           ...prev, 
                           include_audio_paths: e.target.checked 
                         }))}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-primary focus:ring-ring border-border rounded"
                       />
-                      <label htmlFor="include_audio_paths" className="ml-2 text-sm text-gray-700">
+                      <label htmlFor="include_audio_paths" className="ml-2 text-sm text-secondary-foreground">
                         Include audio file paths
                       </label>
                     </div>
@@ -525,7 +525,7 @@ const DataExport: React.FC = () => {
                   <button
                     onClick={handleDatasetExport}
                     disabled={loading}
-                    className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                    className="w-full bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                   >
                     {loading ? (
                       <LoadingSpinner />
@@ -543,16 +543,16 @@ const DataExport: React.FC = () => {
         )}
 
         {activeTab === 'metadata' && (
-          <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
-              <ChartBarIcon className="h-6 w-6 text-green-600 mr-2" />
+          <div className="bg-card rounded-lg shadow-md p-6 border border-border">
+            <h3 className="text-lg font-semibold text-foreground mb-6 flex items-center">
+              <ChartBarIcon className="h-6 w-6 text-success mr-2" />
               Export Metadata
             </h3>
             
             <div className="max-w-md mx-auto space-y-6">
               {/* Format Selection */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-secondary-foreground mb-2">
                   Export Format
                 </label>
                 <select
@@ -561,7 +561,7 @@ const DataExport: React.FC = () => {
                     ...prev, 
                     format: e.target.value as any 
                   }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring"
                 >
                   <option value="json">JSON - Standard format</option>
                   <option value="csv">CSV - Comma-separated values</option>
@@ -570,7 +570,7 @@ const DataExport: React.FC = () => {
 
               {/* Include Options */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
+                <label className="block text-sm font-medium text-secondary-foreground mb-3">
                   Include Options
                 </label>
                 <div className="space-y-3">
@@ -583,9 +583,9 @@ const DataExport: React.FC = () => {
                         ...prev, 
                         include_statistics: e.target.checked 
                       }))}
-                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                      className="h-5 w-5 border-border rounded"
                     />
-                    <label htmlFor="include_statistics" className="ml-2 text-sm text-gray-700">
+                    <label htmlFor="include_statistics" className="ml-2 text-sm text-secondary-foreground">
                       Platform statistics
                     </label>
                   </div>
@@ -598,9 +598,9 @@ const DataExport: React.FC = () => {
                         ...prev, 
                         include_user_stats: e.target.checked 
                       }))}
-                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                      className="h-5 w-5 border-border rounded"
                     />
-                    <label htmlFor="include_user_stats" className="ml-2 text-sm text-gray-700">
+                    <label htmlFor="include_user_stats" className="ml-2 text-sm text-secondary-foreground">
                       Per-user statistics
                     </label>
                   </div>
@@ -613,9 +613,9 @@ const DataExport: React.FC = () => {
                         ...prev, 
                         include_quality_metrics: e.target.checked 
                       }))}
-                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                      className="h-5 w-5 border-border rounded"
                     />
-                    <label htmlFor="include_quality_metrics" className="ml-2 text-sm text-gray-700">
+                    <label htmlFor="include_quality_metrics" className="ml-2 text-sm text-secondary-foreground">
                       Quality metrics
                     </label>
                   </div>
@@ -627,7 +627,7 @@ const DataExport: React.FC = () => {
                 <button
                   onClick={handleMetadataExport}
                   disabled={loading}
-                  className="w-full bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                  className="w-full bg-success text-success-foreground px-6 py-3 rounded-lg hover:bg-success-hover disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                 >
                   {loading ? (
                     <LoadingSpinner />
@@ -644,17 +644,17 @@ const DataExport: React.FC = () => {
         )}
 
         {activeTab === 'history' && (
-          <div className="bg-white rounded-lg shadow-md border border-gray-200">
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                <ClockIcon className="h-6 w-6 text-purple-600 mr-2" />
+          <div className="bg-card rounded-lg shadow-md border border-border">
+            <div className="p-6 border-b border-border">
+              <h3 className="text-lg font-semibold text-foreground flex items-center">
+                <ClockIcon className="h-6 w-6 text-info mr-2" />
                 Export History
               </h3>
               
               {/* History Filters */}
               <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-secondary-foreground mb-1">
                     Export Type
                   </label>
                   <select
@@ -663,7 +663,7 @@ const DataExport: React.FC = () => {
                       ...prev, 
                       export_type: e.target.value 
                     }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full px-3 py-3 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring"
                   >
                     <option value="">All Types</option>
                     <option value="dataset">Dataset</option>
@@ -671,7 +671,7 @@ const DataExport: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-secondary-foreground mb-1">
                     From Date
                   </label>
                   <input
@@ -681,11 +681,11 @@ const DataExport: React.FC = () => {
                       ...prev, 
                       date_from: e.target.value 
                     }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-secondary-foreground mb-1">
                     To Date
                   </label>
                   <input
@@ -695,7 +695,7 @@ const DataExport: React.FC = () => {
                       ...prev, 
                       date_to: e.target.value 
                     }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring"
                   />
                 </div>
               </div>
@@ -708,60 +708,60 @@ const DataExport: React.FC = () => {
                   <LoadingSpinner />
                 </div>
               ) : exportHistory?.logs.length ? (
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                <table className="min-w-full divide-y divide-border">
+                  <thead className="bg-background">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Export ID
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Type
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Format
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Records
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Size
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         User
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-mutated-foreground uppercase tracking-wider">
                         Date
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-card divide-y divide-border">
                     {exportHistory.logs.map((log) => (
-                      <tr key={log.id} className="hover:bg-gray-50">
+                      <tr key={log.id} className="hover:bg-background">
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
                           {log.export_id.substring(0, 8)}...
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                             log.export_type === 'dataset' 
-                              ? 'bg-blue-100 text-blue-800' 
-                              : 'bg-green-100 text-green-800'
+                              ? 'bg-primary text-primary-foreground' 
+                              : 'bg-success text-primary-foreground'
                           }`}>
                             {log.export_type}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 uppercase">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground uppercase">
                           {log.format}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                           {log.records_exported.toLocaleString()}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                           {formatFileSize(log.file_size_bytes)}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                           {log.user_email}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                           {formatDate(log.created_at)}
                         </td>
                       </tr>
@@ -770,9 +770,9 @@ const DataExport: React.FC = () => {
                 </table>
               ) : (
                 <div className="text-center py-12">
-                  <DocumentTextIcon className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-sm font-medium text-gray-900">No export history</h3>
-                  <p className="mt-1 text-sm text-gray-500">
+                  <DocumentTextIcon className="mx-auto h-12 w-12 text-accent" />
+                  <h3 className="mt-2 text-sm font-medium text-foreground">No export history</h3>
+                  <p className="mt-1 text-sm text-secondary-foreground">
                     No exports have been performed yet.
                   </p>
                 </div>
@@ -781,22 +781,22 @@ const DataExport: React.FC = () => {
 
             {/* Pagination */}
             {exportHistory && exportHistory.total_count > 20 && (
-              <div className="px-6 py-3 border-t border-gray-200 flex items-center justify-between">
-                <div className="text-sm text-gray-700">
+              <div className="px-6 py-3 border-t border-border flex items-center justify-between">
+                <div className="text-sm text-secondary-foreground">
                   Showing {((historyPage - 1) * 20) + 1} to {Math.min(historyPage * 20, exportHistory.total_count)} of {exportHistory.total_count} results
                 </div>
                 <div className="flex space-x-2">
                   <button
                     onClick={() => setHistoryPage(prev => Math.max(1, prev - 1))}
                     disabled={historyPage === 1}
-                    className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                    className="px-3 py-1 border border-border rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-background"
                   >
                     Previous
                   </button>
                   <button
                     onClick={() => setHistoryPage(prev => prev + 1)}
                     disabled={historyPage * 20 >= exportHistory.total_count}
-                    className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                    className="px-3 py-1 border border-border rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-background"
                   >
                     Next
                   </button>
