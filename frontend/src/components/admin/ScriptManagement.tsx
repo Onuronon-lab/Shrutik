@@ -200,12 +200,12 @@ const ScriptManagement: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <DocumentTextIcon className="h-8 w-8 text-green-600" />
-          <h2 className="text-2xl font-bold text-gray-900">Script Management</h2>
+          <DocumentTextIcon className="h-8 w-8 text-success" />
+          <h2 className="text-2xl font-bold text-foreground">Script Management</h2>
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+          className="bg-success text-success-foreground px-4 py-2 rounded-lg hover:bg-success-hover transition-colors flex items-center space-x-2"
         >
           <PlusIcon className="h-5 w-5" />
           <span>Add Script</span>
@@ -213,31 +213,31 @@ const ScriptManagement: React.FC = () => {
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="bg-destructive border border-destructive-border rounded-lg p-4">
           <div className="flex items-center">
-            <XCircleIcon className="h-5 w-5 text-red-600 mr-2" />
-            <p className="text-red-800">{error}</p>
+            <XCircleIcon className="h-5 w-5 text-destructive-foreground mr-2" />
+            <p className="text-destructive-foreground">{error}</p>
           </div>
         </div>
       )}
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+      <div className="bg-card rounded-lg shadow-md p-6 border border-border">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="relative">
-            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-accent" />
             <input
               type="text"
               placeholder="Search scripts..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="pl-10 pr-4 py-2 w-full border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
             />
           </div>
           <select
             value={durationFilter}
             onChange={(e) => setDurationFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
           >
             <option value="">All Durations</option>
             <option value="2_minutes">2 Minutes</option>
@@ -248,30 +248,30 @@ const ScriptManagement: React.FC = () => {
       </div>
 
       {/* Scripts Table */}
-      <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+      <div className="bg-card rounded-lg shadow-md border border-border overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-border">
+            <thead className="bg-background">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-secondary-foreground uppercase tracking-wider">
                   Script Text
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-secondary-foreground uppercase tracking-wider">
                   Duration
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-secondary-foreground uppercase tracking-wider">
                   Created
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-secondary-foreground uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-card divide-y divide-border">
               {filteredScripts.map((script) => (
-                <tr key={script.id} className="hover:bg-gray-50">
+                <tr key={script.id} className="hover:bg-background">
                   <td className="px-6 py-4">
-                    <div className="text-sm text-gray-900">
+                    <div className="text-sm text-foreground">
                       <p className="line-clamp-3">{script.text}</p>
                     </div>
                   </td>
@@ -280,20 +280,20 @@ const ScriptManagement: React.FC = () => {
                       {getDurationLabel(script.duration_category)}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary-foreground">
                     {formatDate(script.created_at)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
                       <button
                         onClick={() => openEditModal(script)}
-                        className="text-blue-600 hover:text-blue-900"
+                        className="text-primary hover:text-primary-hover"
                       >
                         <PencilIcon className="h-5 w-5" />
                       </button>
                       <button
                         onClick={() => handleDelete(script.id)}
-                        className="text-red-600 hover:text-red-900"
+                        className="text-destructive hover:text-destructive-hover"
                       >
                         <TrashIcon className="h-5 w-5" />
                       </button>
@@ -307,9 +307,9 @@ const ScriptManagement: React.FC = () => {
 
         {filteredScripts.length === 0 && (
           <div className="text-center py-12">
-            <DocumentTextIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No scripts found</h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <DocumentTextIcon className="mx-auto h-12 w-12 text-gray-accent" />
+            <h3 className="mt-2 text-sm font-medium text-foreground">No scripts found</h3>
+            <p className="mt-1 text-sm text-secondary-foreground">
               {searchTerm || durationFilter ? 'Try adjusting your filters.' : 'Get started by adding a new script.'}
             </p>
           </div>
@@ -319,21 +319,21 @@ const ScriptManagement: React.FC = () => {
       {/* Pagination */}
       {pagination.total_pages > 1 && (
         <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-700">
+          <div className="text-sm text-secondary-foreground">
             Showing {((pagination.page - 1) * pagination.per_page) + 1} to {Math.min(pagination.page * pagination.per_page, pagination.total)} of {pagination.total} scripts
           </div>
           <div className="flex space-x-2">
             <button
               onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
               disabled={pagination.page === 1}
-              className="px-3 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              className="px-3 py-2 border border-border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-background"
             >
               Previous
             </button>
             <button
               onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
               disabled={pagination.page === pagination.total_pages}
-              className="px-3 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              className="px-3 py-2 border border-border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-background"
             >
               Next
             </button>
@@ -343,22 +343,22 @@ const ScriptManagement: React.FC = () => {
 
       {/* Create/Edit Script Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-10 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-10 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-card">
             <div className="mt-3">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
+              <h3 className="text-lg font-medium text-foreground mb-4">
                 {editingScript ? 'Edit Script' : 'Add New Script'}
               </h3>
               
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-secondary-foreground mb-2">
                     Duration Category
                   </label>
                   <select
                     value={formData.duration_category}
                     onChange={(e) => setFormData({ ...formData, duration_category: e.target.value as any })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
                   >
                     <option value="2_minutes">2 Minutes</option>
                     <option value="5_minutes">5 Minutes</option>
@@ -367,14 +367,14 @@ const ScriptManagement: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-secondary-foreground mb-2">
                     Script Text (Bangla)
                   </label>
                   <textarea
                     value={formData.text}
                     onChange={(e) => setFormData({ ...formData, text: e.target.value })}
                     rows={8}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
                     placeholder="Enter the Bangla script text here..."
                     required
                   />
@@ -385,7 +385,7 @@ const ScriptManagement: React.FC = () => {
                     type="button"
                     onClick={validateScript}
                     disabled={!formData.text.trim() || validating}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                    className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
                   >
                     {validating && <LoadingSpinner size="sm" className="mr-2" />}
                     <ClockIcon className="h-4 w-4 mr-2" />
@@ -394,14 +394,14 @@ const ScriptManagement: React.FC = () => {
                 </div>
 
                 {validation && (
-                  <div className={`p-4 rounded-lg ${validation.is_valid ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+                  <div className={`p-4 rounded-lg ${validation.is_valid ? 'bg-success border border-success-border' : 'bg-destructive border border-destructive-border'}`}>
                     <div className="flex items-center mb-2">
                       {validation.is_valid ? (
-                        <CheckCircleIcon className="h-5 w-5 text-green-600 mr-2" />
+                        <CheckCircleIcon className="h-5 w-5 text-success-foreground mr-2" />
                       ) : (
-                        <XCircleIcon className="h-5 w-5 text-red-600 mr-2" />
+                        <XCircleIcon className="h-5 w-5 text-destructive-foreground mr-2" />
                       )}
-                      <span className={`font-medium ${validation.is_valid ? 'text-green-800' : 'text-red-800'}`}>
+                      <span className={`font-medium ${validation.is_valid ? 'text-success-foreground' : 'text-destructive-foreground'}`}>
                         {validation.is_valid ? 'Script is valid' : 'Script has issues'}
                       </span>
                     </div>
@@ -416,8 +416,8 @@ const ScriptManagement: React.FC = () => {
 
                     {validation.errors.length > 0 && (
                       <div className="mt-2">
-                        <p className="text-red-800 font-medium">Errors:</p>
-                        <ul className="list-disc list-inside text-red-700 text-sm">
+                        <p className="text-destructive-foreground font-medium">Errors:</p>
+                        <ul className="list-disc list-inside text-destructive-foreground text-sm">
                           {validation.errors.map((error, index) => (
                             <li key={index}>{error}</li>
                           ))}
@@ -427,8 +427,8 @@ const ScriptManagement: React.FC = () => {
 
                     {validation.warnings.length > 0 && (
                       <div className="mt-2">
-                        <p className="text-yellow-800 font-medium">Warnings:</p>
-                        <ul className="list-disc list-inside text-yellow-700 text-sm">
+                        <p className="text-warning-foreground font-medium">Warnings:</p>
+                        <ul className="list-disc list-inside text-warning-foreground text-sm">
                           {validation.warnings.map((warning, index) => (
                             <li key={index}>{warning}</li>
                           ))}
@@ -442,7 +442,7 @@ const ScriptManagement: React.FC = () => {
                   <button
                     type="button"
                     onClick={closeModal}
-                    className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+                    className="px-4 py-2 text-secondary-foreground border border-border rounded-lg hover:bg-background"
                     disabled={submitting}
                   >
                     Cancel
@@ -450,7 +450,7 @@ const ScriptManagement: React.FC = () => {
                   <button
                     type="submit"
                     disabled={submitting || !formData.text.trim()}
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                    className="px-4 py-2 bg-success text-success-foreground rounded-lg hover:bg-success-hover disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
                   >
                     {submitting && <LoadingSpinner size="sm" className="mr-2" />}
                     {editingScript ? 'Update Script' : 'Create Script'}

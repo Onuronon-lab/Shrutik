@@ -92,14 +92,14 @@ const AdminPage: React.FC = () => {
 
     if (error) {
       return (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+        <div className="bg-destructive border border-destructive-border rounded-lg p-6">
           <div className="flex items-center">
-            <XCircleIcon className="h-6 w-6 text-red-600 mr-3" />
-            <p className="text-red-800">{error}</p>
+            <XCircleIcon className="h-6 w-6 text-destructive-foreground mr-3" />
+            <p className="text-destructive-foreground">{error}</p>
           </div>
           <button
             onClick={loadOverviewData}
-            className="mt-4 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+            className="mt-4 bg-destructive text-destructive-foreground px-4 py-2 rounded-lg hover:bg-destructive-hover transition-colors"
           >
             Retry
           </button>
@@ -111,33 +111,33 @@ const AdminPage: React.FC = () => {
       <div className="space-y-6">
         {/* System Health */}
         {systemHealth && (
-          <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+          <div className="bg-card rounded-lg shadow-md p-6 border border-border">
+            <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center">
               {systemHealth.database_status === 'healthy' ? (
-                <CheckCircleIcon className="h-6 w-6 text-green-600 mr-2" />
+                <CheckCircleIcon className="h-6 w-6 text-success mr-2" />
               ) : (
-                <XCircleIcon className="h-6 w-6 text-red-600 mr-2" />
+                <XCircleIcon className="h-6 w-6 text-destructive mr-2" />
               )}
               System Health
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center">
-                <p className="text-2xl font-bold text-gray-900">{systemHealth.active_users_last_24h}</p>
-                <p className="text-sm text-gray-600">Active Users (24h)</p>
+                <p className="text-2xl font-bold text-foreground">{systemHealth.active_users_last_24h}</p>
+                <p className="text-sm text-secondary-foreground">Active Users (24h)</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-gray-900">{systemHealth.processing_queue_size}</p>
-                <p className="text-sm text-gray-600">Processing Queue</p>
+                <p className="text-2xl font-bold text-foreground">{systemHealth.processing_queue_size}</p>
+                <p className="text-sm text-secondary-foreground">Processing Queue</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-gray-900">{systemHealth.failed_recordings_count}</p>
-                <p className="text-sm text-gray-600">Failed Recordings</p>
+                <p className="text-2xl font-bold text-foreground">{systemHealth.failed_recordings_count}</p>
+                <p className="text-sm text-secondary-foreground">Failed Recordings</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-2xl font-bold text-foreground">
                   {systemHealth.avg_response_time ? `${systemHealth.avg_response_time.toFixed(0)}ms` : 'N/A'}
                 </p>
-                <p className="text-sm text-gray-600">Avg Response Time</p>
+                <p className="text-sm text-secondary-foreground">Avg Response Time</p>
               </div>
             </div>
           </div>
@@ -146,38 +146,38 @@ const AdminPage: React.FC = () => {
         {/* Platform Statistics */}
         {platformStats && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-              <h4 className="text-lg font-semibold text-gray-900 mb-2">Users</h4>
-              <p className="text-3xl font-bold text-blue-600">{platformStats.total_users}</p>
-              <div className="mt-2 text-sm text-gray-600">
+            <div className="bg-card rounded-lg shadow-md p-6 border border-border">
+              <h4 className="text-lg font-semibold text-card-foreground mb-2">Users</h4>
+              <p className="text-3xl font-bold text-primary">{platformStats.total_users}</p>
+              <div className="mt-2 text-sm text-secondary-foreground">
                 <p>Contributors: {platformStats.total_contributors}</p>
                 <p>Admins: {platformStats.total_admins}</p>
                 <p>Developers: {platformStats.total_sworik_developers}</p>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-              <h4 className="text-lg font-semibold text-gray-900 mb-2">Recordings</h4>
-              <p className="text-3xl font-bold text-green-600">{platformStats.total_recordings}</p>
-              <div className="mt-2 text-sm text-gray-600">
+            <div className="bg-card rounded-lg shadow-md p-6 border border-border">
+              <h4 className="text-lg font-semibold text-card-foreground mb-2">Recordings</h4>
+              <p className="text-3xl font-bold text-success">{platformStats.total_recordings}</p>
+              <div className="mt-2 text-sm text-secondary-foreground">
                 <p>Chunks: {platformStats.total_chunks}</p>
                 <p>Avg Duration: {platformStats.avg_recording_duration ? `${platformStats.avg_recording_duration.toFixed(1)}min` : 'N/A'}</p>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-              <h4 className="text-lg font-semibold text-gray-900 mb-2">Transcriptions</h4>
-              <p className="text-3xl font-bold text-purple-600">{platformStats.total_transcriptions}</p>
-              <div className="mt-2 text-sm text-gray-600">
+            <div className="bg-card rounded-lg shadow-md p-6 border border-border">
+              <h4 className="text-lg font-semibold text-card-foreground mb-2">Transcriptions</h4>
+              <p className="text-3xl font-bold text-info">{platformStats.total_transcriptions}</p>
+              <div className="mt-2 text-sm text-secondary-foreground">
                 <p>Validated: {platformStats.total_validated_transcriptions}</p>
                 <p>Avg Quality: {platformStats.avg_transcription_quality ? platformStats.avg_transcription_quality.toFixed(2) : 'N/A'}</p>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-              <h4 className="text-lg font-semibold text-gray-900 mb-2">Quality Reviews</h4>
-              <p className="text-3xl font-bold text-orange-600">{platformStats.total_quality_reviews}</p>
-              <div className="mt-2 text-sm text-gray-600">
+            <div className="bg-card rounded-lg shadow-md p-6 border border-border">
+              <h4 className="text-lg font-semibold text-card-foreground mb-2">Quality Reviews</h4>
+              <p className="text-3xl font-bold text-warning">{platformStats.total_quality_reviews}</p>
+              <div className="mt-2 text-sm text-secondary-foreground">
                 <p>Pending reviews available</p>
               </div>
             </div>
@@ -185,49 +185,49 @@ const AdminPage: React.FC = () => {
         )}
 
         {/* Quick Actions */}
-        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+        <div className="bg-card rounded-lg shadow-md p-6 border border-border">
+          <h3 className="text-lg font-semibold text-card-foreground mb-4">Quick Actions</h3>
           <div className={`grid grid-cols-1 md:grid-cols-2 ${user?.role === 'sworik_developer' ? 'lg:grid-cols-5' : 'lg:grid-cols-4'} gap-4`}>
             <button
               onClick={() => setActiveTab('users')}
-              className="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-left"
+              className="p-4 border border-border rounded-lg hover:bg-background transition-colors text-left"
             >
-              <UsersIcon className="h-8 w-8 text-blue-600 mb-2" />
-              <p className="font-medium text-gray-900">Manage Users</p>
-              <p className="text-sm text-gray-600">View and edit user roles</p>
+              <UsersIcon className="h-8 w-8 text-primary mb-2" />
+              <p className="font-medium text-foreground">Manage Users</p>
+              <p className="text-sm text-secondary-foreground">View and edit user roles</p>
             </button>
             <button
               onClick={() => setActiveTab('scripts')}
-              className="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-left"
+              className="p-4 border border-border rounded-lg hover:bg-background transition-colors text-left"
             >
-              <DocumentTextIcon className="h-8 w-8 text-green-600 mb-2" />
-              <p className="font-medium text-gray-900">Manage Scripts</p>
-              <p className="text-sm text-gray-600">Add and edit Bangla scripts</p>
+              <DocumentTextIcon className="h-8 w-8 text-success mb-2" />
+              <p className="font-medium text-foreground">Manage Scripts</p>
+              <p className="text-sm text-secondary-foreground">Add and edit Bangla scripts</p>
             </button>
             <button
               onClick={() => setActiveTab('quality')}
-              className="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-left"
+              className="p-4 border border-border rounded-lg hover:bg-background transition-colors text-left"
             >
-              <ExclamationTriangleIcon className="h-8 w-8 text-orange-600 mb-2" />
-              <p className="font-medium text-gray-900">Quality Review</p>
-              <p className="text-sm text-gray-600">Review flagged transcriptions</p>
+              <ExclamationTriangleIcon className="h-8 w-8 text-warning mb-2" />
+              <p className="font-medium text-foreground">Quality Review</p>
+              <p className="text-sm text-secondary-foreground">Review flagged transcriptions</p>
             </button>
             <button
               onClick={() => setActiveTab('stats')}
-              className="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-left"
+              className="p-4 border border-border rounded-lg hover:bg-background transition-colors text-left"
             >
-              <ChartBarIcon className="h-8 w-8 text-purple-600 mb-2" />
-              <p className="font-medium text-gray-900">View Analytics</p>
-              <p className="text-sm text-gray-600">Platform usage statistics</p>
+              <ChartBarIcon className="h-8 w-8 text-info mb-2" />
+              <p className="font-medium text-foreground">View Analytics</p>
+              <p className="text-sm text-secondary-foreground">Platform usage statistics</p>
             </button>
             {user?.role === 'sworik_developer' && (
               <button
                 onClick={() => setActiveTab('export')}
-                className="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-left"
+                className="p-4 border border-border rounded-lg hover:bg-background transition-colors text-left"
               >
-                <ArrowDownTrayIcon className="h-8 w-8 text-indigo-600 mb-2" />
-                <p className="font-medium text-gray-900">Export Data</p>
-                <p className="text-sm text-gray-600">Download datasets for AI training</p>
+                <ArrowDownTrayIcon className="h-8 w-8 text-info mb-2" />
+                <p className="font-medium text-foreground">Export Data</p>
+                <p className="text-sm text-secondary-foreground">Download datasets for AI training</p>
               </button>
             )}
           </div>
@@ -239,15 +239,15 @@ const AdminPage: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto">
       <div className="text-center mb-8">
-        <Cog6ToothIcon className="mx-auto h-16 w-16 text-purple-600 mb-4" />
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
-        <p className="text-gray-600">
+        <Cog6ToothIcon className="mx-auto h-16 w-16 text-primary mb-4" />
+        <h1 className="text-3xl font-bold text-foreground mb-2">Admin Dashboard</h1>
+        <p className="text-secondary-foreground">
           Manage users, scripts, and monitor platform activity
         </p>
       </div>
 
       {/* Tab Navigation */}
-      <div className="border-b border-gray-200 mb-8">
+      <div className="border-b border-border mb-8">
         <nav className="-mb-px flex space-x-8">
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -255,10 +255,11 @@ const AdminPage: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${activeTab === tab.id
-                  ? 'border-purple-500 text-purple-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
+                className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
+                  activeTab === tab.id
+                    ? 'border-primary-border text-primary'
+                    : 'border-transparent text-secondary-foreground hover:text-primary hover:border-primary-border'
+                }`}
               >
                 <Icon className="h-5 w-5" />
                 <span>{tab.name}</span>

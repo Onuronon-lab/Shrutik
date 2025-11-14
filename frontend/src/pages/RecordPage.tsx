@@ -15,9 +15,9 @@ const RecordPage: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="text-center mb-8">
-        <MicrophoneIcon className="mx-auto h-16 w-16 text-indigo-600 mb-4" />
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Voice Recording</h1>
-        <p className="text-gray-600">
+        <MicrophoneIcon className="mx-auto h-16 w-16 text-primary mb-4" />
+        <h1 className="text-3xl font-bold text-foreground mb-2">Voice Recording</h1>
+        <p className="text-secondary-foreground">
           Record your voice reading Bangla scripts to help train AI models
         </p>
       </div>
@@ -29,23 +29,23 @@ const RecordPage: React.FC = () => {
 
       {/* Completed Recordings */}
       {completedRecordings.length > 0 && (
-        <div className="mt-8 bg-white rounded-lg shadow-md p-6 border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <CheckCircleIcon className="w-5 h-5 mr-2 text-green-600" />
+        <div className="mt-8 bg-card rounded-lg shadow-md p-6 border border-border">
+          <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center">
+            <CheckCircleIcon className="w-5 h-5 mr-2 text-success" />
             Recent Recordings
           </h3>
           <div className="space-y-3">
             {completedRecordings.slice(0, 5).map((recording) => (
-              <div key={recording.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div key={recording.id} className="flex items-center justify-between p-3 bg-background rounded-lg">
                 <div>
-                  <div className="font-medium text-gray-900">
+                  <div className="font-medium text-foreground">
                     Recording #{recording.id}
                   </div>
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-secondary-foreground">
                     Duration: {Math.round(recording.duration)}s • Status: {recording.status}
                   </div>
                 </div>
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-secondary-foreground">
                   {new Date(recording.created_at).toLocaleString()}
                 </div>
               </div>

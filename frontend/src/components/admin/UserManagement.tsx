@@ -112,43 +112,43 @@ const UserManagement: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <UsersIcon className="h-8 w-8 text-blue-600" />
-          <h2 className="text-2xl font-bold text-gray-900">User Management</h2>
+          <UsersIcon className="h-8 w-8 text-primary" />
+          <h2 className="text-2xl font-bold text-foreground">User Management</h2>
         </div>
         <button
           onClick={loadUsers}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          className="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary-hover transition-colors"
         >
           Refresh
         </button>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="bg-destructive border border-destructive-border rounded-lg p-4">
           <div className="flex items-center">
-            <XCircleIcon className="h-5 w-5 text-red-600 mr-2" />
-            <p className="text-red-800">{error}</p>
+            <XCircleIcon className="h-5 w-5 text-destructive-foreground mr-2" />
+            <p className="text-destructive-foreground">{error}</p>
           </div>
         </div>
       )}
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+      <div className="bg-card rounded-lg shadow-md p-6 border border-border">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="relative">
-            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-accent" />
             <input
               type="text"
               placeholder="Search users..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="pl-10 pr-4 py-2 w-full border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
             />
           </div>
           <select
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
           >
             <option value="">All Roles</option>
             <option value="contributor">Contributors</option>
@@ -159,37 +159,37 @@ const UserManagement: React.FC = () => {
       </div>
 
       {/* Users Table */}
-      <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+      <div className="bg-card rounded-lg shadow-md border border-border overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-border">
+            <thead className="bg-background">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-secondary-foreground uppercase tracking-wider">
                   User
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-secondary-foreground uppercase tracking-wider">
                   Role
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-secondary-foreground uppercase tracking-wider">
                   Activity
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-secondary-foreground uppercase tracking-wider">
                   Joined
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-secondary-foreground uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-card divide-y divide-border">
               {filteredUsers.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50">
+                <tr key={user.id} className="hover:bg-background">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <UserCircleIcon className="h-10 w-10 text-gray-400" />
+                      <UserCircleIcon className="h-10 w-10 text-accent" />
                       <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                        <div className="text-sm text-gray-500">{user.email}</div>
+                        <div className="text-sm font-medium text-foreground">{user.name}</div>
+                        <div className="text-sm text-secondary-foreground">{user.email}</div>
                       </div>
                     </div>
                   </td>
@@ -198,14 +198,14 @@ const UserManagement: React.FC = () => {
                       {user.role.replace('_', ' ')}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                     <div>
                       <p>Recordings: {user.recordings_count}</p>
                       <p>Transcriptions: {user.transcriptions_count}</p>
                       <p>Reviews: {user.quality_reviews_count}</p>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary-foreground">
                     {formatDate(user.created_at)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -215,13 +215,13 @@ const UserManagement: React.FC = () => {
                           setEditingUser(user);
                           setNewRole(user.role);
                         }}
-                        className="text-blue-600 hover:text-blue-900"
+                        className="text-primary hover:text-primary-hover"
                       >
                         <PencilIcon className="h-5 w-5" />
                       </button>
                       <button
                         onClick={() => handleDeleteUser(user.id)}
-                        className="text-red-600 hover:text-red-900"
+                        className="text-destructive hover:text-destructive-hover"
                       >
                         <TrashIcon className="h-5 w-5" />
                       </button>
@@ -235,9 +235,9 @@ const UserManagement: React.FC = () => {
 
         {filteredUsers.length === 0 && (
           <div className="text-center py-12">
-            <UsersIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No users found</h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <UsersIcon className="mx-auto h-12 w-12 text-accent" />
+            <h3 className="mt-2 text-sm font-medium text-foreground">No users found</h3>
+            <p className="mt-1 text-sm text-secondary-foreground">
               {searchTerm || roleFilter ? 'Try adjusting your filters.' : 'No users available.'}
             </p>
           </div>
@@ -246,22 +246,22 @@ const UserManagement: React.FC = () => {
 
       {/* Edit Role Modal */}
       {editingUser && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-card">
             <div className="mt-3">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
+              <h3 className="text-lg font-medium text-foreground mb-4">
                 Edit User Role
               </h3>
               <div className="mb-4">
-                <p className="text-sm text-gray-600 mb-2">User: {editingUser.name}</p>
-                <p className="text-sm text-gray-600 mb-4">Email: {editingUser.email}</p>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <p className="text-sm text-secondary-foreground mb-2">User: {editingUser.name}</p>
+                <p className="text-sm text-secondary-foreground mb-4">Email: {editingUser.email}</p>
+                <label className="block text-sm font-medium text-secondary-foreground mb-2">
                   Role
                 </label>
                 <select
                   value={newRole}
                   onChange={(e) => setNewRole(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
                 >
                   <option value="contributor">Contributor</option>
                   <option value="admin">Admin</option>
@@ -274,7 +274,7 @@ const UserManagement: React.FC = () => {
                     setEditingUser(null);
                     setNewRole('');
                   }}
-                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  className="px-4 py-2 text-secondary-foreground border border-border rounded-lg hover:bg-background"
                   disabled={updating}
                 >
                   Cancel
@@ -282,7 +282,7 @@ const UserManagement: React.FC = () => {
                 <button
                   onClick={handleRoleUpdate}
                   disabled={updating || newRole === editingUser.role}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                  className="px-4 py-2 bg-primary text-primary-foreground border border-primary rounded-lg hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
                 >
                   {updating && <LoadingSpinner size="sm" className="mr-2" />}
                   Update Role

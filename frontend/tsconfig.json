@@ -6,6 +6,10 @@
       "dom.iterable",
       "esnext"
     ],
+    // "baseUrl": "src",
+    // "paths": {
+    //   "@/*": ["./"]
+    // },
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -25,7 +29,7 @@
   },
   "include": [
     "src"
-  ],
+, "jsconfig.json"  ],
   "exclude": [
     "node_modules",
     "build",
