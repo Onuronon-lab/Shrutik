@@ -11,7 +11,7 @@ import {
   XMarkIcon
 } from '@heroicons/react/24/outline';
 import { ThemeToggle } from './ThemeSwitcher';
-import logo from '../../assets/shrutik_logo.png';
+// import logo from '../../assets/shrutik_logo.png';
 
 const Navbar: React.FC = () => {
   const { user, logout, isAuthenticated } = useAuth();
