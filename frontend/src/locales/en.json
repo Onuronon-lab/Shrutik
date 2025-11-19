@@ -1,0 +1,117 @@
+{
+    "welcome": "Welcome back, ",
+    "choose-contribution": "Choose how you'd like to contribute today",
+    "record-voice": "Record Voice",
+    "record-voice-description": "Read Bangla scripts and contribute voice recordings",
+    "transcribe-audio":"Transcribe Audio",
+    "transcribe-audio-description": "Listen to audio clips and provide accurate transcriptions",
+    "admin-dashboard": "Admin Dashboard",
+    "admin-dashboard-description": "Manage users, scripts, and monitor platform activity",
+    "contribution-stat-title":"Your Contribution Stats",
+    "contribution-voice-recording":" Voice Recordings",
+    "contribution-transcription":"Transcriptions",
+    "contribution-quality-score":"Quality Score",
+    "recordPage-voice-recording-title": "Voice Recording",
+    "recordPage-voice-recording-description": "Record your voice reading Bangla scripts to help train AI models",
+    "recordPage-selection-record-duration": "Select Recording Duration",
+    "recordPage-quick-record-session": "Quick recording session",
+    "recordPage-standard-record-session": "Standard recording session",
+    "recordPage-extended-record-session": "Extended recording session",
+    "recordPage-2-minutes": "2 Minutes",
+    "recordPage-5-minutes": "5 Minutes",
+    "recordPage-10-minutes": "10 Minutes",
+
+    "transcriptionPage-start": "Start Transcription",
+    "transcriptionPage-title": "Audio Transcription",
+    "transcriptionPage-description": "Listen to the audio clip and provide an accurate Bangla transcription",
+
+    "transcriptionPage-how-many-sentences": "How many sentences would you like to transcribe?",
+    "transcriptionPage-select-amount": "Select the amount you prefer",
+
+    "transcriptionPage-2": "2",
+    "transcriptionPage-2-sentences": "2 sentences",
+    "transcriptionPage-approx-5-min": "~5 minutes",
+
+    "transcriptionPage-5": "5",
+    "transcriptionPage-5-sentences": "5 sentences",
+    "transcriptionPage-approx-10-min": "~10 minutes",
+
+    "transcriptionPage-10": "10",
+    "transcriptionPage-10-sentences": "10 sentences",
+    "transcriptionPage-approx-20-min": "~20 minutes",
+
+    "transcriptionPage-15": "15",
+    "transcriptionPage-15-sentences": "15 sentences",
+    "transcriptionPage-approx-30-min": "~30 minutes",
+
+    "transcriptionPage-20": "20",
+    "transcriptionPage-20-sentences": "20 sentences",
+    "transcriptionPage-approx-40-min": "~40 minutes",
+
+    "transcriptionPage-instruction": "Instructions:",
+
+    "transcriptionPage-audio-instructions": "🎧 For listening to audio:",
+    "transcriptionPage-audio-play": "• Click the play button",
+    "transcriptionPage-audio-waveform": "• Click anywhere on the waveform to navigate",
+    "transcriptionPage-audio-restart": "• Click the restart button to start again",
+    "transcriptionPage-audio-repeat": "• Listen multiple times if needed",
+
+    "transcriptionPage-writing-instructions": "✍️ For transcription:",
+    "transcriptionPage-write-accurately": "• Write in accurate Bangla as much as possible",
+    "transcriptionPage-use-keyboard": "• You may use a Bangla keyboard",
+    "transcriptionPage-avoid-unclear-audio": "• Skip unclear audio",
+    "transcriptionPage-submit-shortcut": "• Press Ctrl+Enter to submit quickly",
+
+  "transcription-loading-chunks": "Loading audio chunks...",
+  "transcription-error-title": "An error occurred",
+  "transcription-error-no-chunks": "No audio chunks found. Please try again later.",
+  "transcription-error-load-chunks": "Failed to load audio chunks. Please try again later.",
+  "transcription-error-load-audio": "Failed to load audio file.",
+  "transcription-error-submit": "Failed to submit transcription. Please try again.",
+  "transcription-error-session-expired": "Session expired. Loading new chunks...",
+
+  "transcription-try-again": "Try Again",
+  "transcription-go-back": "Go Back",
+
+  "transcription-loading-audio": "Loading audio...",
+
+  "transcription-session-complete-title": "🎉 Congratulations! Session Complete!",
+  "transcription-session-completed": "Completed Transcriptions",
+  "transcription-session-skipped": "Skipped",
+  "transcription-session-thanks": "Thank you for your contribution! You helped improve Sworik AI.",
+
+  "transcription-do-more": "Transcribe More",
+  "transcription-finish": "Finish",
+
+  "transcription-chunk": "Chunk",
+  "transcription-chunk-duration": "Duration:",
+  "second": "seconds",
+    "transcriptionForm-title": "Transcription",
+  "transcriptionForm-placeholder": "Write the transcription here in Bangla...",
+  "transcriptionForm-toggle-keyboard": "Bangla Keyboard",
+  "transcriptionForm-hide-keyboard": "Hide Keyboard",
+  "transcriptionForm-char-count": "characters",
+  
+  "transcriptionForm-skip": "Skip",
+  "transcriptionForm-submit": "Submit",
+  "transcriptionForm-submitting": "Submitting...",
+  "transcriptionForm-shortcut": "Press Ctrl+Enter to submit",
+    "progress-title": "Progress",
+  "progress-completed-percent": "% completed",
+  "progress-completed": "Completed",
+  "progress-skipped": "Skipped",
+  "progress-remaining": "Remaining",
+
+  "progress-msg-finished": "🎉 Congratulations! You have completed all transcriptions!",
+  "progress-msg-almost": "🔥 Great! You are almost there!",
+  "progress-msg-halfway": "💪 Nice! You have reached halfway!",
+  "progress-msg-keep-going": "⭐ Keep up the good work!",
+  "progress-msg-started": "🚀 You're off to a great start!",
+
+   "quantitySelector-selected": "You have selected {{count}} sentences to transcribe",
+  "quantitySelector-tip-1": "• Listen to each audio clip carefully",
+  "quantitySelector-tip-2": "• Write as accurately as possible",
+  "quantitySelector-tip-3": "• You may skip unclear audio",
+  "quantitySelector-tip-4": "• You can stop anytime and resume later"
+
+}

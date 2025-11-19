@@ -1,140 +1,141 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres:15
-    container_name: voice_collection_postgres
-    environment:
-      POSTGRES_DB: voice_collection
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    postgres:
+        image: postgres:15
+        container_name: voice_collection_postgres
+        environment:
+            POSTGRES_DB: voice_collection
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: password
+        ports:
+            - '5432:5432'
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+            - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+        healthcheck:
+            test: ['CMD-SHELL', 'pg_isready -U postgres']
+            interval: 10s
+            timeout: 5s
+            retries: 5
 
-  redis:
-    image: redis:7-alpine
-    container_name: voice_collection_redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    redis:
+        image: redis:7-alpine
+        container_name: voice_collection_redis
+        ports:
+            - '6379:6379'
+        volumes:
+            - redis_data:/data
+        healthcheck:
+            test: ['CMD', 'redis-cli', 'ping']
+            interval: 10s
+            timeout: 5s
+            retries: 5
 
-  backend:
-    build: .
-    container_name: voice_collection_backend
-    ports:
-      - "8000:8000"
-    environment:
-      - DATABASE_URL=postgresql://postgres:password@postgres:5432/voice_collection
-      - REDIS_URL=redis://redis:6379/0
-      - DEBUG=true
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    volumes:
-      - ./app:/app/app
-      - ./uploads:/app/uploads
-      - ./.env:/app/.env
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    backend:
+        build: .
+        container_name: voice_collection_backend
+        ports:
+            - '8000:8000'
+        environment:
+            - DATABASE_URL=postgresql://postgres:password@postgres:5432/voice_collection
+            - REDIS_URL=redis://redis:6379/0
+            - DEBUG=true
+        depends_on:
+            postgres:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+        volumes:
+            - ./app:/app/app
+            - ./uploads:/app/uploads
+            - ./.env:/app/.env
+        command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+        healthcheck:
+            test: ['CMD', 'curl', '-f', 'http://localhost:8000/']
+            interval: 30s
+            timeout: 10s
+            retries: 3
 
-  celery:
-    build: .
-    container_name: voice_collection_celery
-    environment:
-      - DATABASE_URL=postgresql://postgres:password@postgres:5432/voice_collection
-      - REDIS_URL=redis://redis:6379/0
-      - DEBUG=true
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      backend:
-        condition: service_healthy
-    volumes:
-      - ./app:/app/app
-      - ./uploads:/app/uploads
-      - ./.env:/app/.env
-    command: celery -A app.core.celery_app worker --loglevel=info --queues=default,audio_processing,consensus,batch_processing,maintenance
-    restart: unless-stopped
+    celery:
+        build: .
+        container_name: voice_collection_celery
+        environment:
+            - DATABASE_URL=postgresql://postgres:password@postgres:5432/voice_collection
+            - REDIS_URL=redis://redis:6379/0
+            - DEBUG=true
+        depends_on:
+            postgres:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+            backend:
+                condition: service_healthy
+        volumes:
+            - ./app:/app/app
+            - ./uploads:/app/uploads
+            - ./.env:/app/.env
+        command: celery -A app.core.celery_app worker --loglevel=info --queues=default,audio_processing,consensus,batch_processing,maintenance
+        restart: unless-stopped
 
-  celery-beat:
-    build: .
-    container_name: voice_collection_celery_beat
-    environment:
-      - DATABASE_URL=postgresql://postgres:password@postgres:5432/voice_collection
-      - REDIS_URL=redis://redis:6379/0
-      - DEBUG=true
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      backend:
-        condition: service_healthy
-    volumes:
-      - ./app:/app/app
-      - ./uploads:/app/uploads
-      - ./.env:/app/.env
-    command: celery -A app.core.celery_app beat --loglevel=info
-    restart: unless-stopped
+    celery-beat:
+        build: .
+        container_name: voice_collection_celery_beat
+        environment:
+            - DATABASE_URL=postgresql://postgres:password@postgres:5432/voice_collection
+            - REDIS_URL=redis://redis:6379/0
+            - DEBUG=true
+        depends_on:
+            postgres:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+            backend:
+                condition: service_healthy
+        volumes:
+            - ./app:/app/app
+            - ./uploads:/app/uploads
+            - ./.env:/app/.env
+        command: celery -A app.core.celery_app beat --loglevel=info
+        restart: unless-stopped
 
-  celery-flower:
-    build: .
-    container_name: voice_collection_flower
-    environment:
-      - DATABASE_URL=postgresql://postgres:password@postgres:5432/voice_collection
-      - REDIS_URL=redis://redis:6379/0
-      - DEBUG=true
-    depends_on:
-      redis:
-        condition: service_healthy
-    ports:
-      - "5555:5555"
-    volumes:
-      - ./app:/app/app
-      - ./.env:/app/.env
-    command: celery -A app.core.celery_app flower --port=5555
-    restart: unless-stopped
+    celery-flower:
+        build: .
+        container_name: voice_collection_flower
+        environment:
+            - DATABASE_URL=postgresql://postgres:password@postgres:5432/voice_collection
+            - REDIS_URL=redis://redis:6379/0
+            - DEBUG=true
+        depends_on:
+            redis:
+                condition: service_healthy
+        ports:
+            - '5555:5555'
+        volumes:
+            - ./app:/app/app
+            - ./.env:/app/.env
+        command: celery -A app.core.celery_app flower --port=5555
+        restart: unless-stopped
 
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: voice_collection_frontend
-    ports:
-      - "3000:3000"
-    environment:
-      - REACT_APP_API_URL=http://localhost:8000/api
-    volumes:
-      - ./frontend/src:/app/src
-      - ./frontend/public:/app/public
-    command: npm start
-    depends_on:
-      - backend
-    stdin_open: true
-    tty: true
+    frontend:
+        build:
+            context: ./frontend
+            dockerfile: Dockerfile
+        container_name: voice_collection_frontend
+        ports:
+            - '3000:3000'
+        environment:
+            - REACT_APP_API_URL=http://localhost:8000/api
+        volumes:
+            - ./frontend/src:/app/src
+            - ./frontend/public:/app/public
+            - /app/node_modules
+        command: npm start
+        depends_on:
+            - backend
+        stdin_open: true
+        tty: true
 
 volumes:
-  postgres_data:
-  redis_data:
+    postgres_data:
+    redis_data:
