@@ -186,7 +186,7 @@ const UserManagement: React.FC = () => {
                 <tr key={user.id} className="hover:bg-background">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <UserCircleIcon className="h-10 w-10 text-accent" />
+                      <UserCircleIcon className="h-10 w-10 text-gray-600" />
                       <div className="ml-4">
                         <div className="text-sm font-medium text-foreground">{user.name}</div>
                         <div className="text-sm text-secondary-foreground">{user.email}</div>
