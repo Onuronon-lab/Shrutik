@@ -30,10 +30,17 @@ class ApiService {
       (response: AxiosResponse) => response,
       (error) => {
         if (error.response?.status === 401) {
-          // Token expired or invalid
-          localStorage.removeItem('auth_token');
-          localStorage.removeItem('user');
-          window.location.href = '/login';
+          // Only redirect to login if we're not already on the login page
+          // and if there's a token (meaning it expired)
+          const hasToken = localStorage.getItem('auth_token');
+          const isLoginPage = window.location.pathname === '/login';
+          
+          if (hasToken && !isLoginPage) {
+            // Token expired or invalid - redirect to login
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+          }
         }
         return Promise.reject(error);
       }
