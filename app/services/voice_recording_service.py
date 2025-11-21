@@ -263,9 +263,10 @@ class VoiceRecordingService:
             actual_sample_rate = sr
             actual_channels = 1 if len(y.shape) == 1 else y.shape[0]
             
-            # Validate duration matches uploaded metadata (within 5% tolerance)
+            # Validate duration matches uploaded metadata (within 10% tolerance)
+            # Web audio recording can have slight timing differences
             duration_diff = abs(actual_duration - upload_data.duration)
-            if duration_diff > (upload_data.duration * 0.05):
+            if duration_diff > (upload_data.duration * 0.10):
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail=f"Duration mismatch: uploaded {upload_data.duration}s, actual {actual_duration:.2f}s"
