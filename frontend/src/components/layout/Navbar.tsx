@@ -113,9 +113,6 @@ const Navbar: React.FC = () => {
             <ThemeToggle />
             <div className="text-sm text-secondary-foreground">
               <span className="font-medium">{user?.name}</span>
-              <span className="ml-2 px-2 py-1 bg-muted text-muted-foreground rounded-full text-xs">
-                {user?.role}
-              </span>
             </div>
             <button
               onClick={handleLogout}
