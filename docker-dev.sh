@@ -43,7 +43,7 @@ start_services() {
     check_docker
     
     # Build and start services
-    docker-compose up --build -d
+    docker compose up --build -d
     
     print_status "Waiting for services to be ready..."
     
@@ -60,7 +60,7 @@ start_services() {
     
     if [ $timeout -le 0 ]; then
         print_error "Backend failed to start within 60 seconds"
-        docker-compose logs backend
+        docker compose logs backend
         exit 1
     fi
     
@@ -75,14 +75,14 @@ start_services() {
 # Function to stop all services
 stop_services() {
     print_status "Stopping all services..."
-    docker-compose down
+    docker compose down
     print_success "All services stopped!"
 }
 
 # Function to restart all services
 restart_services() {
     print_status "Restarting all services..."
-    docker-compose restart
+    docker compose restart
     print_success "All services restarted!"
 }
 
@@ -91,23 +91,23 @@ show_logs() {
     service=${1:-""}
     if [ -n "$service" ]; then
         print_status "Showing logs for $service..."
-        docker-compose logs -f "$service"
+        docker compose logs -f "$service"
     else
         print_status "Showing logs for all services..."
-        docker-compose logs -f
+        docker compose logs -f
     fi
 }
 
 # Function to show status
 show_status() {
     print_status "Service Status:"
-    docker-compose ps
+    docker compose ps
 }
 
 # Function to clean up
 cleanup() {
     print_status "Cleaning up Docker resources..."
-    docker-compose down -v --remove-orphans
+    docker compose down -v --remove-orphans
     docker system prune -f
     print_success "Cleanup completed!"
 }
@@ -117,11 +117,11 @@ run_migrations() {
     print_status "Running database initialization..."
     
     # Try the comprehensive initialization script first
-    if docker-compose exec backend python scripts/init-db.py; then
+    if docker compose exec backend python scripts/init-db.py; then
         print_success "Database initialization completed!"
     else
         print_warning "Comprehensive initialization failed, trying simple approach..."
-        if docker-compose exec backend python scripts/simple-init.py; then
+        if docker compose exec backend python scripts/simple-init.py; then
             print_success "Simple database initialization completed!"
         else
             print_error "Both initialization methods failed!"
@@ -133,7 +133,7 @@ run_migrations() {
 # Function to create admin user
 create_admin() {
     print_status "Creating admin user..."
-    docker-compose exec backend python create_admin.py
+    docker compose exec backend python create_admin.py
     print_success "Admin user created!"
 }
 
