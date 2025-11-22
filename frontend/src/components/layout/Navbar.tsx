@@ -11,6 +11,7 @@ import {
   XMarkIcon
 } from '@heroicons/react/24/outline';
 import { ThemeToggle } from './ThemeSwitcher';
+import LanguageSwitcher from './LanguageSwitcher';
 // import logo from '../../assets/shrutik_logo.png';
 
 const Navbar: React.FC = () => {
@@ -86,7 +87,7 @@ const Navbar: React.FC = () => {
           {/* <img src={logo} className="h-40 w-96 bg-white" srcSet="shrutik_logo" alt="" /> */}
             <MicrophoneIcon className="h-8 w-8 text-primary" />
             <span className="text-xl font-bold text-foreground">
-              Voice Collection Platform
+              Shrutik
             </span>
           </Link>
 
@@ -114,6 +115,7 @@ const Navbar: React.FC = () => {
             <div className="text-sm text-secondary-foreground">
               <span className="font-medium">{user?.name}</span>
             </div>
+            <LanguageSwitcher />
             <button
               onClick={handleLogout}
               className="flex items-center space-x-1 text-destructive hover:text-destructive-hover px-3 py-2 rounded-md text-sm font-medium transition-colors border border-destructive hover:border-destructive-hover"
