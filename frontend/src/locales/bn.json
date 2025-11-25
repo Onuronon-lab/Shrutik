@@ -1,5 +1,5 @@
 {
-   "welcome": "স্বাগতম, ",
+   "welcome": "স্বাগতম",
    "choose-contribution": "আজ আপনি কীভাবে অবদান রাখতে চান তা নির্বাচন করুন",
    
    "record-voice": "ভয়েস রেকর্ড করুন",
@@ -9,7 +9,7 @@
    "transcribe-audio-description": "অডিও ক্লিপ শুনে সঠিক ট্রান্সক্রিপশন দিন",
    
    "admin-dashboard": "অ্যাডমিন ড্যাশবোর্ড",
-   "admin-dashboard-description": "ইউজার, স্ক্রিপ্ট পরিচালনা করুন এবং প্ল্যাটফর্মের কার্যক্রম পর্যবেক্ষণ করুন",
+   "admin-dashboard-description": "ব্যবহারকারী, স্ক্রিপ্ট পরিচালনা করুন এবং প্ল্যাটফর্মের কার্যক্রম পর্যবেক্ষণ করুন",
    
    "contribution-stat-title": "আপনার অবদানের পরিসংখ্যান",
    "contribution-voice-recording": "ভয়েস রেকর্ডিং",
@@ -17,15 +17,17 @@
    "contribution-quality-score": "কোয়ালিটি স্কোর",
   
    "recordPage-voice-recording-title": "ভয়েস রেকর্ডিং",
-   "recordPage-voice-recording-description": "বাংলা স্ক্রিপ্ট পড়ে আপনার কণ্ঠ রেকর্ড করে এআই মডেল প্রশিক্ষণে সহায়তা করুন",
+   "recordPage-voice-recording-description": "বাংলা স্ক্রিপ্ট পড়ে আপনার কণ্ঠ রেকর্ড করে এআই মডেল ট্রেনিংয়ে সহায়তা করুন",
    "recordPage-selection-record-duration": "রেকর্ডিং সময়সীমা নির্বাচন করুন",
-   "recordPage-quick-record-session": "কুইক রেকর্ডিং সেশন",
+   "recordPage-quick-record-session": "দ্রুত রেকর্ডিং সেশন",
    "recordPage-standard-record-session": "স্ট্যান্ডার্ড রেকর্ডিং সেশন",
    "recordPage-extended-record-session": "এক্সটেন্ডেড রেকর্ডিং সেশন",
    "recordPage-2-minutes": "২ মিনিট",
    "recordPage-5-minutes": "৫ মিনিট",
    "recordPage-10-minutes": "১০ মিনিট",
-
+   
+  "record-control": "রেকর্ডিং কন্ট্রোল",
+  "record-upload-success": "রেকর্ডিং সফলভাবে আপলোড হয়েছে! এটি ট্রান্সক্রিপশনের জন্য প্রসেস করা হবে।",
 
    "transcriptionPage-title": "অডিও ট্রান্সক্রিপশন",
    "transcriptionPage-description": "অডিও ক্লিপ শুনুন এবং নির্ভুল বাংলা ট্রান্সক্রিপশন প্রদান করুন",
@@ -103,20 +105,20 @@
 
 
     "transcription-chunk": "চাঙ্ক",
-    "transcription-chunk-duration": "সময়কাল:",
+    "transcription-chunk-duration": "সময়কাল: {{count}} সেকেন্ড",
     "second": "সেকেন্ড",
-    "transcription-error": "অডিও লোড ত্রুটি:",
+    "transcription-error": "অডিও লোড ত্রুটি: {{err}}",
     "transcriptionForm-title": "ট্রান্সক্রিপশন",
     "transcriptionForm-placeholder": "এখানে বাংলায় অডিওর ট্রান্সক্রিপশন লিখুন...",
     "transcriptionForm-toggle-keyboard": "বাংলা কীবোর্ড",
     "transcriptionForm-hide-keyboard": "কীবোর্ড লুকান",
-    "transcriptionForm-char-count": "অক্ষর",
+    "transcriptionForm-char-count": "{{count}} অক্ষর",
     "transcriptionForm-skip": "এড়িয়ে যান",
     "transcriptionForm-submit": "জমা দিন",
     "transcriptionForm-submitting": "জমা দিচ্ছি...",
     "transcriptionForm-shortcut": "Ctrl+Enter দিয়ে জমা দিন",
-    "progress-title": "অগ্রগতি",
-    "progress-completed-percent": "% সম্পন্ন",
+    "progress-title": "অগ্রগতি: {{count}}",
+    "progress-completed-percent": "{{percentage}}% সম্পন্ন",
     "progress-completed": "সম্পন্ন",
     "progress-skipped": "এড়ানো",
     "progress-remaining": "বাকি",
@@ -133,5 +135,88 @@
     "quantitySelector-tip-1": "• প্রতিটি অডিও ক্লিপ মনোযোগ দিয়ে শুনুন",
     "quantitySelector-tip-2": "• যথাসম্ভব নির্ভুল বাংলায় লিখুন",
     "quantitySelector-tip-3": "• অস্পষ্ট অডিও এড়িয়ে যেতে পারেন",
-    "quantitySelector-tip-4": "• যেকোনো সময় বন্ধ করে পরে আবার শুরু করতে পারেন"
+    "quantitySelector-tip-4": "• যেকোনো সময় বন্ধ করে পরে আবার শুরু করতে পারেন",
+    
+    "dataExport-title": "ডেটা এক্সপোর্ট",
+    "dataExport-subtitle": "এআই ট্রেনিংয়ের জন্য যাচাই করা ডেটাসেট এবং প্ল্যাটফর্ম মেটাডেটা এক্সপোর্ট করুন",
+    "dataExport-exportButton": "ডেটাসেট এক্সপোর্ট",
+    "dataExport-format": "এক্সপোর্ট ফরম্যাট",
+    "dataExport-qualityFilters": "কোয়ালিটি ফিল্টার",
+    "dataExport-consensusOnly": "শুধুমাত্র সম্মত ট্রান্সক্রিপশন",
+    "dataExport-validatedOnly": "শুধুমাত্র যাচাই করা ট্রান্সক্রিপশন",
+    "dataExport-minConfidence": "সর্বনিম্ন কনফিডেন্স",
+    "dataExport-minQuality": "সর্বনিম্ন গুণমান",
+    "dataExport-dateRange": "তারিখ পরিসীমা",
+    "dataExport-from": "থেকে",
+    "dataExport-to": "পর্যন্ত",
+    "dataExport-maxRecords": "সর্বোচ্চ রেকর্ড",
+    "dataExport-includeOptions": "অন্তর্ভুক্তির অপশন",
+    "dataExport-includeMetadata": "বিস্তারিত মেটাডেটা অন্তর্ভুক্ত করুন",
+    "dataExport-includeAudioPaths": "অডিও ফাইল পাথ অন্তর্ভুক্ত করুন",
+
+    "export-json": "JSON - নেস্টেড স্ট্রাকচারের স্ট্যান্ডার্ড ফরম্যাট",
+    "export-csv": "CSV - কমা-সেপারেটেড মান (সমতল কাঠামো)",
+    "export-jsonl": "JSON Lines - প্রতি লাইনে একটি JSON অবজেক্ট",
+    "export-parquet": "Parquet - অ্যানালিটিক্সের জন্য কলাম-ভিত্তিক ফরম্যাট",
+
+  "exportPage-json-format": "JSON - স্ট্যান্ডার্ড ফরম্যাট",
+  "exportPage-csv-format": "CSV - কমা সেপারেটেড ভ্যালু",
+
+  "exportPage-platform-statistics": "প্ল্যাটফর্ম পরিসংখ্যান",
+  "exportPage-per-user-statistics": "প্রতি-ব্যবহারকারী পরিসংখ্যান",
+  "exportPage-quality-metrics": "গুণগত মেট্রিক্স",
+
+  "exportPage-export-metadata": "মেটাডাটা এক্সপোর্ট",
+  "exportPage-export-history": "এক্সপোর্ট ইতিহাস",
+  "exportPage-export-type": "এক্সপোর্ট টাইপ",
+
+  "exportPage-all-types": "সকল টাইপ ",
+  "exportPage-dataset": "ডেটাসেট",
+  "exportPage-metadata": "মেটাডাটা",
+
+  "exportPage-from-date": "তারিখ থেকে",
+  "exportPage-to-date": "তারিখ পর্যন্ত",
+
+  "exportPage-export-id": "এক্সপোর্ট আইডি",
+  "exportPage-type": "টাইপ",
+  "exportPage-format": "ফরম্যাট",
+  "exportPage-records": "রেকর্ড",
+  "exportPage-size": "সাইজ",
+  "exportPage-user": "ব্যবহারকারী",
+  "exportPage-date": "তারিখ",
+
+  "exportPage-no-export-history-title": "কোনো এক্সপোর্ট ইতিহাস নেই",
+  "exportPage-no-export-history-desc": "এখনও কোনো এক্সপোর্ট করা হয়নি।",
+
+  "exportPage-showing-results": "{{total}} ফলাফলের মধ্যে {{start}} থেকে {{end}} দেখানো হচ্ছে",
+
+  "exportPage-previous": "পূর্ববর্তী",
+  "exportPage-next": "পরবর্তী",
+
+"login-title": "Shrutik এ সাইন ইন করুন",
+"login-subtitle": "আপনার কণ্ঠ দিয়ে আমাদের আরও ভালো AI তৈরি করতে সাহায্য করুন",
+"login-email": "ইমেইল ঠিকানা",
+"login-password": "পাসওয়ার্ড",
+"login-signin": "সাইন ইন",
+"login-signingIn": "সাইন ইন হচ্ছে...",
+"login-noAccount": "অ্যাকাউন্ট নেই?",
+"login-signup": "সাইন আপ",
+
+   "signupPage-title": "Shrutik এ সাইন আপ করুন",
+  "signupPage-subtitle": "জয়েন করুন এবং আপনার কণ্ঠ দিয়ে আরও ভালো AI তৈরিতে সাহায্য করুন",
+
+  "signupPage-name-label": "নাম",
+
+  "signupPage-email-label": "ইমেইল ঠিকানা",
+
+  "signupPage-password-label": "পাসওয়ার্ড",
+
+  "signupPage-confirm-password-label": "কনফার্ম পাসওয়ার্ড",
+  "signupPage-registering": "রেজিস্ট্রেশন হচ্ছে...",
+  "signupPage-submit": "সাইন আপ",
+  "signupPage-login-text": "অ্যাকাউন্ট আছে?",
+  "signupPage-login-link": "লগ ইন",
+
+  "registration_success": "রেজিস্ট্রেশন সফল হয়েছে। অনুগ্রহ করে লগইন করুন।",
+   "registration_failed":"রেজিস্ট্রেশন ব্যর্থ হয়েছে। সঠিক তথ্য দিয়ে আবার চেষ্টা করুন।"
 }

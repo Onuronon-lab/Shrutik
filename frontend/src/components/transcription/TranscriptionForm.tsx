@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { CheckIcon, ForwardIcon } from '@heroicons/react/24/outline';
+import { useTranslation } from 'react-i18next';
 
 interface TranscriptionFormProps {
   chunkId: number;
@@ -21,6 +22,8 @@ const TranscriptionForm: React.FC<TranscriptionFormProps> = ({
   const [text, setText] = useState('');
   const [showBanglaKeyboard, setShowBanglaKeyboard] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const { t } = useTranslation();
 
   // Bangla keyboard layout (simplified)
   const banglaKeys = [
@@ -80,7 +83,7 @@ const TranscriptionForm: React.FC<TranscriptionFormProps> = ({
         {/* Text Input Area */}
         <div>
           <label htmlFor="transcription" className="block text-sm font-medium text-gray-700 mb-2">
-            ট্রান্সক্রিপশন
+            {t('transcriptionForm-title')}
           </label>
           <div className="relative">
             <textarea
@@ -102,13 +105,13 @@ const TranscriptionForm: React.FC<TranscriptionFormProps> = ({
               onClick={() => setShowBanglaKeyboard(!showBanglaKeyboard)}
               className="absolute top-2 right-2 px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 rounded transition-colors"
             >
-              {showBanglaKeyboard ? 'কীবোর্ড লুকান' : 'বাংলা কীবোর্ড'}
+              {showBanglaKeyboard ? t('transcriptionForm-hide-keyboard') : t('transcriptionForm-toggle-keyboard')}
             </button>
           </div>
           
           {/* Character Count */}
           <div className="mt-1 text-xs text-gray-500 text-right">
-            {text.length} অক্ষর
+            {t('transcriptionForm-char-count', {count:text.length})} {text.length} অক্ষর
           </div>
         </div>
 
@@ -144,12 +147,12 @@ const TranscriptionForm: React.FC<TranscriptionFormProps> = ({
             className="flex items-center px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 disabled:text-gray-400 disabled:hover:bg-transparent border border-gray-300 rounded-md transition-colors"
           >
             <ForwardIcon className="w-4 h-4 mr-2" />
-            এড়িয়ে যান
+            {t('transcriptionForm-skip')}
           </button>
 
           <div className="flex items-center space-x-3">
             <div className="text-sm text-gray-500">
-              Ctrl+Enter দিয়ে জমা দিন
+              {t('transcriptionForm-shortcut')}
             </div>
             <button
               type="submit"
@@ -159,12 +162,12 @@ const TranscriptionForm: React.FC<TranscriptionFormProps> = ({
               {isSubmitting ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                  জমা দিচ্ছি...
+                  {t('transcriptionForm-submitting')}
                 </>
               ) : (
                 <>
                   <CheckIcon className="w-4 h-4 mr-2" />
-                  জমা দিন
+                  {t('transcriptionForm-submit')}
                 </>
               )}
             </button>

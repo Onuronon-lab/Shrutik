@@ -13,6 +13,7 @@ import { apiService } from '../../services/api';
 import { Script, RecordingSession, VoiceRecording } from '../../types/api';
 import LoadingSpinner from '../common/LoadingSpinner';
 import AudioVisualizer from './AudioVisualizer';
+import { useTranslation } from 'react-i18next';
 
 type DurationOption = {
   value: '2_minutes' | '5_minutes' | '10_minutes';
@@ -20,12 +21,6 @@ type DurationOption = {
   minutes: number;
   description: string;
 };
-
-const DURATION_OPTIONS: DurationOption[] = [
-  { value: '2_minutes', label: '2 Minutes', minutes: 2, description: 'Quick recording session' },
-  { value: '5_minutes', label: '5 Minutes', minutes: 5, description: 'Standard recording session' },
-  { value: '10_minutes', label: '10 Minutes', minutes: 10, description: 'Extended recording session' }
-];
 
 interface RecordingState {
   isRecording: boolean;
@@ -42,6 +37,13 @@ interface VoiceRecordingInterfaceProps {
 const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
   onRecordingComplete
 }) => {
+  const { t } = useTranslation();
+
+  const DURATION_OPTIONS: DurationOption[] = [
+  { value: '2_minutes', label: t('recordPage-2-minutes'), minutes: 2, description: t('recordPage-quick-record-session') },
+  { value: '5_minutes', label: t('recordPage-5-minutes'), minutes: 5, description: t('recordPage-standard-record-session') },
+  { value: '10_minutes', label: t('recordPage-10-minutes'), minutes: 10, description: t('recordPage-extended-record-session') }
+];
   // State management
   const [selectedDuration, setSelectedDuration] = useState<DurationOption | null>(null);
   const [currentScript, setCurrentScript] = useState<Script | null>(null);
@@ -410,7 +412,7 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
         <div className="bg-card rounded-lg shadow-md p-6 border border-border">
           <h2 className="text-xl font-semibold text-foreground mb-4 flex items-center">
             <ClockIcon className="w-5 h-5 mr-2" />
-            Select Recording Duration
+            {t('recordPage-selection-record-duration')}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {DURATION_OPTIONS.map((option) => (
@@ -474,7 +476,7 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
       {/* Recording Controls */}
       {currentScript && recordingSession && (
         <div className="bg-card rounded-lg shadow-md p-6 border border-border">
-          <h3 className="text-lg font-semibold text-foreground mb-4">Recording Controls</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-4">{t('record-control')}</h3>
 
           {/* Recording Status */}
           <div className="text-center mb-6">
@@ -603,7 +605,7 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
           {uploadStatus === 'success' && (
             <div className="bg-success-50 border border-success-border rounded-lg p-4 flex items-center text-success-foreground">
               <CheckCircleIcon className="w-5 h-5 mr-2" />
-              Recording uploaded successfully! It will be processed for transcription.
+              {t('record-upload-success')}
             </div>
           )}
 

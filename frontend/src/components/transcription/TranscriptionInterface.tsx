@@ -5,6 +5,7 @@ import AudioPlayer from './AudioPlayer';
 import TranscriptionForm from './TranscriptionForm';
 import TranscriptionProgress from './TranscriptionProgress';
 import { ExclamationTriangleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { useTranslation } from 'react-i18next';
 
 interface TranscriptionInterfaceProps {
   selectedQuantity: number;
@@ -29,6 +30,8 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [sessionComplete, setSessionComplete] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
+
+  const { t } = useTranslation();
 
   const currentChunk = chunks[currentIndex];
 
@@ -57,11 +60,11 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
         setSkippedCount(0);
         setSessionComplete(false);
       } else {
-        setError('কোনো অডিও চাঙ্ক পাওয়া যায়নি। পরে আবার চেষ্টা করুন।');
+        setError(t('transcription-error-no-chunks'));
       }
     } catch (err: any) {
       console.error('Error loading chunks:', err);
-      setError('অডিও চাঙ্ক লোড করতে সমস্যা হয়েছে। পরে আবার চেষ্টা করুন।');
+      setError(t('transcription-error-load-chunks'));
     } finally {
       setIsLoading(false);
     }
@@ -73,7 +76,7 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
       setAudioUrl(audioUrl);
     } catch (err: any) {
       console.error('Error loading audio:', err);
-      setError('অডিও ফাইল লোড করতে সমস্যা হয়েছে।');
+      setError(t('transcription-error-load-audio'));
     }
   };
 
@@ -103,12 +106,12 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
       
       // If session is invalid, try to reload chunks to get a new session
       if (err.response?.data?.detail?.includes('session')) {
-        setError('সেশন মেয়াদ শেষ হয়েছে। নতুন চাঙ্ক লোড করা হচ্ছে...');
+        setError(t('transcription-error-session-expired'));
         await loadChunks();
         return;
       }
       
-      setError('ট্রান্সক্রিপশন জমা দিতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
+      setError(t('transcription-error-submit'));
     } finally {
       setIsSubmitting(false);
     }
@@ -152,7 +155,7 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
       <div className={`flex items-center justify-center py-12 ${className}`}>
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">অডিও চাঙ্ক লোড করা হচ্ছে...</p>
+          <p className="text-gray-600">{t('transcription-loading-chunks')}</p>
         </div>
       </div>
     );
@@ -163,7 +166,7 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
       <div className={`bg-red-50 border border-red-200 rounded-lg p-6 ${className}`}>
         <div className="flex items-center mb-4">
           <ExclamationTriangleIcon className="w-6 h-6 text-red-600 mr-2" />
-          <h3 className="text-lg font-semibold text-red-800">সমস্যা হয়েছে</h3>
+          <h3 className="text-lg font-semibold text-red-800">{t('transcription-error-title')}</h3>
         </div>
         <p className="text-red-700 mb-4">{error}</p>
         <div className="flex space-x-3">
@@ -171,13 +174,13 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
             onClick={loadChunks}
             className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors"
           >
-            আবার চেষ্টা করুন
+            {t('transcription-try-again')}
           </button>
           <button
             onClick={onBack}
             className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition-colors"
           >
-            ফিরে যান
+           {t('transcription-go-back')}
           </button>
         </div>
       </div>
@@ -189,7 +192,7 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
       <div className={`bg-green-50 border border-green-200 rounded-lg p-8 text-center ${className}`}>
         <CheckCircleIcon className="w-16 h-16 text-green-600 mx-auto mb-4" />
         <h2 className="text-2xl font-bold text-green-800 mb-4">
-          🎉 অভিনন্দন! সেশন সম্পন্ন!
+          {t('transcription-session-complete-title')}
         </h2>
         
         <div className="bg-white rounded-lg p-6 mb-6 inline-block">
@@ -198,19 +201,19 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
               <div className="text-3xl font-bold text-green-600 mb-1">
                 {completedCount}
               </div>
-              <div className="text-sm text-gray-600">ট্রান্সক্রিপশন সম্পন্ন</div>
+              <div className="text-sm text-gray-600">{t('transcription-session-completed')}</div>
             </div>
             <div>
               <div className="text-3xl font-bold text-orange-600 mb-1">
                 {skippedCount}
               </div>
-              <div className="text-sm text-gray-600">এড়িয়ে যাওয়া</div>
+              <div className="text-sm text-gray-600">{t('transcription-session-skipped')}</div>
             </div>
           </div>
         </div>
 
         <p className="text-green-700 mb-6">
-          আপনার অবদানের জন্য ধন্যবাদ! আপনি Sworik AI এর উন্নতিতে সাহায্য করেছেন।
+          {t('transcription-session-thanks')}
         </p>
 
         <div className="flex justify-center space-x-4">
@@ -218,13 +221,13 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
             onClick={handleStartNewSession}
             className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors"
           >
-            আরো ট্রান্সক্রাইব করুন
+            {t('transcription-do-more')}
           </button>
           <button
             onClick={onComplete}
             className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition-colors"
           >
-            সম্পন্ন
+           {t('transcription-finish')}
           </button>
         </div>
       </div>
@@ -236,7 +239,7 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
       <div className={`flex items-center justify-center py-12 ${className}`}>
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">অডিও লোড করা হচ্ছে...</p>
+          <p className="text-gray-600">{t('transcription-loading-audio')}</p>
         </div>
       </div>
     );
@@ -260,14 +263,14 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
               চাঙ্ক #{currentIndex + 1}
             </h3>
             <p className="text-sm text-blue-600">
-              সময়কাল: {currentChunk.duration.toFixed(1)} সেকেন্ড
+              {t('transcription-chunk-duration')} { currentChunk.duration.toFixed(1)} {t('seconds')}
             </p>
           </div>
           <button
             onClick={onBack}
             className="px-3 py-1 text-sm bg-blue-100 hover:bg-blue-200 text-blue-800 rounded transition-colors"
           >
-            ফিরে যান
+           {t('transcription-go-back')}
           </button>
         </div>
       </div>
@@ -275,7 +278,7 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
       {/* Audio Player */}
       <AudioPlayer
         audioUrl={audioUrl}
-        onLoadError={(error) => setError(`অডিও লোড ত্রুটি: ${error}`)}
+        onLoadError={(error) => setError(t('transcription-error', { err: error }))}
       />
 
       {/* Transcription Form */}
