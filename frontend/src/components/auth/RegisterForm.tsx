@@ -74,7 +74,7 @@ const RegisterForm: React.FC = () => {
     try {
       setIsLoading(true);
       const success = await register(name, email, password);
-      if (!success.user) {
+      if (success.user) {
         setIsLoading(false);
         navigate('/login', {
           state: {
