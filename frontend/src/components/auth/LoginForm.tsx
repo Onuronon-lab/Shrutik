@@ -38,15 +38,30 @@ const LoginForm: React.FC = () => {
     }
 
     
-    const success = await login(trimmedEmail, password);
+ try {
+   const success = await login(trimmedEmail, password);
 
-    if (success) {
-      navigate(from, { replace: true });
-    } else {
-      setError('Invalid email or password');
-    }
+   if (success.user) {
+     setIsLoading(false);
+     navigate(from, { replace: true });
+   } else {
+     setError('Invalid email or password');
+   }
 
-    setIsLoading(false);
+   
+ } catch (error:any) {
+   setIsLoading(false); // IMPORTANT
+
+   // Axios Error Parsing
+   if (error.response) {
+
+     setError(error.response.data?.error.message || "Server returned an error");
+   } else if (error.request) {
+     setError("No response from server. It might be offline.");
+   } else {
+     setError(error.message || "Network Error");
+   }
+ }
   };
 
   return (

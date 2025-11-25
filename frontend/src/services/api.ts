@@ -73,17 +73,28 @@ class ApiService {
   }
 
   async register(userData: any): Promise<AuthResponse> {
-    // Register returns user directly, not wrapped in ApiResponse
-    await this.api.post<any>('/auth/register', userData);
+    try {
+      await this.api.post('/auth/register', userData);
 
-    // After registration, we need to login to get the token
-    const loginResponse = await this.login({
-      email: userData.email,
-      password: userData.password
-    });
+      return await this.login({
+        email: userData.email,
+        password: userData.password,
+      });
 
-    return loginResponse;
+    } catch (error: any) {
+      console.error("Register API Error:", error);
+
+      const backendError =
+        error.response?.data ||
+        { message: "Unknown server error" };
+
+      throw {
+        ...error,
+        backend: backendError,
+      };
+    }
   }
+
 
   async validateToken(): Promise<any> {
     const response = await this.api.get<any>('/auth/me');
