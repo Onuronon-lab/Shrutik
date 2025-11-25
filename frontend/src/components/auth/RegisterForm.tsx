@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { EyeIcon, EyeSlashIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { ThemeToggle } from '../layout/ThemeSwitcher';
 
 const RegisterForm: React.FC = () => {
@@ -14,35 +14,97 @@ const RegisterForm: React.FC = () => {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [passwordTouched, setPasswordTouched] = useState(false);
+  const [confirmPasswordTouched, setConfirmPasswordTouched] = useState(false);
 
   const { register } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || '/';
 
+  // Password validation rules
+  const passwordValidation = {
+    minLength: password.length >= 8,
+    hasUppercase: /[A-Z]/.test(password),
+    hasLowercase: /[a-z]/.test(password),
+    hasNumber: /[0-9]/.test(password),
+    hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+  };
+
+  const allValidationsPassed = Object.values(passwordValidation).every(Boolean);
+
+  // Calculate password strength
+  const getPasswordStrength = () => {
+    const validCount = Object.values(passwordValidation).filter(Boolean).length;
+    if (validCount <= 2) return { label: 'Weak', color: 'bg-red-500', width: '33%' };
+    if (validCount <= 4) return { label: 'Medium', color: 'bg-yellow-500', width: '66%' };
+    return { label: 'Strong', color: 'bg-green-500', width: '100%' };
+  };
+
+  const passwordStrength = password.length > 0 ? getPasswordStrength() : null;
+
+  // Password mismatch errors
+  const passwordErrors: string[] = [];
+  if (passwordTouched && password.length > 0 && !allValidationsPassed) {
+    if (!passwordValidation.hasUppercase) {
+      passwordErrors.push('Password must contain at least one uppercase letter');
+    }
+    if (!passwordValidation.hasSpecialChar) {
+      passwordErrors.push('Password must contain at least one special character (!@#$%^&*...)');
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccessMessage('');
+    setPasswordTouched(true);
+    setConfirmPasswordTouched(true);
+
+    if (!allValidationsPassed) {
+      setError("Please meet all password requirements");
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
     }
 
-    setIsLoading(true);
-    const success = await register(name, email, password);
-    setIsLoading(false);
+    try {
+      setIsLoading(true);
+      const success = await register(name, email, password);
+      if (!success.user) {
+        setIsLoading(false);
+        navigate('/login', {
+          state: {
+            message: 'Registration successful. Please log in.'
+          }
+        });
+      }
+    } catch (error: any) {
+      setIsLoading(false);
 
-    if (success) {
-      // show success message and navigate to login page
-      setTimeout(() => {
-        navigate('/login', { state: { message: 'Registration successful. Please log in.' } });
-      }, 200); 
-    } else {
-      setError('Registration failed. Try again with valid details.');
+      if (error.response) {
+        setError(error.response.data?.error.message || "Server returned an error");
+      } else if (error.request) {
+        setError("No response from server. It might be offline.");
+      } else {
+        setError(error.message || "Network Error");
+      }
     }
   };
+
+  const ValidationItem = ({ isValid, text }: { isValid: boolean; text: string }) => (
+    <div className="flex items-center gap-1.5 text-xs">
+      {isValid ? (
+        <CheckIcon className="h-3.5 w-3.5 text-green-600" />
+      ) : (
+        <XMarkIcon className="h-3.5 w-3.5 text-gray-400" />
+      )}
+      <span className={isValid ? 'text-green-600' : 'text-gray-500'}>{text}</span>
+    </div>
+  );
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8 relative">
@@ -97,10 +159,12 @@ const RegisterForm: React.FC = () => {
                 name="password"
                 type={showPassword ? 'text' : 'password'}
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 pr-10 border border-border placeholder-nutral text-nutral-foreground focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                className={`appearance-none rounded-none relative block w-full px-3 py-2 pr-10 border ${passwordTouched && !allValidationsPassed ? 'border-red-500' : 'border-border'
+                  } placeholder-nutral text-nutral-foreground focus:outline-none focus:ring-primary focus:border-primary sm:text-sm`}
                 placeholder="Password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
+                onBlur={() => setPasswordTouched(true)}
               />
               <button
                 type="button"
@@ -111,6 +175,48 @@ const RegisterForm: React.FC = () => {
               </button>
             </div>
 
+            {/* Password Strength Indicator */}
+            {password.length > 0 && (
+              <div className="px-3 py-2 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-gray-600">Password strength:</span>
+                  <span className={`text-xs font-medium ${passwordStrength?.label === 'Weak' ? 'text-red-600' :
+                      passwordStrength?.label === 'Medium' ? 'text-yellow-600' :
+                        'text-green-600'
+                    }`}>
+                    {passwordStrength?.label}
+                  </span>
+                </div>
+                <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full ${passwordStrength?.color} transition-all duration-300`}
+                    style={{ width: passwordStrength?.width }}
+                  />
+                </div>
+
+                <div className="pt-2 space-y-1">
+                  <p className="text-xs text-gray-600 font-medium mb-1.5">Password must contain:</p>
+                  <ValidationItem isValid={passwordValidation.minLength} text="At least 8 characters" />
+                  <ValidationItem isValid={passwordValidation.hasUppercase} text="One uppercase letter" />
+                  <ValidationItem isValid={passwordValidation.hasLowercase} text="One lowercase letter" />
+                  <ValidationItem isValid={passwordValidation.hasNumber} text="One number" />
+                  <ValidationItem isValid={passwordValidation.hasSpecialChar} text="One special character (!@#$%^&*...)" />
+                </div>
+
+                {/* Error messages for missing requirements */}
+                {passwordErrors.length > 0 && passwordTouched && (
+                  <div className="mt-2 space-y-1">
+                    {passwordErrors.map((err, idx) => (
+                      <div key={idx} className="text-red-600 text-xs flex items-start gap-1">
+                        <span>•</span>
+                        <span>{err}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Confirm Password */}
             <div className="relative mt-2">
               <label htmlFor="confirmPassword" className="sr-only">Confirm Password</label>
@@ -119,10 +225,12 @@ const RegisterForm: React.FC = () => {
                 name="confirmPassword"
                 type={showConfirmPassword ? 'text' : 'password'}
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 pr-10 border border-border placeholder-nutral text-nutral-foreground rounded-b-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                className={`appearance-none rounded-none relative block w-full px-3 py-2 pr-10 border ${confirmPasswordTouched && confirmPassword && password !== confirmPassword ? 'border-red-500' : 'border-border'
+                  } placeholder-nutral text-nutral-foreground rounded-b-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm`}
                 placeholder="Confirm Password"
                 value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)}
+                onBlur={() => setConfirmPasswordTouched(true)}
               />
               <button
                 type="button"
@@ -132,6 +240,13 @@ const RegisterForm: React.FC = () => {
                 {showConfirmPassword ? <EyeSlashIcon className="h-5 w-5 text-muted-foreground" /> : <EyeIcon className="h-5 w-5 text-muted-foreground" />}
               </button>
             </div>
+
+            {/* Confirm Password Mismatch Error */}
+            {confirmPasswordTouched && confirmPassword && password !== confirmPassword && (
+              <div className="px-3 text-red-600 text-xs">
+                Passwords do not match
+              </div>
+            )}
           </div>
 
           {/* Error & Success */}

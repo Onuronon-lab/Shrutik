@@ -9,12 +9,13 @@ export interface User {
 export interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (email: string, password: string) => Promise<boolean>;
-  register: (name: string, email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<AuthResponse>;
+  register: (name: string, email: string, password: string) => Promise<AuthResponse>;
   logout: () => void;
   isAuthenticated: boolean;
   isLoading: boolean;
 }
+
 
 
 export interface LoginCredentials {
