@@ -19,6 +19,7 @@ This is the React frontend for the Voice Data Collection Platform, built to crow
 - **Heroicons** for icons
 - **Axios** for API communication
 
+
 ## Getting Started
 
 ### Prerequisites
