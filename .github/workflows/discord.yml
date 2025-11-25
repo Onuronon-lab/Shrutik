@@ -2,7 +2,7 @@ name: Discord Notifications
 
 on:
   push:
-  pull_request:
+  pull_request_target:
     types: [opened, reopened, closed]
   issues:
     types: [opened, edited, closed]
