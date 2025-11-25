@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { EyeIcon, EyeSlashIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { ThemeToggle } from '../layout/ThemeSwitcher';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitch from '../layout/LanguageSwitcher';
 
 const RegisterForm: React.FC = () => {
   const [name, setName] = useState('');
@@ -18,6 +20,8 @@ const RegisterForm: React.FC = () => {
   const [confirmPasswordTouched, setConfirmPasswordTouched] = useState(false);
   const [nameTouched, setNameTouched] = useState(false);
   const [emailTouched, setEmailTouched] = useState(false);
+
+  const { t } = useTranslation();
 
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -126,7 +130,7 @@ const RegisterForm: React.FC = () => {
         setIsLoading(false);
         navigate('/login', {
           state: {
-            message: 'Registration successful. Please log in.'
+            message: t('registration_success')
           }
         });
       }
@@ -161,13 +165,16 @@ const RegisterForm: React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8 relative">
       <div className="max-w-md w-full space-y-8">
-        <ThemeToggle className="absolute top-4 right-4 mr-1 h-8 w-16 px-1 lg:h-10 lg:w-20 lg:px-2" />
+          <div className="absolute top-4 right-4 flex items-center space-x-2">
+              <ThemeToggle className="h-8 w-16 px-1 lg:h-10 lg:w-20 lg:px-2" />
+              <LanguageSwitch />
+        </div>
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-foreground">
-            Sign up for Shrutik
+            {t('signupPage-title')}
           </h2>
           <p className="mt-2 text-center text-sm text-secondary-foreground">
-            Join and help build better AI with your voice
+            {t('signupPage-subtitle')}
           </p>
         </div>
 
@@ -175,7 +182,7 @@ const RegisterForm: React.FC = () => {
           <div className="rounded-md shadow-sm space-y-2">
             {/* Name */}
             <div>
-              <label htmlFor="name" className="sr-only">Name</label>
+              <label htmlFor="name" className="sr-only">{t('signupPage-name-label')}</label>
               <input
                 id="name"
                 name="name"
@@ -198,7 +205,7 @@ const RegisterForm: React.FC = () => {
 
             {/* Email */}
             <div>
-              <label htmlFor="email" className="sr-only">Email address</label>
+              <label htmlFor="email" className="sr-only">{t('signupPage-email-label')}</label>
               <input
                 id="email"
                 name="email"
@@ -228,7 +235,7 @@ const RegisterForm: React.FC = () => {
 
             {/* Password */}
             <div className="relative">
-              <label htmlFor="password" className="sr-only">Password</label>
+              <label htmlFor="password" className="sr-only">{t('signupPage-password-label')}</label>
               <input
                 id="password"
                 name="password"
@@ -296,7 +303,7 @@ const RegisterForm: React.FC = () => {
 
             {/* Confirm Password */}
             <div className="relative mt-2">
-              <label htmlFor="confirmPassword" className="sr-only">Confirm Password</label>
+              <label htmlFor="confirmPassword" className="sr-only">{t('signupPage-confirm-password-label')}</label>
               <input
                 id="confirmPassword"
                 name="confirmPassword"
@@ -346,19 +353,19 @@ const RegisterForm: React.FC = () => {
               disabled={isLoading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-active disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? 'Registering...' : 'Sign up'}
+              {isLoading ? t('signupPage-registering') : t('signupPage-submit')}
             </button>
           </div>
         </form>
 
         <div className="mt-2 text-center text-[14px]">
-          <span className="text-secondary-foreground">Already have an account?</span>
+          <span className="text-secondary-foreground">{t('signupPage-login-text')}</span>
           <button
             type="button"
             className="ml-2 text-primary hover:underline font-medium"
             onClick={() => navigate('/login')}
           >
-            Log in
+            {t('signupPage-login-link')}
           </button>
         </div>
       </div>

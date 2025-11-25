@@ -1,5 +1,6 @@
 import React from 'react';
 import { CheckCircleIcon, ClockIcon, ForwardIcon } from '@heroicons/react/24/solid';
+import { useTranslation } from 'react-i18next';
 
 interface TranscriptionProgressProps {
   currentIndex: number;
@@ -19,16 +20,18 @@ const TranscriptionProgress: React.FC<TranscriptionProgressProps> = ({
   const progressPercentage = totalCount > 0 ? ((currentIndex) / totalCount) * 100 : 0;
   const remainingCount = totalCount - currentIndex;
 
+  const { t } = useTranslation();
+
   return (
     <div className={`bg-white border border-gray-200 rounded-lg p-4 ${className}`}>
       {/* Progress Bar */}
       <div className="mb-4">
         <div className="flex justify-between items-center mb-2">
           <span className="text-sm font-medium text-gray-700">
-            অগ্রগতি: {currentIndex} / {totalCount}
+            {t('progress-title', {count: (currentIndex / totalCount)})} 
           </span>
           <span className="text-sm text-gray-500">
-            {Math.round(progressPercentage)}% সম্পন্ন
+            {t('progress-completed-percent', {percentage: Math.round(progressPercentage)})}
           </span>
         </div>
         
@@ -49,7 +52,7 @@ const TranscriptionProgress: React.FC<TranscriptionProgressProps> = ({
               {completedCount}
             </span>
           </div>
-          <div className="text-xs text-gray-600">সম্পন্ন</div>
+          <div className="text-xs text-gray-600">{t('progress-completed')}</div>
         </div>
 
         <div className="text-center">
@@ -59,7 +62,7 @@ const TranscriptionProgress: React.FC<TranscriptionProgressProps> = ({
               {skippedCount}
             </span>
           </div>
-          <div className="text-xs text-gray-600">এড়ানো</div>
+          <div className="text-xs text-gray-600">{t('progress-skipped')}</div>
         </div>
 
         <div className="text-center">
@@ -69,7 +72,7 @@ const TranscriptionProgress: React.FC<TranscriptionProgressProps> = ({
               {remainingCount}
             </span>
           </div>
-          <div className="text-xs text-gray-600">বাকি</div>
+          <div className="text-xs text-gray-600">{t('progress-remaining')}</div>
         </div>
       </div>
 
@@ -78,15 +81,15 @@ const TranscriptionProgress: React.FC<TranscriptionProgressProps> = ({
         <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
           <p className="text-sm text-green-800 text-center">
             {progressPercentage >= 100 ? (
-              <>🎉 অভিনন্দন! আপনি সব ট্রান্সক্রিপশন সম্পন্ন করেছেন!</>
+              <>{t('progress-msg-finished')}</>
             ) : progressPercentage >= 75 ? (
-              <>🔥 দুর্দান্ত! আপনি প্রায় শেষের দিকে!</>
+              <>{t('progress-msg-almost')}</>
             ) : progressPercentage >= 50 ? (
-              <>💪 চমৎকার! আপনি অর্ধেক পথ পার করেছেন!</>
+              <>{t('progress-msg-halfway')}</>
             ) : progressPercentage >= 25 ? (
-              <>⭐ ভালো কাজ চালিয়ে যান!</>
+              <>{t('progress-msg-keep-going')}</>
             ) : (
-              <>🚀 শুরু হয়ে গেছে! চালিয়ে যান!</>
+              <>{t('progress-msg-started')}</>
             )}
           </p>
         </div>

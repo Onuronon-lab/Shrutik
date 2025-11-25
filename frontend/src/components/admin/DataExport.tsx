@@ -19,6 +19,7 @@ import {
   ExportHistoryResponse
 } from '../../types/export';
 import LoadingSpinner from '../common/LoadingSpinner';
+import { useTranslation } from 'react-i18next';
 
 type ExportTab = 'dataset' | 'metadata' | 'history';
 
@@ -28,6 +29,8 @@ const DataExport: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  const { t } = useTranslation();
   
   // Dataset export state
   const [datasetRequest, setDatasetRequest] = useState<DatasetExportRequest>({
@@ -228,9 +231,9 @@ const DataExport: React.FC = () => {
     <div className="max-w-6xl mx-auto">
       <div className="text-center mb-8">
         <ArrowDownTrayIcon className="mx-auto h-16 w-16 text-primary mb-4" />
-        <h1 className="text-3xl font-bold text-foreground mb-2">Data Export</h1>
+        <h1 className="text-3xl font-bold text-foreground mb-2">{t('dataExport-title')}</h1>
         <p className="text-secondary-foreground">
-          Export validated datasets and platform metadata for AI training
+          {t('dataExport-subtitle')}
         </p>
       </div>
 
@@ -239,24 +242,24 @@ const DataExport: React.FC = () => {
         <div className="bg-card rounded-lg shadow-md p-6 mb-8 border border-border">
           <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center">
             <InformationCircleIcon className="h-6 w-6 text-primary mr-2" />
-            Platform Overview
+            {t('dataExport-platform-overview')}
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
               <p className="text-2xl font-bold text-foreground">{platformStats.statistics?.total_recordings || 0}</p>
-              <p className="text-sm text-secondary-foreground">Total Recordings</p>
+              <p className="text-sm text-secondary-foreground">{t('dataExport-overview-total-record')}</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold text-foreground">{platformStats.statistics?.total_chunks || 0}</p>
-              <p className="text-sm text-secondary-foreground">Audio Chunks</p>
+              <p className="text-sm text-secondary-foreground">{t('dataExport-overview-audio')}</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold text-foreground">{platformStats.statistics?.total_transcriptions || 0}</p>
-              <p className="text-sm text-secondary-foreground">Transcriptions</p>
+              <p className="text-sm text-secondary-foreground">{t('dataExport-overview-transcription')}</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold text-foreground">{platformStats.statistics?.validated_transcriptions || 0}</p>
-              <p className="text-sm text-secondary-foreground">Validated</p>
+              <p className="text-sm text-secondary-foreground">{t('dataExport-overview-validate')}</p>
             </div>
           </div>
         </div>
@@ -310,7 +313,7 @@ const DataExport: React.FC = () => {
           <div className="bg-card rounded-lg shadow-md p-6 border border-border">
             <h3 className="text-lg font-semibold text-foreground mb-6 flex items-center">
               <DocumentArrowDownIcon className="h-6 w-6 text-primary mr-2" />
-              Export Dataset
+              {t('dataExport-exportButton')}
             </h3>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -319,7 +322,7 @@ const DataExport: React.FC = () => {
                 {/* Format Selection */}
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
-                    Export Format
+                    {t('dataExport-format')}
                   </label>
                   <select
                     value={datasetRequest.format}
@@ -329,17 +332,17 @@ const DataExport: React.FC = () => {
                     }))}
                     className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring"
                   >
-                    <option value="json">JSON - Standard format with nested structure</option>
-                    <option value="csv">CSV - Comma-separated values (flattened)</option>
-                    <option value="jsonl">JSON Lines - One JSON object per line</option>
-                    <option value="parquet">Parquet - Columnar format for analytics</option>
+                    <option value="json">{t('export-json')}</option>
+                    <option value="csv">{t('export-csv')}</option>
+                    <option value="jsonl">{t('export-csv')}</option>
+                    <option value="parquet">{t('export-parquet')}</option>
                   </select>
                 </div>
 
                 {/* Quality Filters */}
                 <div>
                   <label className="block text-sm font-medium text-secondary-foreground mb-3">
-                    Quality Filters
+                    {t('dataExport-qualityFilters')}
                   </label>
                   <div className="space-y-3">
                     <div className="flex items-center">
@@ -358,7 +361,7 @@ const DataExport: React.FC = () => {
                         className="h-4 w-4 text-primary focus:ring-ring border-ring rounded"
                       />
                       <label htmlFor="consensus_only" className="ml-2 text-sm text-secondary-foreground">
-                        Consensus transcriptions only
+                        {t('dataExport-consensusOnly')}
                       </label>
                     </div>
                     <div className="flex items-center">
@@ -377,13 +380,13 @@ const DataExport: React.FC = () => {
                         className="h-4 w-4 text-primary focus:ring-ring border-ring rounded"
                       />
                       <label htmlFor="validated_only" className="ml-2 text-sm text-secondary-foreground">
-                        Validated transcriptions only
+                        {t('dataExport-validatedOnly')}
                       </label>
                     </div>
                     
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-xs text-secondary-foreground mb-1">Min Confidence</label>
+                        <label className="block text-xs text-secondary-foreground mb-1">{t('dataExport-minConfidence')}</label>
                         <input
                           type="number"
                           min="0"
@@ -404,7 +407,7 @@ const DataExport: React.FC = () => {
                         />
                       </div>
                       <div>
-                        <label className="block text-xs text-secondary-foreground mb-1">Min Quality</label>
+                        <label className="block text-xs text-secondary-foreground mb-1">{t('dataExport-minQuality')}</label>
                         <input
                           type="number"
                           min="0"
@@ -431,11 +434,11 @@ const DataExport: React.FC = () => {
                 {/* Date Range */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Date Range (Optional)
+                    {t('dataExport-dateRange')}
                   </label>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs text-secondary-foreground mb-1">From</label>
+                      <label className="block text-xs text-secondary-foreground mb-1">{t('dataExport-from')}</label>
                       <input
                         type="date"
                         value={datasetRequest.date_from || ''}
@@ -447,7 +450,7 @@ const DataExport: React.FC = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-secondary-foreground mb-1">To</label>
+                      <label className="block text-xs text-secondary-foreground mb-1">{t('dataExport-to')}</label>
                       <input
                         type="date"
                         value={datasetRequest.date_to || ''}
@@ -464,7 +467,7 @@ const DataExport: React.FC = () => {
                 {/* Max Records */}
                 <div>
                   <label className="block text-sm font-medium text-secondary-foreground mb-2">
-                    Maximum Records (Optional)
+                    {t('dataExport-maxRecords')}
                   </label>
                   <input
                     type="number"
@@ -484,7 +487,7 @@ const DataExport: React.FC = () => {
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-secondary-foreground mb-3">
-                    Include Options
+                    {t('dataExport-includeOptions')}
                   </label>
                   <div className="space-y-3">
                     <div className="flex items-center">
@@ -499,7 +502,7 @@ const DataExport: React.FC = () => {
                         className="h-4 w-4 text-primary focus:ring-ring border-border rounded"
                       />
                       <label htmlFor="include_metadata" className="ml-2 text-sm text-secondary-foreground">
-                        Include detailed metadata
+                        {t('dataExport-includeMetadata')}
                       </label>
                     </div>
                     <div className="flex items-center">
@@ -514,7 +517,7 @@ const DataExport: React.FC = () => {
                         className="h-4 w-4 text-primary focus:ring-ring border-border rounded"
                       />
                       <label htmlFor="include_audio_paths" className="ml-2 text-sm text-secondary-foreground">
-                        Include audio file paths
+                        {t('dataExport-includeAudioPaths')}
                       </label>
                     </div>
                   </div>
@@ -532,7 +535,7 @@ const DataExport: React.FC = () => {
                     ) : (
                       <>
                         <ArrowDownTrayIcon className="h-5 w-5" />
-                        <span>Export Dataset</span>
+                        <span>{t('dataExport-exportButton')}</span>
                       </>
                     )}
                   </button>
@@ -546,14 +549,14 @@ const DataExport: React.FC = () => {
           <div className="bg-card rounded-lg shadow-md p-6 border border-border">
             <h3 className="text-lg font-semibold text-foreground mb-6 flex items-center">
               <ChartBarIcon className="h-6 w-6 text-success mr-2" />
-              Export Metadata
+              {t('exportPage-export-metadata')}
             </h3>
             
             <div className="max-w-md mx-auto space-y-6">
               {/* Format Selection */}
               <div>
                 <label className="block text-sm font-medium text-secondary-foreground mb-2">
-                  Export Format
+                  {t('dataExport-format')}
                 </label>
                 <select
                   value={metadataRequest.format}
@@ -563,15 +566,15 @@ const DataExport: React.FC = () => {
                   }))}
                   className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring"
                 >
-                  <option value="json">JSON - Standard format</option>
-                  <option value="csv">CSV - Comma-separated values</option>
+                  <option value="json">{t('exportPage-json-format')}</option>
+                  <option value="csv">{t('exportPage-csv-format')}</option>
                 </select>
               </div>
 
               {/* Include Options */}
               <div>
                 <label className="block text-sm font-medium text-secondary-foreground mb-3">
-                  Include Options
+                  {t('dataExport-includeOptions')}
                 </label>
                 <div className="space-y-3">
                   <div className="flex items-center">
@@ -586,7 +589,7 @@ const DataExport: React.FC = () => {
                       className="h-5 w-5 border-border rounded"
                     />
                     <label htmlFor="include_statistics" className="ml-2 text-sm text-secondary-foreground">
-                      Platform statistics
+                      {t('exportPage-platform-statistics')}
                     </label>
                   </div>
                   <div className="flex items-center">
@@ -601,7 +604,7 @@ const DataExport: React.FC = () => {
                       className="h-5 w-5 border-border rounded"
                     />
                     <label htmlFor="include_user_stats" className="ml-2 text-sm text-secondary-foreground">
-                      Per-user statistics
+                      {t('exportPage-per-user-statistics')}
                     </label>
                   </div>
                   <div className="flex items-center">
@@ -616,7 +619,7 @@ const DataExport: React.FC = () => {
                       className="h-5 w-5 border-border rounded"
                     />
                     <label htmlFor="include_quality_metrics" className="ml-2 text-sm text-secondary-foreground">
-                      Quality metrics
+                      {t('exportPage-quality-metrics')}
                     </label>
                   </div>
                 </div>
@@ -634,7 +637,7 @@ const DataExport: React.FC = () => {
                   ) : (
                     <>
                       <ArrowDownTrayIcon className="h-5 w-5" />
-                      <span>Export Metadata</span>
+                      <span>{t('exportPage-export-metadata')}</span>
                     </>
                   )}
                 </button>
@@ -648,14 +651,14 @@ const DataExport: React.FC = () => {
             <div className="p-6 border-b border-border">
               <h3 className="text-lg font-semibold text-foreground flex items-center">
                 <ClockIcon className="h-6 w-6 text-info mr-2" />
-                Export History
+                {t('exportPage-export-history')}
               </h3>
               
               {/* History Filters */}
               <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-secondary-foreground mb-1">
-                    Export Type
+                    {t('exportPage-export-type')}
                   </label>
                   <select
                     value={historyFilters.export_type}
@@ -665,14 +668,14 @@ const DataExport: React.FC = () => {
                     }))}
                     className="w-full px-3 py-3 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring"
                   >
-                    <option value="">All Types</option>
-                    <option value="dataset">Dataset</option>
-                    <option value="metadata">Metadata</option>
+                    <option value="">{t('exportPage-all-types')}</option>
+                    <option value="dataset">{t('exportPage-dataset')}</option>
+                    <option value="metadata">{t('exportPage-metadata')}</option>
                   </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-secondary-foreground mb-1">
-                    From Date
+                    {t('exportPage-from-date')}
                   </label>
                   <input
                     type="date"
@@ -686,7 +689,7 @@ const DataExport: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-secondary-foreground mb-1">
-                    To Date
+                    {t('exportPage-to-date')}
                   </label>
                   <input
                     type="date"
@@ -712,25 +715,25 @@ const DataExport: React.FC = () => {
                   <thead className="bg-background">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                        Export ID
+                        {t('exportPage-export-id')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                        Type
+                        {t('exportPage-type')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                        Format
+                        {t('exportPage-format')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                        Records
+                       {t('exportPage-records')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                        Size
+                        {t('exportPage-size')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                        User
+                        {t('exportPage-user')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-mutated-foreground uppercase tracking-wider">
-                        Date
+                        {t('exportPage-date')}
                       </th>
                     </tr>
                   </thead>
@@ -771,9 +774,9 @@ const DataExport: React.FC = () => {
               ) : (
                 <div className="text-center py-12">
                   <DocumentTextIcon className="mx-auto h-12 w-12 text-accent" />
-                  <h3 className="mt-2 text-sm font-medium text-foreground">No export history</h3>
+                  <h3 className="mt-2 text-sm font-medium text-foreground">{t('exportPage-no-export-history-title')}</h3>
                   <p className="mt-1 text-sm text-secondary-foreground">
-                    No exports have been performed yet.
+                    {t('exportPage-no-export-history-desc')}
                   </p>
                 </div>
               )}
@@ -783,7 +786,11 @@ const DataExport: React.FC = () => {
             {exportHistory && exportHistory.total_count > 20 && (
               <div className="px-6 py-3 border-t border-border flex items-center justify-between">
                 <div className="text-sm text-secondary-foreground">
-                  Showing {((historyPage - 1) * 20) + 1} to {Math.min(historyPage * 20, exportHistory.total_count)} of {exportHistory.total_count} results
+                    {t("exportPage-showing-results", {
+                      start: (historyPage - 1) * 20 + 1,
+                      end: Math.min(historyPage * 20, exportHistory.total_count),
+                      total: exportHistory.total_count
+                    })}
                 </div>
                 <div className="flex space-x-2">
                   <button
@@ -791,14 +798,14 @@ const DataExport: React.FC = () => {
                     disabled={historyPage === 1}
                     className="px-3 py-1 border border-border rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-background"
                   >
-                    Previous
+                    {t('exportPage-previous')}
                   </button>
                   <button
                     onClick={() => setHistoryPage(prev => prev + 1)}
                     disabled={historyPage * 20 >= exportHistory.total_count}
                     className="px-3 py-1 border border-border rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-background"
                   >
-                    Next
+                   {t('exportPage-next')}
                   </button>
                 </div>
               </div>
