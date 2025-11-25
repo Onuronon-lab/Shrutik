@@ -5,11 +5,14 @@ import { MicrophoneIcon, DocumentTextIcon, ChartBarIcon, ArrowDownTrayIcon } fro
 import { apiService } from '../services/api';
 import { CurrentUserStats } from '../types/api';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import { useTranslation } from 'react-i18next';
 
 const HomePage: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const [userStats, setUserStats] = useState<CurrentUserStats | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
+
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -35,7 +38,7 @@ const HomePage: React.FC = () => {
         <div className="max-w-3xl mx-auto">
           <MicrophoneIcon className="mx-auto h-16 w-16 text-primary mb-8" />
           <h1 className="text-4xl font-bold text-foreground mb-4">
-            Voice Collection Platform
+            Shrutik
           </h1>
           <p className="text-xl text-secondary-foreground mb-8">
             Help us build better AI by contributing your voice and transcription skills
@@ -53,16 +56,16 @@ const HomePage: React.FC = () => {
 
   const features = [
     {
-      name: 'Record Voice',
-      description: 'Read Bangla scripts and contribute voice recordings',
+      name: t('record-voice'),
+      description: t('record-voice-description'),
       icon: MicrophoneIcon,
       href: '/record',
       bgcolor: 'bg-primary',
       color: 'text-primary-foreground',
     },
     {
-      name: 'Transcribe Audio',
-      description: 'Listen to audio clips and provide accurate transcriptions',
+      name: t('transcribe-audio'),
+      description: t('transcribe-audio-description'),
       icon: DocumentTextIcon,
       href: '/transcribe',
       bgcolor: 'bg-success',
@@ -83,8 +86,8 @@ const HomePage: React.FC = () => {
 
   if (user?.role === 'admin') {
     features.push({
-      name: 'Admin Dashboard',
-      description: 'Manage users, scripts, and monitor platform activity',
+      name: t('admin-dashboard'),
+      description: t('admin-dashboard-description'),
       icon: ChartBarIcon,
       href: '/admin',
       bgcolor: 'bg-info',
@@ -96,10 +99,10 @@ const HomePage: React.FC = () => {
     <div className="max-w-6xl mx-auto">
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold text-foreground mb-4">
-          Welcome back, {user?.name}!
+          {t('welcome')}, {user?.name}!
         </h1>
         <p className="text-xl text-secondary-foreground">
-          Choose how you'd like to contribute today
+          {t('choose-contribution')}
         </p>
       </div>
 
@@ -127,7 +130,7 @@ const HomePage: React.FC = () => {
       </div>
 
       <div className="mt-12 bg-card rounded-lg shadow-md p-6 border border-border">
-        <h2 className="text-2xl font-bold text-foreground mb-4">Your Contribution Stats</h2>
+        <h2 className="text-2xl font-bold text-foreground mb-4">{t('contribution-stat-title')}</h2>
         {statsLoading ? (
           <div className="flex justify-center py-8">
             <LoadingSpinner />
@@ -138,19 +141,19 @@ const HomePage: React.FC = () => {
               <div className="text-3xl font-bold text-primary mb-2">
                 {userStats?.recordings_count || 0}
               </div>
-              <div className="text-secondary-foreground">Voice Recordings</div>
+              <div className="text-secondary-foreground">{t('contribution-voice-recording')}</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-success mb-2">
                 {userStats?.transcriptions_count || 0}
               </div>
-              <div className="text-secondary-foreground">Transcriptions</div>
+              <div className="text-secondary-foreground">{t('contribution-transcription')}</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-info mb-2">
                 {userStats?.avg_transcription_quality ? userStats.avg_transcription_quality.toFixed(1) : 'N/A'}
               </div>
-              <div className="text-secondary-foreground">Quality Score</div>
+              <div className="text-secondary-foreground">{t('contribution-quality-score')}</div>
             </div>
           </div>
         )}

@@ -4,9 +4,12 @@ import { CheckCircleIcon } from '@heroicons/react/24/solid';
 import VoiceRecordingInterface from '../components/recording/VoiceRecordingInterface';
 import ErrorBoundary from '../components/common/ErrorBoundary';
 import { VoiceRecording } from '../types/api';
+import { useTranslation } from 'react-i18next';
 
 const RecordPage: React.FC = () => {
   const [completedRecordings, setCompletedRecordings] = useState<VoiceRecording[]>([]);
+
+  const { t } = useTranslation();
 
   const handleRecordingComplete = (recording: VoiceRecording) => {
     setCompletedRecordings(prev => [recording, ...prev]);
@@ -16,9 +19,9 @@ const RecordPage: React.FC = () => {
     <div className="max-w-4xl mx-auto">
       <div className="text-center mb-8">
         <MicrophoneIcon className="mx-auto h-16 w-16 text-primary mb-4" />
-        <h1 className="text-3xl font-bold text-foreground mb-2">Voice Recording</h1>
+        <h1 className="text-3xl font-bold text-foreground mb-2">{t('recordPage-voice-recording-title')}</h1>
         <p className="text-secondary-foreground">
-          Record your voice reading Bangla scripts to help train AI models
+          {t('recordPage-voice-recording-description')}
         </p>
       </div>
 

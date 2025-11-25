@@ -169,3 +169,5 @@ logs/
 # mdBook generated files
 book/
 *.html
+
+node_modules*

@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { ThemeToggle } from '../layout/ThemeSwitcher';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitch from '../layout/LanguageSwitcher';
 
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -11,6 +13,8 @@ const LoginForm: React.FC = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+
+  const { t } = useTranslation();
 
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -67,13 +71,16 @@ const LoginForm: React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8 relative">
       <div className="max-w-md w-full space-y-8">
-        <ThemeToggle className="absolute top-4 right-4 mr-1 h-8 w-16 px-1 lg:h-10 lg:w-20 lg:px-2" />
+        <div className="absolute top-4 right-4 flex items-center space-x-2">
+            <ThemeToggle className="h-8 w-16 px-1 lg:h-10 lg:w-20 lg:px-2" />
+            <LanguageSwitch />
+        </div>
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-foreground">
-            Sign in to Shrutik
+            {t('login-title')}
           </h2>
           <p className="mt-2 text-center text-sm text-secondary-foreground">
-            Help us build better AI with your voice
+            {t('login-subtitle')}
           </p>
         </div>
 
@@ -86,7 +93,7 @@ const LoginForm: React.FC = () => {
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm space-y-2">
             <div>
-              <label htmlFor="email" className="sr-only">Email address</label>
+              <label htmlFor="email" className="sr-only">{t('login-email')}</label>
               <input
                 id="email"
                 name="email"
@@ -106,7 +113,7 @@ const LoginForm: React.FC = () => {
             </div>
 
             <div className="relative">
-              <label htmlFor="password" className="sr-only">Password</label>
+              <label htmlFor="password" className="sr-only">{t('login-password')}</label>
               <input
                 id="password"
                 name="password"
@@ -147,18 +154,18 @@ const LoginForm: React.FC = () => {
               disabled={isLoading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-primary-foreground bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? 'Signing in...' : 'Sign in'}
+              {isLoading ? t('login-signingIn') : t('login-signin')}
             </button>
           </div>
 
           <div className="mt-2 text-[14px] text-center">
-            <span className="text-secondary-foreground">Don't have an account?</span>
+            <span className="text-secondary-foreground">{t('login-noAccount')}</span>
             <button
               type="button"
               className="ml-2 text-primary hover:underline font-medium"
               onClick={() => navigate('/register')}
             >
-              Sign Up
+              {t('login-signup')}
             </button>
           </div>
         </form>

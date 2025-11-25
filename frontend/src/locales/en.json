@@ -1,5 +1,5 @@
 {
-    "welcome": "Welcome back, ",
+    "welcome": "Welcome back",
     "choose-contribution": "Choose how you'd like to contribute today",
     "record-voice": "Record Voice",
     "record-voice-description": "Read Bangla scripts and contribute voice recordings",
@@ -20,6 +20,8 @@
     "recordPage-2-minutes": "2 Minutes",
     "recordPage-5-minutes": "5 Minutes",
     "recordPage-10-minutes": "10 Minutes",
+    "record-control": "Recording Controls",
+    "record-upload-success": "Recording uploaded successfully! It will be processed for transcription.",
 
     "transcriptionPage-start": "Start Transcription",
     "transcriptionPage-title": "Audio Transcription",
@@ -63,7 +65,7 @@
     "transcriptionPage-submit-shortcut": "• Press Ctrl+Enter to submit quickly",
 
   "transcription-loading-chunks": "Loading audio chunks...",
-  "transcription-error-title": "An error occurred",
+  "transcription-error": "An error occurred: {{err}}",
   "transcription-error-no-chunks": "No audio chunks found. Please try again later.",
   "transcription-error-load-chunks": "Failed to load audio chunks. Please try again later.",
   "transcription-error-load-audio": "Failed to load audio file.",
@@ -84,7 +86,7 @@
   "transcription-finish": "Finish",
 
   "transcription-chunk": "Chunk",
-  "transcription-chunk-duration": "Duration:",
+  "transcription-chunk-duration": "Duration: {{count}} seconds",
   "second": "seconds",
     "transcriptionForm-title": "Transcription",
   "transcriptionForm-placeholder": "Write the transcription here in Bangla...",
@@ -96,8 +98,8 @@
   "transcriptionForm-submit": "Submit",
   "transcriptionForm-submitting": "Submitting...",
   "transcriptionForm-shortcut": "Press Ctrl+Enter to submit",
-    "progress-title": "Progress",
-  "progress-completed-percent": "% completed",
+    "progress-title": "Progress: {{count}}",
+  "progress-completed-percent": "{{percentage}}% completed",
   "progress-completed": "Completed",
   "progress-skipped": "Skipped",
   "progress-remaining": "Remaining",
@@ -112,6 +114,94 @@
   "quantitySelector-tip-1": "• Listen to each audio clip carefully",
   "quantitySelector-tip-2": "• Write as accurately as possible",
   "quantitySelector-tip-3": "• You may skip unclear audio",
-  "quantitySelector-tip-4": "• You can stop anytime and resume later"
+  "quantitySelector-tip-4": "• You can stop anytime and resume later",
+
+  "dataExport-title": "Data Export",
+  "dataExport-subtitle": "Export validated datasets and platform metadata for AI training",
+  "dataExport-platform-overview": "Platform Overview",
+  "dataExport-overview-total-record": "Total Recordings",
+  "dataExport-overview-audio": "Audio Chunks",
+  "dataExport-overview-transcription": "Transcriptions",
+  "dataExport-overview-validate": "Validated",
+  
+  "dataExport-exportButton": "Export Dataset",
+  "dataExport-format": "Export Format",
+  "dataExport-qualityFilters": "Quality Filters",
+  "dataExport-consensusOnly": "Consensus transcriptions only",
+  "dataExport-validatedOnly": "Validated transcriptions only",
+  "dataExport-minConfidence": "Min Confidence",
+  "dataExport-minQuality": "Min Quality",
+  "dataExport-dateRange": "Date Range (Optional)",
+  "dataExport-from": "From",
+  "dataExport-to": "To",
+  "dataExport-maxRecords": "Maximum Records (Optional)",
+  "dataExport-includeOptions": "Include Options",
+  "dataExport-includeMetadata": "Include detailed metadata",
+  "dataExport-includeAudioPaths": "Include audio file paths",
+
+  "export-json": "JSON - Standard format with nested structure",
+  "export-csv": "CSV - Comma-separated values (flattened)",
+  "export-jsonl": "JSON Lines - One JSON object per line",
+  "export-parquet": "Parquet - Columnar format for analytics",
+
+  "exportPage-json-format": "JSON - Standard format",
+  "exportPage-csv-format": "CSV - Comma-separated values",
+
+  "exportPage-platform-statistics": "Platform statistics",
+  "exportPage-per-user-statistics": "Per-user statistics",
+  "exportPage-quality-metrics": "Quality metrics",
+
+  "exportPage-export-metadata": "Export Metadata",
+  "exportPage-export-history": "Export History",
+  "exportPage-export-type": "Export Type",
+
+  "exportPage-all-types": "All Types",
+  "exportPage-dataset": "Dataset",
+  "exportPage-metadata": "Metadata",
+
+  "exportPage-from-date": "From Date",
+  "exportPage-to-date": "To Date",
+
+  "exportPage-export-id": "Export ID",
+  "exportPage-type": "Type",
+  "exportPage-format": "Format",
+  "exportPage-records": "Records",
+  "exportPage-size": "Size",
+  "exportPage-user": "User",
+  "exportPage-date": "Date",
+
+  "exportPage-no-export-history-title": "No export history",
+  "exportPage-no-export-history-desc": "No exports have been performed yet.",
+
+  "exportPage-showing-results": "Showing {{start}} to {{end}} of {{total}} results",
+
+  "exportPage-previous": "Previous",
+  "exportPage-next": "Next",
+  "login-title": "Sign in to Shrutik",
+"login-subtitle": "Help us build better AI with your voice",
+"login-email": "Email address",
+"login-password": "Password",
+"login-signin": "Sign in",
+"login-signingIn": "Signing in...",
+"login-noAccount": "Don't have an account?",
+"login-signup": "Sign Up",
+
+ "signupPage-title": "Sign up for Shrutik",
+  "signupPage-subtitle": "Join and help build better AI with your voice",
+
+  "signupPage-name-label": "Name",
+
+  "signupPage-email-label": "Email address",
+
+  "signupPage-password-label": "Password",
+
+  "signupPage-confirm-password-label": "Confirm Password",
+  "signupPage-registering": "Registering...",
+  "signupPage-submit": "Sign up",
+  "signupPage-login-text": "Already have an account?",
+  "signupPage-login-link": "Log in",
+  
+  "registration_success": "Registration successful. Please log in.",
+  "registration_failed": "Registration failed. Try again with valid details."
 
 }
