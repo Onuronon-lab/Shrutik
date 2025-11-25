@@ -1,5 +1,7 @@
 import React from 'react';
 import { ClockIcon } from '@heroicons/react/24/outline';
+import { useTranslation } from 'react-i18next';
+import { count } from 'console';
 
 interface QuantitySelectorProps {
   selectedQuantity: number;
@@ -14,22 +16,23 @@ const QuantitySelector: React.FC<QuantitySelectorProps> = ({
   disabled = false,
   className = ''
 }) => {
+  const { t } = useTranslation();
   const quantities = [
-    { value: 2, label: '২টি বাক্য', time: '~৫ মিনিট', color: 'bg-success text-success-foreground border-success-border' },
-    { value: 5, label: '৫টি বাক্য', time: '~১০ মিনিট', color: 'bg-primary text-primary-foreground border-primary-border' },
-    { value: 10, label: '১০টি বাক্য', time: '~২০ মিনিট', color: 'bg-info text-info-foreground border-info-border' },
-    { value: 15, label: '১৫টি বাক্য', time: '~৩০ মিনিট', color: 'bg-warning text-warning-foreground border-warning-border' },
-    { value: 20, label: '২০টি বাক্য', time: '~৪০ মিনিট', color: 'bg-destructive text-destructive-foreground border-destructive-border' }
+    { value: 2, label: t('transcriptionPage-2-sentences'), time: t('transcriptionPage-approx-5-min'), color: 'bg-success text-success-foreground border-success-border' },
+    { value: 5, label: t('transcriptionPage-5-sentences'), time: t('transcriptionPage-approx-10-min'), color: 'bg-primary text-primary-foreground border-primary-border' },
+    { value: 10, label: t('transcriptionPage-10-sentences'), time: t('transcriptionPage-approx-20-min'), color: 'bg-info text-info-foreground border-info-border' },
+    { value: 15, label: t('transcriptionPage-15-sentences'), time: t('transcriptionPage-approx-30-min'), color: 'bg-warning text-warning-foreground border-warning-border' },
+    { value: 20, label: t('transcriptionPage-20-sentences'), time: t('transcriptionPage-approx-40-min'), color: 'bg-destructive text-destructive-foreground border-destructive-border' }
   ];
 
   return (
     <div className={`bg-card border border-border rounded-lg p-6 ${className}`}>
       <div className="text-center mb-6">
         <h3 className="text-lg font-semibold text-foreground mb-2">
-          কতটি বাক্য ট্রান্সক্রাইব করতে চান?
+          {t('transcriptionPage-how-many-sentences')}
         </h3>
         <p className="text-secondary-foreground text-sm">
-          আপনার সুবিধামতো পরিমাণ নির্বাচন করুন
+          {t('transcriptionPage-select-amount')}
         </p>
       </div>
 
@@ -82,12 +85,12 @@ const QuantitySelector: React.FC<QuantitySelectorProps> = ({
               </svg>
             </div>
             <div className="text-sm text-primary-foreground">
-              <p className="font-medium mb-1">আপনি {selectedQuantity}টি বাক্য ট্রান্সক্রাইব করার জন্য নির্বাচন করেছেন</p>
+              <p className="font-medium mb-1">{t('quantitySelector-selected', { count: selectedQuantity })} </p>
               <ul className="text-xs space-y-1 opacity-90">
-                <li>• প্রতিটি অডিও ক্লিপ মনোযোগ দিয়ে শুনুন</li>
-                <li>• যথাসম্ভব নির্ভুল বাংলায় লিখুন</li>
-                <li>• অস্পষ্ট অডিও এড়িয়ে যেতে পারেন</li>
-                <li>• যেকোনো সময় বন্ধ করে পরে আবার শুরু করতে পারেন</li>
+                <li>{t('quantitySelector-tip-1')}</li>
+                <li>{t('quantitySelector-tip-2')}</li>
+                <li>{t('quantitySelector-tip-3')}</li>
+                <li>{t('quantitySelector-tip-4')}</li>
               </ul>
             </div>
           </div>
