@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { EyeIcon, EyeSlashIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
@@ -16,6 +16,8 @@ const RegisterForm: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [passwordTouched, setPasswordTouched] = useState(false);
   const [confirmPasswordTouched, setConfirmPasswordTouched] = useState(false);
+  const [nameTouched, setNameTouched] = useState(false);
+  const [emailTouched, setEmailTouched] = useState(false);
 
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -32,6 +34,12 @@ const RegisterForm: React.FC = () => {
   };
 
   const allValidationsPassed = Object.values(passwordValidation).every(Boolean);
+
+  // Email validation
+  const isValidEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
   // Calculate password strength
   const getPasswordStrength = () => {
@@ -54,12 +62,47 @@ const RegisterForm: React.FC = () => {
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Clear all messages reliably
+  const clearAllMessages = useCallback(() => {
     setError('');
     setSuccessMessage('');
+  }, []);
+
+  // Clear error when any field changes
+  const handleFieldChange = (setter: React.Dispatch<React.SetStateAction<string>>, value: string) => {
+    setter(value);
+    if (error) {
+      setError('');
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Set all fields as touched to show validation errors
+    setNameTouched(true);
+    setEmailTouched(true);
     setPasswordTouched(true);
     setConfirmPasswordTouched(true);
+    
+    // Clear messages using functional updates
+    clearAllMessages();
+
+    // Client-side validation
+    if (!name.trim()) {
+      setError("Please enter your name");
+      return;
+    }
+
+    if (!email.trim()) {
+      setError("Please enter your email");
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
 
     if (!allValidationsPassed) {
       setError("Please meet all password requirements");
@@ -71,6 +114,11 @@ const RegisterForm: React.FC = () => {
       return;
     }
 
+    // If all validations pass, proceed with registration
+    await handleRegistration();
+  };
+
+  const handleRegistration = async () => {
     try {
       setIsLoading(true);
       const success = await register(name, email, password);
@@ -84,7 +132,10 @@ const RegisterForm: React.FC = () => {
       }
     } catch (error: any) {
       setIsLoading(false);
-
+      
+      // Clear any previous messages before setting new error
+      clearAllMessages();
+      
       if (error.response) {
         setError(error.response.data?.error.message || "Server returned an error");
       } else if (error.request) {
@@ -92,6 +143,7 @@ const RegisterForm: React.FC = () => {
       } else {
         setError(error.message || "Network Error");
       }
+      
     }
   };
 
@@ -119,7 +171,7 @@ const RegisterForm: React.FC = () => {
           </p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit} noValidate> {/* Add noValidate to disable browser validation */}
           <div className="rounded-md shadow-sm space-y-2">
             {/* Name */}
             <div>
@@ -129,11 +181,19 @@ const RegisterForm: React.FC = () => {
                 name="name"
                 type="text"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-border placeholder-nutral text-nutral-foreground rounded-t-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${
+                  nameTouched && !name.trim() ? 'border-red-500' : 'border-border'
+                } placeholder-nutral text-nutral-foreground rounded-t-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm`}
                 placeholder="Name"
                 value={name}
-                onChange={e => setName(e.target.value)}
+                onChange={e => handleFieldChange(setName, e.target.value)}
+                onBlur={() => setNameTouched(true)}
               />
+              {nameTouched && !name.trim() && (
+                <div className="px-3 text-red-600 text-xs mt-1">
+                  Please enter your name
+                </div>
+              )}
             </div>
 
             {/* Email */}
@@ -144,11 +204,26 @@ const RegisterForm: React.FC = () => {
                 name="email"
                 type="email"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-border placeholder-nutral text-nutral-foreground focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${
+                  emailTouched && (!email.trim() || !isValidEmail(email)) ? 'border-red-500' : 'border-border'
+                } placeholder-nutral text-nutral-foreground focus:outline-none focus:ring-primary focus:border-primary sm:text-sm`}
                 placeholder="Email address"
                 value={email}
-                onChange={e => setEmail(e.target.value)}
+                onChange={e => handleFieldChange(setEmail, e.target.value)}
+                onBlur={() => setEmailTouched(true)}
+                // Add autocomplete to prevent browser password management
+                autoComplete="email"
               />
+              {emailTouched && !email.trim() && (
+                <div className="px-3 text-red-600 text-xs mt-1">
+                  Please enter your email
+                </div>
+              )}
+              {emailTouched && email.trim() && !isValidEmail(email) && (
+                <div className="px-3 text-red-600 text-xs mt-1">
+                  Please enter a valid email address
+                </div>
+              )}
             </div>
 
             {/* Password */}
@@ -163,8 +238,10 @@ const RegisterForm: React.FC = () => {
                   } placeholder-nutral text-nutral-foreground focus:outline-none focus:ring-primary focus:border-primary sm:text-sm`}
                 placeholder="Password"
                 value={password}
-                onChange={e => setPassword(e.target.value)}
+                onChange={e => handleFieldChange(setPassword, e.target.value)}
                 onBlur={() => setPasswordTouched(true)}
+                // Prevent browser password management
+                autoComplete="new-password"
               />
               <button
                 type="button"
@@ -229,8 +306,10 @@ const RegisterForm: React.FC = () => {
                   } placeholder-nutral text-nutral-foreground rounded-b-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm`}
                 placeholder="Confirm Password"
                 value={confirmPassword}
-                onChange={e => setConfirmPassword(e.target.value)}
+                onChange={e => handleFieldChange(setConfirmPassword, e.target.value)}
                 onBlur={() => setConfirmPasswordTouched(true)}
+                // Prevent browser password management
+                autoComplete="new-password"
               />
               <button
                 type="button"
@@ -250,8 +329,16 @@ const RegisterForm: React.FC = () => {
           </div>
 
           {/* Error & Success */}
-          {error && <div className="text-red-600 text-sm text-center">{error}</div>}
-          {successMessage && <div className="text-green-600 text-sm text-center">{successMessage}</div>}
+          {error && (
+            <div className="text-red-600 text-sm text-center">
+              {error}
+            </div>
+          )}
+          {successMessage && (
+            <div className="text-green-600 text-sm text-center">
+              {successMessage}
+            </div>
+          )}
 
           <div>
             <button
