@@ -150,12 +150,16 @@
     "dataExport-from": "থেকে",
     "dataExport-to": "পর্যন্ত",
     "dataExport-maxRecords": "সর্বোচ্চ রেকর্ড",
-    "dataExport-includeOptions": "অন্তর্ভুক্তির অপশন",
+    "dataExport-includeOptions": "অন্তর্ভুক্ত করুন",
     "dataExport-includeMetadata": "বিস্তারিত মেটাডেটা অন্তর্ভুক্ত করুন",
     "dataExport-includeAudioPaths": "অডিও ফাইল পাথ অন্তর্ভুক্ত করুন",
 
+   "exportTab-dataset": "ডেটাসেট এক্সপোর্ট",
+   "exportTab-metadata": "মেটাডাটা এক্সপোর্ট",
+   "exportTab-history": "এক্সপোর্ট হিস্টোরি",
+
     "export-json": "JSON - নেস্টেড স্ট্রাকচারের স্ট্যান্ডার্ড ফরম্যাট",
-    "export-csv": "CSV - কমা-সেপারেটেড মান (সমতল কাঠামো)",
+    "export-csv": "CSV - কমা-সেপারেটেড ভ্যালু (ফ্ল্যাটেন্ড)",
     "export-jsonl": "JSON Lines - প্রতি লাইনে একটি JSON অবজেক্ট",
     "export-parquet": "Parquet - অ্যানালিটিক্সের জন্য কলাম-ভিত্তিক ফরম্যাট",
 
@@ -167,7 +171,7 @@
   "exportPage-quality-metrics": "গুণগত মেট্রিক্স",
 
   "exportPage-export-metadata": "মেটাডাটা এক্সপোর্ট",
-  "exportPage-export-history": "এক্সপোর্ট ইতিহাস",
+  "exportPage-export-history": "এক্সপোর্ট হিস্টোরি",
   "exportPage-export-type": "এক্সপোর্ট টাইপ",
 
   "exportPage-all-types": "সকল টাইপ ",
@@ -185,7 +189,7 @@
   "exportPage-user": "ব্যবহারকারী",
   "exportPage-date": "তারিখ",
 
-  "exportPage-no-export-history-title": "কোনো এক্সপোর্ট ইতিহাস নেই",
+  "exportPage-no-export-history-title": "কোনো এক্সপোর্ট হিস্টোরি নেই",
   "exportPage-no-export-history-desc": "এখনও কোনো এক্সপোর্ট করা হয়নি।",
 
   "exportPage-showing-results": "{{total}} ফলাফলের মধ্যে {{start}} থেকে {{end}} দেখানো হচ্ছে",
@@ -193,9 +197,14 @@
   "exportPage-previous": "পূর্ববর্তী",
   "exportPage-next": "পরবর্তী",
 
+"leave-empt-for-all-records": "সব রেকর্ড দেখাতে খালি রাখুন",
+"dataset_export_success": "ডেটাসেট সফলভাবে এক্সপোর্ট হয়েছে! {{count}}টি রেকর্ড এক্সপোর্ট হয়েছে।",
+"export_restricted": "ডেটা এক্সপোর্ট করার সুবিধা শুধুমাত্র admin এবং Sworik ডেভেলপারদের জন্য সীমাবদ্ধ।",
+"metadata_export_success": "মেটাডেটা সফলভাবে এক্সপোর্ট হয়েছে!",
+
 "login-title": "Shrutik এ সাইন ইন করুন",
 "login-subtitle": "আপনার কণ্ঠ দিয়ে আমাদের আরও ভালো AI তৈরি করতে সাহায্য করুন",
-"login-email": "ইমেইল ঠিকানা",
+"login-email": "ইমেইল এড্রেস",
 "login-password": "পাসওয়ার্ড",
 "login-signin": "সাইন ইন",
 "login-signingIn": "সাইন ইন হচ্ছে...",
@@ -204,18 +213,36 @@
 
    "signupPage-title": "Shrutik এ সাইন আপ করুন",
   "signupPage-subtitle": "জয়েন করুন এবং আপনার কণ্ঠ দিয়ে আরও ভালো AI তৈরিতে সাহায্য করুন",
-
   "signupPage-name-label": "নাম",
-
-  "signupPage-email-label": "ইমেইল ঠিকানা",
-
+  "signupPage-email-label": "ইমেইল এড্রেস",
   "signupPage-password-label": "পাসওয়ার্ড",
-
   "signupPage-confirm-password-label": "কনফার্ম পাসওয়ার্ড",
   "signupPage-registering": "রেজিস্ট্রেশন হচ্ছে...",
   "signupPage-submit": "সাইন আপ",
   "signupPage-login-text": "অ্যাকাউন্ট আছে?",
   "signupPage-login-link": "লগ ইন",
+  "signupPage-enter-name": "আপনার নাম লিখুন",
+  "signupPage-enter-email": "আপনার ইমেল লিখুন",
+  "signupPage-enter-valid-email": "অনুগ্রহ করে একটি ভ্যালিড ইমেল এড্রেস লিখুন",
+  "signupPage-password-requirements-note": "অনুগ্রহ করে পাসওয়ার্ডের সব শর্ত পূরণ করুন",
+
+  "signupPage-password-strength": "পাসওয়ার্ডের মান:",
+  "signupPage-password-strength-weak": "দুর্বল",
+  "signupPage-password-strength-medium": "মধ্যম",
+  "signupPage-password-strength-strong": "শক্তিশালী",
+
+  "signupPage-password-must-contain": "পাসওয়ার্ডে থাকতে হবে:",
+  "signupPage-min-chars": "অন্তত ৮ অক্ষর",
+  "signupPage-one-uppercase":"একটি বড় হাতের অক্ষর",
+  "signupPage-one-lowercase": "একটি ছোট হাতের অক্ষর",
+  "signupPage-one-number": "একটি সংখ্যা",
+  "signupPage-one-special": "একটি বিশেষ চিহ্ন (!@#$%^&*...)",
+
+  "signupPage-missing-uppercase": "পাসওয়ার্ডে অন্তত একটি বড় হাতের অক্ষর থাকতে হবে",
+  "signupPage-missing-special": "পাসওয়ার্ডে অন্তত একটি বিশেষ চিহ্ন থাকতে হবে (!@#$%^&*...)",
+
+  "signupPage-passwords-mismatch": "পাসওয়ার্ড দুটি মিলছে না",
+  
 
   "registration_success": "রেজিস্ট্রেশন সফল হয়েছে। অনুগ্রহ করে লগইন করুন।",
    "registration_failed":"রেজিস্ট্রেশন ব্যর্থ হয়েছে। সঠিক তথ্য দিয়ে আবার চেষ্টা করুন।"
