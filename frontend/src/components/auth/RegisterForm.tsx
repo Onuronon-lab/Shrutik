@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { EyeIcon, EyeSlashIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { ThemeToggle } from '../layout/ThemeSwitcher';
 import { useTranslation } from 'react-i18next';
-import LanguageSwitch from '../layout/LanguageSwitcher';
+import LanguageSwitch from '../layout/LanguageSwitch';
 
 const RegisterForm: React.FC = () => {
   const [name, setName] = useState('');
@@ -48,9 +48,9 @@ const RegisterForm: React.FC = () => {
   // Calculate password strength
   const getPasswordStrength = () => {
     const validCount = Object.values(passwordValidation).filter(Boolean).length;
-    if (validCount <= 2) return { label: 'Weak', color: 'bg-red-500', width: '33%' };
-    if (validCount <= 4) return { label: 'Medium', color: 'bg-yellow-500', width: '66%' };
-    return { label: 'Strong', color: 'bg-green-500', width: '100%' };
+    if (validCount <= 2) return { label: t('signupPage-password-strength-weak'), color: 'bg-red-500', width: '33%' };
+    if (validCount <= 4) return { label: t('signupPage-password-strength-medium'), color: 'bg-yellow-500', width: '66%' };
+    return { label: t('signupPage-password-strength-strong'), color: 'bg-green-500', width: '100%' };
   };
 
   const passwordStrength = password.length > 0 ? getPasswordStrength() : null;
@@ -59,10 +59,10 @@ const RegisterForm: React.FC = () => {
   const passwordErrors: string[] = [];
   if (passwordTouched && password.length > 0 && !allValidationsPassed) {
     if (!passwordValidation.hasUppercase) {
-      passwordErrors.push('Password must contain at least one uppercase letter');
+      passwordErrors.push(t('signupPage-missing-uppercase'));
     }
     if (!passwordValidation.hasSpecialChar) {
-      passwordErrors.push('Password must contain at least one special character (!@#$%^&*...)');
+      passwordErrors.push(t('signupPage-missing-special'));
     }
   }
 
@@ -94,27 +94,27 @@ const RegisterForm: React.FC = () => {
 
     // Client-side validation
     if (!name.trim()) {
-      setError("Please enter your name");
+      setError(t('signupPage-enter-name'));
       return;
     }
 
     if (!email.trim()) {
-      setError("Please enter your email");
+      setError(t('signupPage-enter-email'));
       return;
     }
 
     if (!isValidEmail(email)) {
-      setError("Please enter a valid email address");
+      setError(t('signupPage-enter-valid-email'));
       return;
     }
 
     if (!allValidationsPassed) {
-      setError("Please meet all password requirements");
+      setError(t('signupPage-password-requirements-note'));
       return;
     }
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError(t('signupPage-passwords-mismatch'));
       return;
     }
 
@@ -191,14 +191,14 @@ const RegisterForm: React.FC = () => {
                 className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${
                   nameTouched && !name.trim() ? 'border-red-500' : 'border-border'
                 } placeholder-nutral text-nutral-foreground rounded-t-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm`}
-                placeholder="Name"
+                placeholder={t('signupPage-name-label')}
                 value={name}
                 onChange={e => handleFieldChange(setName, e.target.value)}
                 onBlur={() => setNameTouched(true)}
               />
               {nameTouched && !name.trim() && (
                 <div className="px-3 text-red-600 text-xs mt-1">
-                  Please enter your name
+                  {t('signupPage-enter-name')}
                 </div>
               )}
             </div>
@@ -214,7 +214,7 @@ const RegisterForm: React.FC = () => {
                 className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${
                   emailTouched && (!email.trim() || !isValidEmail(email)) ? 'border-red-500' : 'border-border'
                 } placeholder-nutral text-nutral-foreground focus:outline-none focus:ring-primary focus:border-primary sm:text-sm`}
-                placeholder="Email address"
+                placeholder={t('signupPage-email-label')}
                 value={email}
                 onChange={e => handleFieldChange(setEmail, e.target.value)}
                 onBlur={() => setEmailTouched(true)}
@@ -223,12 +223,12 @@ const RegisterForm: React.FC = () => {
               />
               {emailTouched && !email.trim() && (
                 <div className="px-3 text-red-600 text-xs mt-1">
-                  Please enter your email
+                  {t('signupPage-enter-email')}
                 </div>
               )}
               {emailTouched && email.trim() && !isValidEmail(email) && (
                 <div className="px-3 text-red-600 text-xs mt-1">
-                  Please enter a valid email address
+                  {t('signupPage-enter-valid-email')}
                 </div>
               )}
             </div>
@@ -243,7 +243,7 @@ const RegisterForm: React.FC = () => {
                 required
                 className={`appearance-none rounded-none relative block w-full px-3 py-2 pr-10 border ${passwordTouched && !allValidationsPassed ? 'border-red-500' : 'border-border'
                   } placeholder-nutral text-nutral-foreground focus:outline-none focus:ring-primary focus:border-primary sm:text-sm`}
-                placeholder="Password"
+                placeholder= {t("signupPage-password-label")}
                 value={password}
                 onChange={e => handleFieldChange(setPassword, e.target.value)}
                 onBlur={() => setPasswordTouched(true)}
@@ -263,9 +263,9 @@ const RegisterForm: React.FC = () => {
             {password.length > 0 && (
               <div className="px-3 py-2 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-600">Password strength:</span>
-                  <span className={`text-xs font-medium ${passwordStrength?.label === 'Weak' ? 'text-red-600' :
-                      passwordStrength?.label === 'Medium' ? 'text-yellow-600' :
+                  <span className="text-xs text-gray-600">{t('signupPage-password-strength')}</span>
+                  <span className={`text-xs font-medium ${passwordStrength?.label === t('signupPage-password-strength-weak') ? 'text-red-600' :
+                      passwordStrength?.label === t('signupPage-password-strength-medium') ? 'text-yellow-600' :
                         'text-green-600'
                     }`}>
                     {passwordStrength?.label}
@@ -279,12 +279,12 @@ const RegisterForm: React.FC = () => {
                 </div>
 
                 <div className="pt-2 space-y-1">
-                  <p className="text-xs text-gray-600 font-medium mb-1.5">Password must contain:</p>
-                  <ValidationItem isValid={passwordValidation.minLength} text="At least 8 characters" />
-                  <ValidationItem isValid={passwordValidation.hasUppercase} text="One uppercase letter" />
-                  <ValidationItem isValid={passwordValidation.hasLowercase} text="One lowercase letter" />
-                  <ValidationItem isValid={passwordValidation.hasNumber} text="One number" />
-                  <ValidationItem isValid={passwordValidation.hasSpecialChar} text="One special character (!@#$%^&*...)" />
+                  <p className="text-xs text-gray-600 font-medium mb-1.5">{t('signupPage-password-must-contain')}</p>
+                  <ValidationItem isValid={passwordValidation.minLength} text={t('signupPage-min-chars')} />
+                  <ValidationItem isValid={passwordValidation.hasUppercase} text={t('signupPage-one-uppercase')} />
+                  <ValidationItem isValid={passwordValidation.hasLowercase} text={t('signupPage-one-lowercase')} />
+                  <ValidationItem isValid={passwordValidation.hasNumber} text={t('signupPage-one-number')} />
+                  <ValidationItem isValid={passwordValidation.hasSpecialChar} text={t('signupPage-one-special')} />
                 </div>
 
                 {/* Error messages for missing requirements */}
@@ -311,7 +311,7 @@ const RegisterForm: React.FC = () => {
                 required
                 className={`appearance-none rounded-none relative block w-full px-3 py-2 pr-10 border ${confirmPasswordTouched && confirmPassword && password !== confirmPassword ? 'border-red-500' : 'border-border'
                   } placeholder-nutral text-nutral-foreground rounded-b-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm`}
-                placeholder="Confirm Password"
+                placeholder={t('signupPage-confirm-password-label')}
                 value={confirmPassword}
                 onChange={e => handleFieldChange(setConfirmPassword, e.target.value)}
                 onBlur={() => setConfirmPasswordTouched(true)}
@@ -330,7 +330,7 @@ const RegisterForm: React.FC = () => {
             {/* Confirm Password Mismatch Error */}
             {confirmPasswordTouched && confirmPassword && password !== confirmPassword && (
               <div className="px-3 text-red-600 text-xs">
-                Passwords do not match
+                {t('signupPage-passwords-mismatch')}
               </div>
             )}
           </div>

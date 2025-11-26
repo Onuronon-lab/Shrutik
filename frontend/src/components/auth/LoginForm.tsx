@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { ThemeToggle } from '../layout/ThemeSwitcher';
 import { useTranslation } from 'react-i18next';
-import LanguageSwitch from '../layout/LanguageSwitcher';
+import LanguageSwitch from '../layout/LanguageSwitch';
 
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -103,7 +103,7 @@ const LoginForm: React.FC = () => {
                 className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${
                   error ? 'border-destructive focus:ring-destructive focus:border-destructive' : 'border-border focus:ring-primary focus:border-primary'
                 } placeholder-nutral text-nutral-foreground rounded-t-md focus:outline-none focus:ring-2 sm:text-sm`}
-                placeholder="Email address"
+                placeholder= {t('login-email')}
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
@@ -123,7 +123,7 @@ const LoginForm: React.FC = () => {
                 className={`appearance-none rounded-none relative block w-full px-3 py-2 pr-10 border ${
                   error ? 'border-destructive focus:ring-destructive focus:border-destructive' : 'border-border focus:ring-primary focus:border-primary'
                 } placeholder-nutral text-nutral-foreground rounded-b-md focus:outline-none focus:ring-2 sm:text-sm`}
-                placeholder="Password"
+                placeholder= {t('login-password')}
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
