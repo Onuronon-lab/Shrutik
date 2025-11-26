@@ -126,8 +126,7 @@ const DataExport: React.FC = () => {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
       
-      setSuccess(`Dataset exported successfully! ${response.total_records} records exported.`);
-      
+      setSuccess(t('dataset_export_success',{count: response.total_records}))
       // Refresh history if on history tab
       if (activeTab === 'history') {
         loadExportHistory();
@@ -169,7 +168,7 @@ const DataExport: React.FC = () => {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
       
-      setSuccess('Metadata exported successfully!');
+      setSuccess(t('metadata_export_success'));
       
       // Refresh history if on history tab
       if (activeTab === 'history') {
@@ -213,7 +212,7 @@ const DataExport: React.FC = () => {
           <div>
             <h3 className="text-lg font-medium text-destructive-foreground">Access Denied</h3>
             <p className="text-destructive-foreground mt-1">
-              Data export functionality is restricted to Admins and Sworik developers only.
+              {t('export_restricted')}
             </p>
           </div>
         </div>
@@ -222,9 +221,9 @@ const DataExport: React.FC = () => {
   }
 
   const tabs = [
-    { id: 'dataset' as ExportTab, name: 'Dataset Export', icon: DocumentArrowDownIcon },
-    { id: 'metadata' as ExportTab, name: 'Metadata Export', icon: ChartBarIcon },
-    { id: 'history' as ExportTab, name: 'Export History', icon: ClockIcon }
+    { id: 'dataset' as ExportTab, name: t('exportTab-dataset'), icon: DocumentArrowDownIcon },
+    { id: 'metadata' as ExportTab, name: t('exportTab-metadata'), icon: ChartBarIcon },
+    { id: 'history' as ExportTab, name: t('exportTab-history'), icon: ClockIcon }
   ];
 
   return (
@@ -334,7 +333,7 @@ const DataExport: React.FC = () => {
                   >
                     <option value="json">{t('export-json')}</option>
                     <option value="csv">{t('export-csv')}</option>
-                    <option value="jsonl">{t('export-csv')}</option>
+                    <option value="jsonl">{t('export-jsonl')}</option>
                     <option value="parquet">{t('export-parquet')}</option>
                   </select>
                 </div>
@@ -478,7 +477,7 @@ const DataExport: React.FC = () => {
                       max_records: e.target.value ? parseInt(e.target.value) : undefined 
                     }))}
                     className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring"
-                    placeholder="Leave empty for all records"
+                    placeholder={t('leave-empt-for-all-records')}
                   />
                 </div>
               </div>

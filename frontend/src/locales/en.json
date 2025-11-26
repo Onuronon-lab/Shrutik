@@ -65,7 +65,7 @@
     "transcriptionPage-submit-shortcut": "• Press Ctrl+Enter to submit quickly",
 
   "transcription-loading-chunks": "Loading audio chunks...",
-  "transcription-error": "An error occurred: {{err}}",
+  "transcription-error-title": "An error occurred",
   "transcription-error-no-chunks": "No audio chunks found. Please try again later.",
   "transcription-error-load-chunks": "Failed to load audio chunks. Please try again later.",
   "transcription-error-load-audio": "Failed to load audio file.",
@@ -139,6 +139,10 @@
   "dataExport-includeMetadata": "Include detailed metadata",
   "dataExport-includeAudioPaths": "Include audio file paths",
 
+  "exportTab-dataset": "Dataset Export",
+  "exportTab-metadata": "Metadata Export",
+  "exportTab-history": "Export History",
+
   "export-json": "JSON - Standard format with nested structure",
   "export-csv": "CSV - Comma-separated values (flattened)",
   "export-jsonl": "JSON Lines - One JSON object per line",
@@ -170,6 +174,11 @@
   "exportPage-user": "User",
   "exportPage-date": "Date",
 
+  "leave-empt-for-all-records": "Leave empty for all records",
+  "dataset_export_success": "Dataset exported successfully! {{count}}records exported.",
+  "export_restricted": "Data export functionality is restricted to Admins and Sworik developers only.",
+  "metadata_export_success": "Metadata exported successfully!",
+
   "exportPage-no-export-history-title": "No export history",
   "exportPage-no-export-history-desc": "No exports have been performed yet.",
 
@@ -188,18 +197,35 @@
 
  "signupPage-title": "Sign up for Shrutik",
   "signupPage-subtitle": "Join and help build better AI with your voice",
-
   "signupPage-name-label": "Name",
-
   "signupPage-email-label": "Email address",
-
   "signupPage-password-label": "Password",
-
   "signupPage-confirm-password-label": "Confirm Password",
   "signupPage-registering": "Registering...",
   "signupPage-submit": "Sign up",
   "signupPage-login-text": "Already have an account?",
   "signupPage-login-link": "Log in",
+  "signupPage-enter-name": "Please enter your name",
+  "signupPage-enter-email": "Please enter your email",
+  "signupPage-enter-valid-email": "Please enter a valid email address",
+  "signupPage-password-requirements-note": "Please meet all password requirements",
+
+  "signupPage-password-strength": "Password strength:",
+  "signupPage-password-strength-weak": "Weak",
+  "signupPage-password-strength-medium": "Medium",
+  "signupPage-password-strength-strong": "Strong",
+
+  "signupPage-password-must-contain": "Password must contain:",
+  "signupPage-min-chars": "At least 8 characters",
+  "signupPage-one-uppercase": "One uppercase letter",
+  "signupPage-one-lowercase": "One lowercase letter",
+  "signupPage-one-number": "One number",
+  "signupPage-one-special": "One special character (!@#$%^&*...)",
+
+  "signupPage-missing-uppercase": "Password must contain at least one uppercase letter",
+  "signupPage-missing-special": "Password must contain at least one special character (!@#$%^&*...)",
+
+  "signupPage-passwords-mismatch": "Passwords do not match",
   
   "registration_success": "Registration successful. Please log in.",
   "registration_failed": "Registration failed. Try again with valid details."
