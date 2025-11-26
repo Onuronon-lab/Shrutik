@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     USE_CELERY: bool = True  # Set to False to disable Celery and use synchronous processing
     
     SECRET_KEY: str = "your-secret-key-change-in-production"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
     ALGORITHM: str = "HS256"
     
     ALLOWED_HOSTS: List[str] = ["http://localhost:3000", "http://localhost:8000"]
