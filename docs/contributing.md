@@ -58,21 +58,23 @@ git remote add upstream https://github.com/Onuronon-lab/Shrutik.git
 
 ### 1. Create a Branch
 
+**Important:** All PRs must be submitted to the `deployment-dev` branch, not `master`.
+
 ```bash
-# Update your main branch
-git checkout master
-git pull upstream master
+# Update deployment-dev branch
+git checkout deployment-dev
+git pull origin deployment-dev
 
 # Create a feature branch
 git checkout -b feature/your-feature-name
-# or
+# or for bug fixes
 git checkout -b fix/issue-number-description
 ```
 
 ### 2. Make Changes
 
-- Follow our [coding standards](#coding-standards)
-- Write tests for new functionality
+- Write code
+- Add tests for new functionality
 - Update documentation as needed
 - Ensure all tests pass
 
@@ -99,8 +101,146 @@ Fixes #123"
 # Push to your fork
 git push origin feature/your-feature-name
 
-# Create a Pull Request on GitHub
+# Create a Pull Request to deployment-dev on GitHub
 ```
+
+**PR Guidelines:**
+- Target the `deployment-dev` branch (not master!)
+- Fill out the PR template completely
+- Ensure all CI checks pass
+- Code must be formatted (see Code Formatting section)
+
+---
+
+## Code Formatting
+
+We use automated code formatters to maintain consistent code style and eliminate formatting-related merge conflicts.
+
+### Tools & Configuration
+
+- **Backend (Python)**: Black (88 chars), isort, flake8
+- **Frontend (TypeScript/React)**: Prettier (100 chars), ESLint
+
+### Quick Setup
+
+**1. Install formatting tools:**
+
+```bash
+pip install black isort flake8
+cd frontend && npm install && cd ..
+```
+
+**2. Set up pre-commit hooks (recommended):**
+
+```bash
+./scripts/setup_pre_commit.sh
+```
+
+This auto-formats your code on every commit!
+
+### Using Pre-commit Hooks
+
+Once set up, just commit normally:
+
+```bash
+git add .
+git commit -m "feat: your changes"
+# ✨ Code is automatically formatted before commit!
+```
+
+### Before Submitting a PR
+
+If not using pre-commit hooks, format manually:
+
+```bash
+# Format entire codebase
+./scripts/format_code.sh
+
+# Review changes
+git diff
+
+# Commit and push
+git add .
+git commit -m "style: format code"
+git push
+```
+
+### Manual Formatting Commands
+
+```bash
+# Format everything
+./scripts/format_code.sh
+
+# Backend only
+black app/ tests/ scripts/
+isort app/ tests/ scripts/
+
+# Frontend only
+cd frontend
+npm run format
+npm run lint:fix
+```
+
+### CI/CD Checks
+
+Our GitHub Actions workflow automatically checks formatting on all PRs to deployment-dev. If formatting fails:
+
+```bash
+./scripts/format_code.sh
+git add .
+git commit -m "style: fix formatting"
+git push
+```
+
+### Skipping Hooks (Emergency Only)
+
+```bash
+git commit --no-verify -m "emergency fix"
+```
+
+**Note:** Use sparingly! The CI will still check formatting.
+
+### Troubleshooting
+
+| Problem | Solution |
+|---------|----------|
+| Tools not found | `pip install black isort flake8` |
+| Prettier not found | `cd frontend && npm install` |
+| Hooks not running | `pre-commit install` |
+
+### Style Guidelines
+
+#### Python
+```python
+# ✅ Good (Black formatted)
+def calculate_total(items: list[dict], tax_rate: float = 0.1) -> float:
+    """Calculate total with tax."""
+    subtotal = sum(item["price"] for item in items)
+    return subtotal * (1 + tax_rate)
+```
+
+#### TypeScript/React
+```typescript
+// ✅ Good (Prettier formatted)
+const UserCard = ({ name, email }: UserCardProps) => {
+  return (
+    <div className="user-card">
+      <h2>{name}</h2>
+      <p>{email}</p>
+    </div>
+  );
+};
+```
+
+---
+
+**Benefits:**
+- ✅ Zero formatting conflicts in PRs
+- ✅ Faster code reviews (focus on logic)
+- ✅ Consistent codebase
+- ✅ Automatic on every commit
+
+For more details, see [docs/FORMATTING.md](docs/FORMATTING.md)
 
 ## Commit Message Guidelines
 
