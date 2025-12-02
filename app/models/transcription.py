@@ -30,7 +30,12 @@ class Transcription(Base):
     )
 
     # Relationships
-    chunk = relationship("AudioChunk", back_populates="transcriptions")
+    chunk = relationship(
+        "AudioChunk",
+        back_populates="transcriptions",
+        foreign_keys=[chunk_id],
+        overlaps="consensus_transcript",
+    )
     user = relationship("User", back_populates="transcriptions")
     language = relationship("Language", back_populates="transcriptions")
     quality_reviews = relationship("QualityReview", back_populates="transcription")
