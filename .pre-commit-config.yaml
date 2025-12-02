@@ -21,10 +21,7 @@ repos:
     rev: 7.1.1
     hooks:
       - id: flake8
-        args: [--max-line-length=88, --extend-ignore=E203,W503]
-        # Temporarily non-blocking - will fix issues in separate PR
-        verbose: true
-        stages: [manual]
+        # Uses .flake8 config file for settings
 
   # Frontend formatting
   - repo: https://github.com/pre-commit/mirrors-prettier
