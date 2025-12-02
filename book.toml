@@ -15,7 +15,6 @@ renderer = ["html"]
 [output.html]
 default-theme = "navy"
 preferred-dark-theme = "navy"
-copy-fonts = true
 mathjax-support = false
 git-repository-url = "https://github.com/Onuronon-lab/Shrutik"
 git-repository-icon = "fa-github"
