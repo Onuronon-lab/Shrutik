@@ -6,9 +6,8 @@ including intelligent chunking and metadata extraction.
 """
 
 import logging
-from typing import List, Optional
+from typing import List
 
-from celery import current_task
 from sqlalchemy.orm import Session
 
 from app.core.celery_app import celery_app
@@ -330,7 +329,6 @@ def cleanup_orphaned_chunks() -> dict:
     Returns:
         dict: Cleanup results
     """
-    import os
     from pathlib import Path
 
     db = get_db()

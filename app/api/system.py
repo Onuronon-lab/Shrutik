@@ -12,13 +12,11 @@ from pathlib import Path
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy.orm import Session
 
 from app.core.cache import cache_manager
 from app.core.dependencies import require_admin, require_admin_or_sworik
 from app.core.performance import performance_metrics, performance_optimizer
 from app.core.rate_limiting import rate_limit_manager
-from app.db.database import get_db
 from app.models.user import User
 
 router = APIRouter(prefix="/system", tags=["system"])

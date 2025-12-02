@@ -7,19 +7,6 @@ and implements fallback mechanisms for critical system failures.
 
 from typing import Any, Dict, Optional
 
-from app.core.exceptions import (
-    AudioProcessingError,
-    AuthenticationError,
-    AuthorizationError,
-    ConsensusError,
-    DatabaseError,
-    ExternalServiceError,
-    FileStorageError,
-    RateLimitError,
-    TranscriptionError,
-    ValidationError,
-)
-
 # User-friendly error messages
 ERROR_MESSAGES = {
     # Audio Processing Errors

@@ -2,27 +2,23 @@ import hashlib
 import os
 import uuid
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional
 
 import librosa
-import soundfile as sf
 from fastapi import HTTPException, UploadFile, status
-from sqlalchemy import and_, func
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.exceptions import (
-    AudioProcessingError,
     ErrorContext,
     FileStorageError,
     ValidationError,
     log_and_raise_error,
-    safe_execute,
 )
 from app.core.logging_config import get_logger
 from app.models.language import Language
 from app.models.script import Script
-from app.models.user import User
 from app.models.voice_recording import RecordingStatus, VoiceRecording
 from app.schemas.voice_recording import (
     RecordingProgressResponse,
@@ -33,7 +29,6 @@ from app.schemas.voice_recording import (
     VoiceRecordingCreate,
     VoiceRecordingListResponse,
     VoiceRecordingResponse,
-    VoiceRecordingUpdate,
 )
 
 logger = get_logger(__name__)

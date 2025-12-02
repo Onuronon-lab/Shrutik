@@ -5,8 +5,6 @@ These tests cover the consensus engine, quality scoring algorithms,
 and validation status management.
 """
 
-from datetime import datetime, timezone
-
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
@@ -620,7 +618,7 @@ class TestConsensusServiceExportOptimization:
 
             # Should succeed now
             assert result is not None
-        except Exception as e:
+        except Exception:
             # If Redis is not available, skip the lock test but still test basic functionality
             result = consensus_service.calculate_consensus_for_chunk(sample_chunk.id)
             assert result is not None
@@ -835,7 +833,7 @@ class TestConsensusServiceExportOptimization:
 
         # Simulate an error by passing invalid chunk_id
         # (This will cause an error in the calculation)
-        initial_failed_count = sample_chunk.consensus_failed_count or 0
+        sample_chunk.consensus_failed_count or 0
 
         # Force an error by corrupting the database state temporarily
         # We'll test the increment logic by checking the chunk after a failed calculation

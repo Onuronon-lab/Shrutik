@@ -1,6 +1,6 @@
 import random
 import re
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from fastapi import HTTPException, status
 from sqlalchemy import and_, func
@@ -12,7 +12,6 @@ from app.schemas.script import (
     RandomScriptRequest,
     ScriptCreate,
     ScriptListResponse,
-    ScriptResponse,
     ScriptUpdate,
     ScriptValidationResponse,
 )

@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 from difflib import SequenceMatcher
 from typing import Any, Dict, List, Optional, Tuple
 
-from sqlalchemy import and_, func, or_
+from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
 
 from app.core.export_metrics import consensus_metrics_collector
@@ -22,7 +22,6 @@ from app.core.redis_client import redis_client
 from app.models.audio_chunk import AudioChunk
 from app.models.quality_review import QualityReview, ReviewDecision
 from app.models.transcription import Transcription
-from app.models.user import User
 
 logger = logging.getLogger(__name__)
 
@@ -860,7 +859,7 @@ class ConsensusService:
 
         for chunk_id in chunk_ids:
             try:
-                consensus_transcript = self.calculate_consensus_for_chunk(chunk_id)
+                self.calculate_consensus_for_chunk(chunk_id)
 
                 # Get updated chunk to check ready_for_export status
                 chunk = (

@@ -7,7 +7,6 @@ from app.core.security import get_password_hash
 from app.db.database import Base, get_db
 from app.main import app
 from app.models.language import Language
-from app.models.script import DurationCategory, Script
 from app.models.user import User, UserRole
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test_scripts.db"

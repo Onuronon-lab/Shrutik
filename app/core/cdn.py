@@ -11,10 +11,9 @@ import mimetypes
 import os
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin
 
 from app.core.cache import cache_manager
-from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 

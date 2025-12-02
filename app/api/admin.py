@@ -5,7 +5,6 @@ from sqlalchemy.orm import Session
 
 from app.core.dependencies import require_admin, require_admin_or_sworik
 from app.db.database import get_db
-from app.models.quality_review import ReviewDecision
 from app.models.user import User, UserRole
 from app.schemas.admin import (
     FlaggedTranscriptionResponse,

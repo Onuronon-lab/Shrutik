@@ -7,7 +7,7 @@ intelligent chunking using librosa for VAD and sentence boundary detection.
 
 import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 
 import librosa
 import numpy as np
@@ -16,7 +16,7 @@ from pydub import AudioSegment
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.core.exceptions import AudioProcessingError, ErrorContext, safe_execute
+from app.core.exceptions import AudioProcessingError, ErrorContext
 from app.core.logging_config import get_logger
 from app.models.audio_chunk import AudioChunk
 from app.models.voice_recording import RecordingStatus, VoiceRecording

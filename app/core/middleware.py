@@ -2,12 +2,12 @@ import logging
 import time
 from typing import Optional
 
-from fastapi import Request, Response
+from fastapi import Request
 from fastapi.security.utils import get_authorization_scheme_param
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.core.security import verify_token
-from app.models.user import User, UserRole
+from app.models.user import UserRole
 
 logger = logging.getLogger(__name__)
 

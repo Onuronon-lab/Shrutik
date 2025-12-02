@@ -14,9 +14,7 @@ from pydantic import BaseModel, Field
 from app.core.dependencies import get_current_user, require_admin
 from app.models.user import User
 from app.services.job_monitoring_service import (
-    JobInfo,
     JobPriority,
-    JobStatistics,
     JobStatus,
     job_monitoring_service,
 )

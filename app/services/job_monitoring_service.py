@@ -7,20 +7,16 @@ including status tracking, retry mechanisms, and notification systems.
 
 import json
 import logging
-from dataclasses import asdict, dataclass
-from datetime import datetime, timedelta, timezone
+from dataclasses import dataclass
+from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
-from celery import current_app
 from celery.result import AsyncResult
-from celery.states import FAILURE, PENDING, RETRY, REVOKED, SUCCESS
-from sqlalchemy import and_, func, or_
-from sqlalchemy.orm import Session
+from celery.states import FAILURE, PENDING, SUCCESS
 
 from app.core.celery_app import celery_app
 from app.core.redis_client import redis_client
-from app.db.database import SessionLocal
 
 logger = logging.getLogger(__name__)
 

@@ -11,12 +11,11 @@ import logging
 import os
 import sys
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 # Add the app directory to the Python path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from app.core.config import settings
 from app.db.database import SessionLocal
 from app.models.audio_chunk import AudioChunk
 from app.models.voice_recording import RecordingStatus, VoiceRecording
@@ -24,7 +23,6 @@ from app.services.audio_processing_service import (
     AudioChunkingService,
     AudioProcessingError,
 )
-from app.tasks.audio_processing import batch_process_recordings, process_audio_recording
 
 # Configure logging
 logging.basicConfig(

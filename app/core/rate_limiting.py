@@ -9,11 +9,10 @@ import logging
 import time
 from typing import Dict, Optional, Tuple
 
-from fastapi import HTTPException, Request, status
+from fastapi import Request, status
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 
-from app.core.config import settings
 from app.core.redis_client import redis_client
 
 logger = logging.getLogger(__name__)
@@ -191,7 +190,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
             # Determine rate limits
             endpoint = request.url.path
-            method = request.method
+            request.method
 
             # Check endpoint-specific limits first
             endpoint_limit = self.config.get_endpoint_limit(endpoint)

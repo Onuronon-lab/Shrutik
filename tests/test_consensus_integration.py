@@ -183,10 +183,8 @@ def test_celery_task_imports():
 def test_consensus_schemas():
     """Test that consensus schemas are properly defined."""
     from app.schemas.consensus import (
-        ChunkValidationStatus,
         ConsensusResult,
         ManualReviewRequest,
-        ValidationStatistics,
         ValidationStatus,
     )
 

@@ -30,8 +30,6 @@ class VoiceRecordingBase(BaseModel):
 class VoiceRecordingCreate(VoiceRecordingBase):
     """Schema for creating a new voice recording."""
 
-    pass
-
 
 class VoiceRecordingUpdate(BaseModel):
     """Schema for updating an existing voice recording."""

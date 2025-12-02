@@ -1,9 +1,7 @@
-import os
 from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from fastapi.responses import FileResponse
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
