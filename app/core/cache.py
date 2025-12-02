@@ -9,11 +9,9 @@ import hashlib
 import json
 import logging
 import pickle
-from datetime import datetime, timedelta
 from functools import wraps
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, Optional
 
-from app.core.config import settings
 from app.core.redis_client import redis_client
 
 logger = logging.getLogger(__name__)

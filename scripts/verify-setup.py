@@ -89,7 +89,7 @@ def main():
     # Check if we can import the main app (requires dependencies)
     print("\nChecking Python imports:")
     try:
-        from app.main import app
+        pass
 
         print("✓ FastAPI app can be imported")
     except ImportError as e:

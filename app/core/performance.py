@@ -10,7 +10,7 @@ import time
 from contextlib import contextmanager
 from datetime import datetime, timedelta
 from functools import wraps
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 
 import psutil
 
@@ -244,7 +244,7 @@ class PerformanceMonitor:
 
                     return result
 
-                except Exception as e:
+                except Exception:
                     status_code = 500
                     raise
 
@@ -263,7 +263,7 @@ class PerformanceMonitor:
                     result = func(*args, **kwargs)
                     return result
 
-                except Exception as e:
+                except Exception:
                     status_code = 500
                     raise
 

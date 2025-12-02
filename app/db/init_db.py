@@ -2,10 +2,7 @@
 
 import logging
 
-from sqlalchemy.orm import Session
-
-from app.core.config import settings
-from app.db.database import SessionLocal, engine
+from app.db.database import SessionLocal
 
 logger = logging.getLogger(__name__)
 

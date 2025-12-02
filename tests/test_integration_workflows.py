@@ -8,10 +8,6 @@ This module tests end-to-end workflows including:
 4. Export functionality and access controls for Sworik developers
 """
 
-import io
-import json
-from unittest.mock import Mock, patch
-
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -23,7 +19,6 @@ from app.main import app
 from app.models.audio_chunk import AudioChunk
 from app.models.export_audit import ExportAuditLog
 from app.models.language import Language
-from app.models.quality_review import QualityReview, ReviewDecision
 from app.models.script import DurationCategory, Script
 from app.models.transcription import Transcription
 from app.models.user import User, UserRole
@@ -348,7 +343,7 @@ class TestTranscriptionWorkflow:
         assert user_transcriptions["total"] == 2
 
         # Step 4: Test basic consensus endpoint (simplified)
-        chunk_id = chunks[0].id
+        chunks[0].id
         admin_headers = get_auth_headers(client, test_users["admin"].email)
 
         # Test that consensus endpoint exists and is accessible
@@ -364,7 +359,7 @@ class TestTranscriptionWorkflow:
         headers = get_auth_headers(client, contributor.email)
 
         # Setup test chunks
-        chunks = self.setup_test_chunks(db_session, test_users, test_language)
+        self.setup_test_chunks(db_session, test_users, test_language)
 
         # Request transcription task
         task_request = {"quantity": 2}
@@ -587,7 +582,7 @@ class TestExportWorkflow:
         sworik_headers = get_auth_headers(client, sworik_dev.email)
 
         # Setup test data
-        test_data = self.setup_export_test_data(db_session, test_users, test_language)
+        self.setup_export_test_data(db_session, test_users, test_language)
 
         # Step 1: Check available export formats
         response = client.get("/api/export/formats", headers=sworik_headers)

@@ -5,19 +5,16 @@ This module provides monitoring capabilities, health checks, and alerting
 mechanisms for critical system failures and performance issues.
 """
 
-import asyncio
 import logging
 import time
 from dataclasses import asdict, dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import psutil
 from sqlalchemy import text
-from sqlalchemy.orm import Session
 
-from app.core.config import settings
 from app.core.redis_client import redis_client
 from app.db.database import SessionLocal
 
@@ -504,7 +501,7 @@ class HealthChecker:
             try:
                 from datetime import datetime, timedelta, timezone
 
-                from sqlalchemy import func, text
+                from sqlalchemy import func
 
                 from app.models.transcription import Transcription
                 from app.models.user import User

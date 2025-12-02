@@ -5,8 +5,6 @@ This module tests the secure data export system including dataset export,
 metadata export, audit logging, and access control for Sworik developers.
 """
 
-from datetime import datetime
-
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -373,7 +371,7 @@ def test_export_history_pagination(
 
 import os
 import tempfile
-from unittest.mock import MagicMock, Mock, mock_open, patch
+from unittest.mock import patch
 
 from app.core.config import StorageConfig
 from app.core.exceptions import ValidationError

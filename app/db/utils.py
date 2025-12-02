@@ -4,7 +4,6 @@ import logging
 from typing import Any, Dict, List, Optional
 
 from sqlalchemy import text
-from sqlalchemy.orm import Session
 
 from app.db.database import SessionLocal
 
@@ -15,7 +14,7 @@ def check_database_connection() -> bool:
     """Check if database connection is working"""
     try:
         db = SessionLocal()
-        result = db.execute(text("SELECT 1"))
+        db.execute(text("SELECT 1"))
         db.close()
         return True
     except Exception as e:

@@ -1,10 +1,10 @@
 import logging
 import uuid
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 from fastapi import HTTPException, status
-from sqlalchemy import and_, func, not_, or_
+from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
 
 from app.core.cache import cache_result, db_cache, invalidate_related_caches
@@ -18,7 +18,6 @@ from app.schemas.transcription import (
     AudioChunkForTranscription,
     ChunkSkipRequest,
     ChunkSkipResponse,
-    TranscriptionCreate,
     TranscriptionListResponse,
     TranscriptionResponse,
     TranscriptionStatistics,

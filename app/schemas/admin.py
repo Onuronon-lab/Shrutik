@@ -5,7 +5,6 @@ from pydantic import BaseModel
 
 from app.models.quality_review import ReviewDecision
 from app.models.user import UserRole
-from app.models.voice_recording import RecordingStatus
 
 
 class UserStatsResponse(BaseModel):

@@ -13,10 +13,7 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from sqlalchemy.orm import Session
-
 from app.core.redis_client import redis_client
-from app.db.database import SessionLocal
 
 logger = logging.getLogger(__name__)
 

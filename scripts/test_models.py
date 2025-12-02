@@ -7,10 +7,7 @@ import sys
 # Add the project root to the Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
-from app.db.database import Base
 from app.models import (
     AudioChunk,
     DurationCategory,

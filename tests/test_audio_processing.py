@@ -4,7 +4,6 @@ Tests for audio processing service and chunking functionality.
 
 import os
 import tempfile
-from pathlib import Path
 from unittest.mock import Mock, patch
 
 import numpy as np

@@ -32,8 +32,6 @@ class ScriptBase(BaseModel):
 class ScriptCreate(ScriptBase):
     """Schema for creating a new script."""
 
-    pass
-
 
 class ScriptUpdate(BaseModel):
     """Schema for updating an existing script."""

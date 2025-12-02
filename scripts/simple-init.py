@@ -4,7 +4,6 @@ Simple database initialization script - fallback for when Alembic fails.
 This script just ensures tables exist and creates basic data.
 """
 
-import os
 import sys
 from pathlib import Path
 
@@ -18,7 +17,6 @@ def simple_init():
 
     try:
         # Import all models first
-        import app.models
         from app.db.database import Base, SessionLocal, engine
         from app.models.language import Language
 

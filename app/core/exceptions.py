@@ -7,12 +7,11 @@ comprehensive error handling throughout the application.
 
 import logging
 import traceback
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional
 
 from fastapi import HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from starlette.exceptions import HTTPException as StarletteHTTPException
 
 logger = logging.getLogger(__name__)
 
@@ -36,61 +35,41 @@ class VoiceCollectionError(Exception):
 class AudioProcessingError(VoiceCollectionError):
     """Exception raised during audio processing operations."""
 
-    pass
-
 
 class TranscriptionError(VoiceCollectionError):
     """Exception raised during transcription operations."""
-
-    pass
 
 
 class ConsensusError(VoiceCollectionError):
     """Exception raised during consensus calculation operations."""
 
-    pass
-
 
 class AuthenticationError(VoiceCollectionError):
     """Exception raised during authentication operations."""
-
-    pass
 
 
 class AuthorizationError(VoiceCollectionError):
     """Exception raised during authorization operations."""
 
-    pass
-
 
 class DatabaseError(VoiceCollectionError):
     """Exception raised during database operations."""
-
-    pass
 
 
 class FileStorageError(VoiceCollectionError):
     """Exception raised during file storage operations."""
 
-    pass
-
 
 class ValidationError(VoiceCollectionError):
     """Exception raised during data validation operations."""
-
-    pass
 
 
 class ExternalServiceError(VoiceCollectionError):
     """Exception raised when external services fail."""
 
-    pass
-
 
 class RateLimitError(VoiceCollectionError):
     """Exception raised when rate limits are exceeded."""
-
-    pass
 
 
 # Error Response Models

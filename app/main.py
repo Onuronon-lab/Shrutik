@@ -31,7 +31,6 @@ from app.core.exceptions import (
 from app.core.logging_config import setup_logging
 from app.core.middleware import AuthContextMiddleware
 from app.core.monitoring import MonitoringMiddleware, run_health_check
-from app.core.performance import performance_monitor
 from app.core.rate_limiting import RateLimitMiddleware
 from app.db.database import get_connection_pool_status, optimize_database_settings
 

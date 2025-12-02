@@ -5,7 +5,6 @@ This script ensures all database tables are created and migrations are applied.
 """
 
 import logging
-import os
 import sys
 from pathlib import Path
 
@@ -71,7 +70,6 @@ def create_tables():
     """Create all database tables."""
     try:
         # Import all models to ensure they're registered
-        import app.models
         from app.db.database import Base
 
         logger.info("🔄 Creating database tables...")

@@ -1,12 +1,12 @@
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 
 from sqlalchemy import and_, desc, func, or_
 from sqlalchemy.orm import Session
 
 from app.models.audio_chunk import AudioChunk
 from app.models.quality_review import QualityReview, ReviewDecision
-from app.models.script import DurationCategory, Script
+from app.models.script import Script
 from app.models.transcription import Transcription
 from app.models.user import User, UserRole
 from app.models.voice_recording import RecordingStatus, VoiceRecording
