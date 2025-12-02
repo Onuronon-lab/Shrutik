@@ -3,9 +3,10 @@
 Verification script to check if the project setup is correct
 """
 
-import sys
-import os
 import importlib.util
+import os
+import sys
+
 
 def check_file_exists(filepath):
     """Check if a file exists"""
@@ -16,6 +17,7 @@ def check_file_exists(filepath):
         print(f"✗ {filepath} missing")
         return False
 
+
 def check_directory_exists(dirpath):
     """Check if a directory exists"""
     if os.path.isdir(dirpath):
@@ -24,6 +26,7 @@ def check_directory_exists(dirpath):
     else:
         print(f"✗ {dirpath}/ missing")
         return False
+
 
 def check_python_import(module_name):
     """Check if a Python module can be imported"""
@@ -39,12 +42,13 @@ def check_python_import(module_name):
         print(f"✗ {module_name} import error")
         return False
 
+
 def main():
     print("Voice Data Collection Platform - Setup Verification")
     print("=" * 50)
-    
+
     all_good = True
-    
+
     # Check core files
     core_files = [
         "app/main.py",
@@ -55,14 +59,14 @@ def main():
         "docker-compose.yml",
         "Dockerfile",
         "alembic.ini",
-        ".env.example"
+        ".env.example",
     ]
-    
+
     print("\nChecking core files:")
     for file in core_files:
         if not check_file_exists(file):
             all_good = False
-    
+
     # Check directories
     directories = [
         "app/api",
@@ -74,24 +78,25 @@ def main():
         "alembic",
         "scripts",
         "tests",
-        "uploads"
+        "uploads",
     ]
-    
+
     print("\nChecking directories:")
     for directory in directories:
         if not check_directory_exists(directory):
             all_good = False
-    
+
     # Check if we can import the main app (requires dependencies)
     print("\nChecking Python imports:")
     try:
         from app.main import app
+
         print("✓ FastAPI app can be imported")
     except ImportError as e:
         print(f"✗ FastAPI app import failed: {e}")
         print("  Note: This is expected if dependencies are not installed")
         print("  Run: pip install -r requirements.txt")
-    
+
     print("\n" + "=" * 50)
     if all_good:
         print("✓ Project structure setup is complete!")
@@ -103,8 +108,9 @@ def main():
     else:
         print("✗ Some issues found in project setup")
         return 1
-    
+
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

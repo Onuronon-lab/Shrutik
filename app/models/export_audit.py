@@ -5,21 +5,26 @@ This model stores audit trails for all data export operations
 to ensure transparency and compliance with data governance requirements.
 """
 
-from sqlalchemy import Column, Integer, String, DateTime, JSON, ForeignKey, BigInteger
-from sqlalchemy.sql import func
+from sqlalchemy import JSON, BigInteger, Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+
 from app.db.database import Base
 
 
 class ExportAuditLog(Base):
     """Audit log for data export operations."""
-    
+
     __tablename__ = "export_audit_logs"
 
     id = Column(Integer, primary_key=True, index=True)
-    export_id = Column(String(255), nullable=False, index=True)  # UUID for export operation
+    export_id = Column(
+        String(255), nullable=False, index=True
+    )  # UUID for export operation
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
-    export_type = Column(String(50), nullable=False, index=True)  # 'dataset' or 'metadata'
+    export_type = Column(
+        String(50), nullable=False, index=True
+    )  # 'dataset' or 'metadata'
     format = Column(String(20), nullable=False)  # Export format (json, csv, etc.)
     filters_applied = Column(JSON, default=dict)  # Filters used in the export
     records_exported = Column(Integer, nullable=False, default=0)

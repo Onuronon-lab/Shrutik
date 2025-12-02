@@ -7,7 +7,7 @@ import {
   CheckCircleIcon,
   InformationCircleIcon,
   ChartBarIcon,
-  DocumentTextIcon
+  DocumentTextIcon,
 } from '@heroicons/react/24/outline';
 import { apiService } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
@@ -16,7 +16,7 @@ import {
   MetadataExportRequest,
   DatasetExportResponse,
   MetadataExportResponse,
-  ExportHistoryResponse
+  ExportHistoryResponse,
 } from '../../types/export';
 import LoadingSpinner from '../common/LoadingSpinner';
 import { useTranslation } from 'react-i18next';
@@ -31,35 +31,35 @@ const DataExport: React.FC = () => {
   const [success, setSuccess] = useState<string | null>(null);
 
   const { t } = useTranslation();
-  
+
   // Dataset export state
   const [datasetRequest, setDatasetRequest] = useState<DatasetExportRequest>({
     format: 'json',
     quality_filters: {
       consensus_only: false,
-      validated_only: false
+      validated_only: false,
     },
     include_metadata: true,
-    include_audio_paths: true
+    include_audio_paths: true,
   });
-  
+
   // Metadata export state
   const [metadataRequest, setMetadataRequest] = useState<MetadataExportRequest>({
     format: 'json',
     include_statistics: true,
     include_user_stats: false,
-    include_quality_metrics: true
+    include_quality_metrics: true,
   });
-  
+
   // Export history state
   const [exportHistory, setExportHistory] = useState<ExportHistoryResponse | null>(null);
   const [historyPage, setHistoryPage] = useState(1);
   const [historyFilters, setHistoryFilters] = useState({
     export_type: '',
     date_from: '',
-    date_to: ''
+    date_to: '',
   });
-  
+
   // Platform statistics
   const [platformStats, setPlatformStats] = useState<any>(null);
 
@@ -80,7 +80,7 @@ const DataExport: React.FC = () => {
         page_size: 20,
         ...(historyFilters.export_type && { export_type: historyFilters.export_type }),
         ...(historyFilters.date_from && { date_from: historyFilters.date_from }),
-        ...(historyFilters.date_to && { date_to: historyFilters.date_to })
+        ...(historyFilters.date_to && { date_to: historyFilters.date_to }),
       };
       const historyData = await apiService.getExportHistory(params);
       setExportHistory(historyData);
@@ -109,14 +109,14 @@ const DataExport: React.FC = () => {
       setLoading(true);
       setError(null);
       setSuccess(null);
-      
+
       const response: DatasetExportResponse = await apiService.exportDataset(datasetRequest);
-      
+
       // Create and download file
       const blob = new Blob([JSON.stringify(response.data, null, 2)], {
-        type: getContentType(datasetRequest.format)
+        type: getContentType(datasetRequest.format),
       });
-      
+
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -125,8 +125,8 @@ const DataExport: React.FC = () => {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-      
-      setSuccess(t('dataset_export_success',{count: response.total_records}))
+
+      setSuccess(t('dataset_export_success', { count: response.total_records }));
       // Refresh history if on history tab
       if (activeTab === 'history') {
         loadExportHistory();
@@ -144,21 +144,21 @@ const DataExport: React.FC = () => {
       setLoading(true);
       setError(null);
       setSuccess(null);
-      
+
       const response: MetadataExportResponse = await apiService.exportMetadata(metadataRequest);
-      
+
       // Create and download file
       const exportData = {
         statistics: response.statistics,
         platform_metrics: response.platform_metrics,
         ...(response.user_statistics && { user_statistics: response.user_statistics }),
-        ...(response.quality_metrics && { quality_metrics: response.quality_metrics })
+        ...(response.quality_metrics && { quality_metrics: response.quality_metrics }),
       };
-      
+
       const blob = new Blob([JSON.stringify(exportData, null, 2)], {
-        type: getContentType(metadataRequest.format)
+        type: getContentType(metadataRequest.format),
       });
-      
+
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -167,9 +167,9 @@ const DataExport: React.FC = () => {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-      
+
       setSuccess(t('metadata_export_success'));
-      
+
       // Refresh history if on history tab
       if (activeTab === 'history') {
         loadExportHistory();
@@ -184,11 +184,16 @@ const DataExport: React.FC = () => {
 
   const getContentType = (format: string): string => {
     switch (format) {
-      case 'json': return 'application/json';
-      case 'csv': return 'text/csv';
-      case 'jsonl': return 'application/jsonl';
-      case 'parquet': return 'application/octet-stream';
-      default: return 'application/json';
+      case 'json':
+        return 'application/json';
+      case 'csv':
+        return 'text/csv';
+      case 'jsonl':
+        return 'application/jsonl';
+      case 'parquet':
+        return 'application/octet-stream';
+      default:
+        return 'application/json';
     }
   };
 
@@ -196,7 +201,7 @@ const DataExport: React.FC = () => {
     if (!bytes) return 'N/A';
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + ' ' + sizes[i];
   };
 
   const formatDate = (dateString: string): string => {
@@ -211,9 +216,7 @@ const DataExport: React.FC = () => {
           <ExclamationTriangleIcon className="h-6 w-6 text-destructive-foreground mr-3" />
           <div>
             <h3 className="text-lg font-medium text-destructive-foreground">Access Denied</h3>
-            <p className="text-destructive-foreground mt-1">
-              {t('export_restricted')}
-            </p>
+            <p className="text-destructive-foreground mt-1">{t('export_restricted')}</p>
           </div>
         </div>
       </div>
@@ -223,7 +226,7 @@ const DataExport: React.FC = () => {
   const tabs = [
     { id: 'dataset' as ExportTab, name: t('exportTab-dataset'), icon: DocumentArrowDownIcon },
     { id: 'metadata' as ExportTab, name: t('exportTab-metadata'), icon: ChartBarIcon },
-    { id: 'history' as ExportTab, name: t('exportTab-history'), icon: ClockIcon }
+    { id: 'history' as ExportTab, name: t('exportTab-history'), icon: ClockIcon },
   ];
 
   return (
@@ -231,9 +234,7 @@ const DataExport: React.FC = () => {
       <div className="text-center mb-8">
         <ArrowDownTrayIcon className="mx-auto h-16 w-16 text-primary mb-4" />
         <h1 className="text-3xl font-bold text-foreground mb-2">{t('dataExport-title')}</h1>
-        <p className="text-secondary-foreground">
-          {t('dataExport-subtitle')}
-        </p>
+        <p className="text-secondary-foreground">{t('dataExport-subtitle')}</p>
       </div>
 
       {/* Platform Statistics Overview */}
@@ -245,20 +246,34 @@ const DataExport: React.FC = () => {
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
-              <p className="text-2xl font-bold text-foreground">{platformStats.statistics?.total_recordings || 0}</p>
-              <p className="text-sm text-secondary-foreground">{t('dataExport-overview-total-record')}</p>
+              <p className="text-2xl font-bold text-foreground">
+                {platformStats.statistics?.total_recordings || 0}
+              </p>
+              <p className="text-sm text-secondary-foreground">
+                {t('dataExport-overview-total-record')}
+              </p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-foreground">{platformStats.statistics?.total_chunks || 0}</p>
+              <p className="text-2xl font-bold text-foreground">
+                {platformStats.statistics?.total_chunks || 0}
+              </p>
               <p className="text-sm text-secondary-foreground">{t('dataExport-overview-audio')}</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-foreground">{platformStats.statistics?.total_transcriptions || 0}</p>
-              <p className="text-sm text-secondary-foreground">{t('dataExport-overview-transcription')}</p>
+              <p className="text-2xl font-bold text-foreground">
+                {platformStats.statistics?.total_transcriptions || 0}
+              </p>
+              <p className="text-sm text-secondary-foreground">
+                {t('dataExport-overview-transcription')}
+              </p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-foreground">{platformStats.statistics?.validated_transcriptions || 0}</p>
-              <p className="text-sm text-secondary-foreground">{t('dataExport-overview-validate')}</p>
+              <p className="text-2xl font-bold text-foreground">
+                {platformStats.statistics?.validated_transcriptions || 0}
+              </p>
+              <p className="text-sm text-secondary-foreground">
+                {t('dataExport-overview-validate')}
+              </p>
             </div>
           </div>
         </div>
@@ -267,7 +282,7 @@ const DataExport: React.FC = () => {
       {/* Tab Navigation */}
       <div className="border-b border-border mb-8">
         <nav className="-mb-px flex space-x-8">
-          {tabs.map((tab) => {
+          {tabs.map(tab => {
             const Icon = tab.icon;
             return (
               <button
@@ -314,7 +329,7 @@ const DataExport: React.FC = () => {
               <DocumentArrowDownIcon className="h-6 w-6 text-primary mr-2" />
               {t('dataExport-exportButton')}
             </h3>
-            
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Export Configuration */}
               <div className="space-y-6">
@@ -325,10 +340,12 @@ const DataExport: React.FC = () => {
                   </label>
                   <select
                     value={datasetRequest.format}
-                    onChange={(e) => setDatasetRequest(prev => ({ 
-                      ...prev, 
-                      format: e.target.value as any 
-                    }))}
+                    onChange={e =>
+                      setDatasetRequest(prev => ({
+                        ...prev,
+                        format: e.target.value as any,
+                      }))
+                    }
                     className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring"
                   >
                     <option value="json">{t('export-json')}</option>
@@ -349,17 +366,22 @@ const DataExport: React.FC = () => {
                         type="checkbox"
                         id="consensus_only"
                         checked={datasetRequest.quality_filters?.consensus_only || false}
-                        onChange={(e) => setDatasetRequest(prev => ({
-                          ...prev,
-                          quality_filters: {
-                            ...prev.quality_filters,
-                            consensus_only: e.target.checked,
-                            validated_only: prev.quality_filters?.validated_only || false
-                          }
-                        }))}
+                        onChange={e =>
+                          setDatasetRequest(prev => ({
+                            ...prev,
+                            quality_filters: {
+                              ...prev.quality_filters,
+                              consensus_only: e.target.checked,
+                              validated_only: prev.quality_filters?.validated_only || false,
+                            },
+                          }))
+                        }
                         className="h-4 w-4 text-primary focus:ring-ring border-ring rounded"
                       />
-                      <label htmlFor="consensus_only" className="ml-2 text-sm text-secondary-foreground">
+                      <label
+                        htmlFor="consensus_only"
+                        className="ml-2 text-sm text-secondary-foreground"
+                      >
                         {t('dataExport-consensusOnly')}
                       </label>
                     </div>
@@ -368,60 +390,77 @@ const DataExport: React.FC = () => {
                         type="checkbox"
                         id="validated_only"
                         checked={datasetRequest.quality_filters?.validated_only || false}
-                        onChange={(e) => setDatasetRequest(prev => ({
-                          ...prev,
-                          quality_filters: {
-                            ...prev.quality_filters,
-                            validated_only: e.target.checked,
-                            consensus_only: prev.quality_filters?.consensus_only || false
-                          }
-                        }))}
+                        onChange={e =>
+                          setDatasetRequest(prev => ({
+                            ...prev,
+                            quality_filters: {
+                              ...prev.quality_filters,
+                              validated_only: e.target.checked,
+                              consensus_only: prev.quality_filters?.consensus_only || false,
+                            },
+                          }))
+                        }
                         className="h-4 w-4 text-primary focus:ring-ring border-ring rounded"
                       />
-                      <label htmlFor="validated_only" className="ml-2 text-sm text-secondary-foreground">
+                      <label
+                        htmlFor="validated_only"
+                        className="ml-2 text-sm text-secondary-foreground"
+                      >
                         {t('dataExport-validatedOnly')}
                       </label>
                     </div>
-                    
+
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-xs text-secondary-foreground mb-1">{t('dataExport-minConfidence')}</label>
+                        <label className="block text-xs text-secondary-foreground mb-1">
+                          {t('dataExport-minConfidence')}
+                        </label>
                         <input
                           type="number"
                           min="0"
                           max="1"
                           step="0.1"
                           value={datasetRequest.quality_filters?.min_confidence || ''}
-                          onChange={(e) => setDatasetRequest(prev => ({
-                            ...prev,
-                            quality_filters: {
-                              ...prev.quality_filters,
-                              min_confidence: e.target.value ? parseFloat(e.target.value) : undefined,
-                              consensus_only: prev.quality_filters?.consensus_only || false,
-                              validated_only: prev.quality_filters?.validated_only || false
-                            }
-                          }))}
+                          onChange={e =>
+                            setDatasetRequest(prev => ({
+                              ...prev,
+                              quality_filters: {
+                                ...prev.quality_filters,
+                                min_confidence: e.target.value
+                                  ? parseFloat(e.target.value)
+                                  : undefined,
+                                consensus_only: prev.quality_filters?.consensus_only || false,
+                                validated_only: prev.quality_filters?.validated_only || false,
+                              },
+                            }))
+                          }
                           className="w-full px-2 py-1 text-sm border border-border rounded focus:ring-1 focus:ring-ring"
                           placeholder="0.0-1.0"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs text-secondary-foreground mb-1">{t('dataExport-minQuality')}</label>
+                        <label className="block text-xs text-secondary-foreground mb-1">
+                          {t('dataExport-minQuality')}
+                        </label>
                         <input
                           type="number"
                           min="0"
                           max="1"
                           step="0.1"
                           value={datasetRequest.quality_filters?.min_quality || ''}
-                          onChange={(e) => setDatasetRequest(prev => ({
-                            ...prev,
-                            quality_filters: {
-                              ...prev.quality_filters,
-                              min_quality: e.target.value ? parseFloat(e.target.value) : undefined,
-                              consensus_only: prev.quality_filters?.consensus_only || false,
-                              validated_only: prev.quality_filters?.validated_only || false
-                            }
-                          }))}
+                          onChange={e =>
+                            setDatasetRequest(prev => ({
+                              ...prev,
+                              quality_filters: {
+                                ...prev.quality_filters,
+                                min_quality: e.target.value
+                                  ? parseFloat(e.target.value)
+                                  : undefined,
+                                consensus_only: prev.quality_filters?.consensus_only || false,
+                                validated_only: prev.quality_filters?.validated_only || false,
+                              },
+                            }))
+                          }
                           className="w-full px-2 py-1 text-sm border border-border rounded focus:ring-1 focus:ring-ring"
                           placeholder="0.0-1.0"
                         />
@@ -437,26 +476,34 @@ const DataExport: React.FC = () => {
                   </label>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs text-secondary-foreground mb-1">{t('dataExport-from')}</label>
+                      <label className="block text-xs text-secondary-foreground mb-1">
+                        {t('dataExport-from')}
+                      </label>
                       <input
                         type="date"
                         value={datasetRequest.date_from || ''}
-                        onChange={(e) => setDatasetRequest(prev => ({ 
-                          ...prev, 
-                          date_from: e.target.value || undefined 
-                        }))}
+                        onChange={e =>
+                          setDatasetRequest(prev => ({
+                            ...prev,
+                            date_from: e.target.value || undefined,
+                          }))
+                        }
                         className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-secondary-foreground mb-1">{t('dataExport-to')}</label>
+                      <label className="block text-xs text-secondary-foreground mb-1">
+                        {t('dataExport-to')}
+                      </label>
                       <input
                         type="date"
                         value={datasetRequest.date_to || ''}
-                        onChange={(e) => setDatasetRequest(prev => ({ 
-                          ...prev, 
-                          date_to: e.target.value || undefined 
-                        }))}
+                        onChange={e =>
+                          setDatasetRequest(prev => ({
+                            ...prev,
+                            date_to: e.target.value || undefined,
+                          }))
+                        }
                         className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring"
                       />
                     </div>
@@ -472,10 +519,12 @@ const DataExport: React.FC = () => {
                     type="number"
                     min="1"
                     value={datasetRequest.max_records || ''}
-                    onChange={(e) => setDatasetRequest(prev => ({ 
-                      ...prev, 
-                      max_records: e.target.value ? parseInt(e.target.value) : undefined 
-                    }))}
+                    onChange={e =>
+                      setDatasetRequest(prev => ({
+                        ...prev,
+                        max_records: e.target.value ? parseInt(e.target.value) : undefined,
+                      }))
+                    }
                     className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring"
                     placeholder={t('leave-empt-for-all-records')}
                   />
@@ -494,13 +543,18 @@ const DataExport: React.FC = () => {
                         type="checkbox"
                         id="include_metadata"
                         checked={datasetRequest.include_metadata}
-                        onChange={(e) => setDatasetRequest(prev => ({ 
-                          ...prev, 
-                          include_metadata: e.target.checked 
-                        }))}
+                        onChange={e =>
+                          setDatasetRequest(prev => ({
+                            ...prev,
+                            include_metadata: e.target.checked,
+                          }))
+                        }
                         className="h-4 w-4 text-primary focus:ring-ring border-border rounded"
                       />
-                      <label htmlFor="include_metadata" className="ml-2 text-sm text-secondary-foreground">
+                      <label
+                        htmlFor="include_metadata"
+                        className="ml-2 text-sm text-secondary-foreground"
+                      >
                         {t('dataExport-includeMetadata')}
                       </label>
                     </div>
@@ -509,13 +563,18 @@ const DataExport: React.FC = () => {
                         type="checkbox"
                         id="include_audio_paths"
                         checked={datasetRequest.include_audio_paths}
-                        onChange={(e) => setDatasetRequest(prev => ({ 
-                          ...prev, 
-                          include_audio_paths: e.target.checked 
-                        }))}
+                        onChange={e =>
+                          setDatasetRequest(prev => ({
+                            ...prev,
+                            include_audio_paths: e.target.checked,
+                          }))
+                        }
                         className="h-4 w-4 text-primary focus:ring-ring border-border rounded"
                       />
-                      <label htmlFor="include_audio_paths" className="ml-2 text-sm text-secondary-foreground">
+                      <label
+                        htmlFor="include_audio_paths"
+                        className="ml-2 text-sm text-secondary-foreground"
+                      >
                         {t('dataExport-includeAudioPaths')}
                       </label>
                     </div>
@@ -550,7 +609,7 @@ const DataExport: React.FC = () => {
               <ChartBarIcon className="h-6 w-6 text-success mr-2" />
               {t('exportPage-export-metadata')}
             </h3>
-            
+
             <div className="max-w-md mx-auto space-y-6">
               {/* Format Selection */}
               <div>
@@ -559,10 +618,12 @@ const DataExport: React.FC = () => {
                 </label>
                 <select
                   value={metadataRequest.format}
-                  onChange={(e) => setMetadataRequest(prev => ({ 
-                    ...prev, 
-                    format: e.target.value as any 
-                  }))}
+                  onChange={e =>
+                    setMetadataRequest(prev => ({
+                      ...prev,
+                      format: e.target.value as any,
+                    }))
+                  }
                   className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring"
                 >
                   <option value="json">{t('exportPage-json-format')}</option>
@@ -581,13 +642,18 @@ const DataExport: React.FC = () => {
                       type="checkbox"
                       id="include_statistics"
                       checked={metadataRequest.include_statistics}
-                      onChange={(e) => setMetadataRequest(prev => ({ 
-                        ...prev, 
-                        include_statistics: e.target.checked 
-                      }))}
+                      onChange={e =>
+                        setMetadataRequest(prev => ({
+                          ...prev,
+                          include_statistics: e.target.checked,
+                        }))
+                      }
                       className="h-5 w-5 border-border rounded"
                     />
-                    <label htmlFor="include_statistics" className="ml-2 text-sm text-secondary-foreground">
+                    <label
+                      htmlFor="include_statistics"
+                      className="ml-2 text-sm text-secondary-foreground"
+                    >
                       {t('exportPage-platform-statistics')}
                     </label>
                   </div>
@@ -596,13 +662,18 @@ const DataExport: React.FC = () => {
                       type="checkbox"
                       id="include_user_stats"
                       checked={metadataRequest.include_user_stats}
-                      onChange={(e) => setMetadataRequest(prev => ({ 
-                        ...prev, 
-                        include_user_stats: e.target.checked 
-                      }))}
+                      onChange={e =>
+                        setMetadataRequest(prev => ({
+                          ...prev,
+                          include_user_stats: e.target.checked,
+                        }))
+                      }
                       className="h-5 w-5 border-border rounded"
                     />
-                    <label htmlFor="include_user_stats" className="ml-2 text-sm text-secondary-foreground">
+                    <label
+                      htmlFor="include_user_stats"
+                      className="ml-2 text-sm text-secondary-foreground"
+                    >
                       {t('exportPage-per-user-statistics')}
                     </label>
                   </div>
@@ -611,13 +682,18 @@ const DataExport: React.FC = () => {
                       type="checkbox"
                       id="include_quality_metrics"
                       checked={metadataRequest.include_quality_metrics}
-                      onChange={(e) => setMetadataRequest(prev => ({ 
-                        ...prev, 
-                        include_quality_metrics: e.target.checked 
-                      }))}
+                      onChange={e =>
+                        setMetadataRequest(prev => ({
+                          ...prev,
+                          include_quality_metrics: e.target.checked,
+                        }))
+                      }
                       className="h-5 w-5 border-border rounded"
                     />
-                    <label htmlFor="include_quality_metrics" className="ml-2 text-sm text-secondary-foreground">
+                    <label
+                      htmlFor="include_quality_metrics"
+                      className="ml-2 text-sm text-secondary-foreground"
+                    >
                       {t('exportPage-quality-metrics')}
                     </label>
                   </div>
@@ -652,7 +728,7 @@ const DataExport: React.FC = () => {
                 <ClockIcon className="h-6 w-6 text-info mr-2" />
                 {t('exportPage-export-history')}
               </h3>
-              
+
               {/* History Filters */}
               <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
@@ -661,10 +737,12 @@ const DataExport: React.FC = () => {
                   </label>
                   <select
                     value={historyFilters.export_type}
-                    onChange={(e) => setHistoryFilters(prev => ({ 
-                      ...prev, 
-                      export_type: e.target.value 
-                    }))}
+                    onChange={e =>
+                      setHistoryFilters(prev => ({
+                        ...prev,
+                        export_type: e.target.value,
+                      }))
+                    }
                     className="w-full px-3 py-3 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring"
                   >
                     <option value="">{t('exportPage-all-types')}</option>
@@ -679,10 +757,12 @@ const DataExport: React.FC = () => {
                   <input
                     type="date"
                     value={historyFilters.date_from}
-                    onChange={(e) => setHistoryFilters(prev => ({ 
-                      ...prev, 
-                      date_from: e.target.value 
-                    }))}
+                    onChange={e =>
+                      setHistoryFilters(prev => ({
+                        ...prev,
+                        date_from: e.target.value,
+                      }))
+                    }
                     className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring"
                   />
                 </div>
@@ -693,10 +773,12 @@ const DataExport: React.FC = () => {
                   <input
                     type="date"
                     value={historyFilters.date_to}
-                    onChange={(e) => setHistoryFilters(prev => ({ 
-                      ...prev, 
-                      date_to: e.target.value 
-                    }))}
+                    onChange={e =>
+                      setHistoryFilters(prev => ({
+                        ...prev,
+                        date_to: e.target.value,
+                      }))
+                    }
                     className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring"
                   />
                 </div>
@@ -723,7 +805,7 @@ const DataExport: React.FC = () => {
                         {t('exportPage-format')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                       {t('exportPage-records')}
+                        {t('exportPage-records')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         {t('exportPage-size')}
@@ -737,17 +819,19 @@ const DataExport: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-card divide-y divide-border">
-                    {exportHistory.logs.map((log) => (
+                    {exportHistory.logs.map(log => (
                       <tr key={log.id} className="hover:bg-background">
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
                           {log.export_id.substring(0, 8)}...
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            log.export_type === 'dataset' 
-                              ? 'bg-primary text-primary-foreground' 
-                              : 'bg-success text-primary-foreground'
-                          }`}>
+                          <span
+                            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                              log.export_type === 'dataset'
+                                ? 'bg-primary text-primary-foreground'
+                                : 'bg-success text-primary-foreground'
+                            }`}
+                          >
                             {log.export_type}
                           </span>
                         </td>
@@ -773,7 +857,9 @@ const DataExport: React.FC = () => {
               ) : (
                 <div className="text-center py-12">
                   <DocumentTextIcon className="mx-auto h-12 w-12 text-accent" />
-                  <h3 className="mt-2 text-sm font-medium text-foreground">{t('exportPage-no-export-history-title')}</h3>
+                  <h3 className="mt-2 text-sm font-medium text-foreground">
+                    {t('exportPage-no-export-history-title')}
+                  </h3>
                   <p className="mt-1 text-sm text-secondary-foreground">
                     {t('exportPage-no-export-history-desc')}
                   </p>
@@ -785,11 +871,11 @@ const DataExport: React.FC = () => {
             {exportHistory && exportHistory.total_count > 20 && (
               <div className="px-6 py-3 border-t border-border flex items-center justify-between">
                 <div className="text-sm text-secondary-foreground">
-                    {t("exportPage-showing-results", {
-                      start: (historyPage - 1) * 20 + 1,
-                      end: Math.min(historyPage * 20, exportHistory.total_count),
-                      total: exportHistory.total_count
-                    })}
+                  {t('exportPage-showing-results', {
+                    start: (historyPage - 1) * 20 + 1,
+                    end: Math.min(historyPage * 20, exportHistory.total_count),
+                    total: exportHistory.total_count,
+                  })}
                 </div>
                 <div className="flex space-x-2">
                   <button
@@ -804,7 +890,7 @@ const DataExport: React.FC = () => {
                     disabled={historyPage * 20 >= exportHistory.total_count}
                     className="px-3 py-1 border border-border rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-background"
                   >
-                   {t('exportPage-next')}
+                    {t('exportPage-next')}
                   </button>
                 </div>
               </div>

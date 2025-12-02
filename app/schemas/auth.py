@@ -1,7 +1,9 @@
-from pydantic import BaseModel, EmailStr, field_validator
+import re
 from typing import Optional
+
+from pydantic import BaseModel, EmailStr, field_validator
+
 from app.models.user import UserRole
-import re 
 
 
 class UserBase(BaseModel):
@@ -11,8 +13,8 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     """Schema for public user registration - always creates CONTRIBUTOR role."""
-    password: str
 
+    password: str
 
     @field_validator("password")
     def password_strength(cls, value):
@@ -27,16 +29,17 @@ class UserCreate(UserBase):
         if not re.search(r"[\W_]", value):
             raise ValueError("Password must contain at least one special character")
         return value
-    
+
     model_config = {"extra": "forbid"}  # Pydantic v2 syntax
 
 
 class UserCreateAdmin(UserBase):
     """Schema for admin-created users - allows role specification."""
+
     password: str
     role: UserRole = UserRole.CONTRIBUTOR
-    
-    model_config = {"extra": "forbid"}  
+
+    model_config = {"extra": "forbid"}
 
 
 class UserLogin(BaseModel):
@@ -47,7 +50,7 @@ class UserLogin(BaseModel):
 class UserResponse(UserBase):
     id: int
     role: UserRole
-    
+
     model_config = {"from_attributes": True}
 
 

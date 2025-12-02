@@ -1,0 +1,76 @@
+name: Code Formatting Check
+
+on:
+  pull_request:
+    branches: [main, develop, deployment-dev]
+  push:
+    branches: [main, develop, deployment-dev]
+
+jobs:
+  check-formatting:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Python formatting tools
+        run: |
+          pip install black isort flake8
+
+      - name: Check Python formatting with Black
+        run: |
+          black --check app/ tests/ scripts/ --line-length 88 --target-version py39
+
+      - name: Check Python imports with isort
+        run: |
+          isort --check-only app/ tests/ scripts/ --profile black
+
+      - name: Check Python style with flake8
+        run: |
+          flake8 app/ tests/ scripts/ --max-line-length=88 --extend-ignore=E203,W503
+        continue-on-error: true  # Don't fail on flake8 warnings
+
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Check frontend formatting with Prettier
+        run: |
+          cd frontend
+          npx prettier --check "src/**/*.{ts,tsx,js,jsx,json,css}"
+
+      - name: Check frontend linting with ESLint
+        run: |
+          cd frontend
+          npx eslint "src/**/*.{ts,tsx,js,jsx}" --max-warnings 0
+        continue-on-error: true  # Don't fail on ESLint warnings
+
+      - name: Formatting check passed
+        if: success()
+        run: |
+          echo "✅ All formatting checks passed!"
+          echo "Code is properly formatted."
+
+      - name: Formatting check failed
+        if: failure()
+        run: |
+          echo "❌ Formatting check failed!"
+          echo ""
+          echo "Please run the following command to fix formatting:"
+          echo "  ./scripts/format_code.sh"
+          echo ""
+          echo "Or set up pre-commit hooks to auto-format:"
+          echo "  ./scripts/setup_pre_commit.sh"
+          exit 1

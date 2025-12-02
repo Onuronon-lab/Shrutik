@@ -8,7 +8,7 @@ import {
   ArrowDownTrayIcon,
   ArrowRightOnRectangleIcon,
   Bars3Icon,
-  XMarkIcon
+  XMarkIcon,
 } from '@heroicons/react/24/outline';
 import { ThemeToggle } from './ThemeSwitcher';
 import LanguageSwitcher from './LanguageSwitch';
@@ -52,9 +52,7 @@ const Navbar: React.FC = () => {
     },
   ];
 
-  const filteredNavItems = navigationItems.filter(item =>
-    !user || item.roles.includes(user.role)
-  );
+  const filteredNavItems = navigationItems.filter(item => !user || item.roles.includes(user.role));
 
   if (!isAuthenticated) {
     return (
@@ -63,9 +61,7 @@ const Navbar: React.FC = () => {
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center space-x-2">
               <MicrophoneIcon className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold text-foreground">
-                Shrutik
-              </span>
+              <span className="text-xl font-bold text-foreground">Shrutik</span>
             </Link>
             <Link
               to="/login"
@@ -85,16 +81,14 @@ const Navbar: React.FC = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-          {/* <img src={logo} className="h-40 w-96 bg-white" srcSet="shrutik_logo" alt="" /> */}
+            {/* <img src={logo} className="h-40 w-96 bg-white" srcSet="shrutik_logo" alt="" /> */}
             <MicrophoneIcon className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold text-foreground">
-              Shrutik
-            </span>
+            <span className="text-xl font-bold text-foreground">Shrutik</span>
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {filteredNavItems.map((item) => {
+            {filteredNavItems.map(item => {
               const Icon = item.icon;
               return (
                 <Link
@@ -108,7 +102,6 @@ const Navbar: React.FC = () => {
               );
             })}
           </div>
-
 
           {/* User Menu */}
           <div className="hidden md:flex items-center space-x-4">
@@ -146,7 +139,7 @@ const Navbar: React.FC = () => {
         {isMobileMenuOpen && (
           <div className="md:hidden border-t border-border py-4">
             <div className="space-y-2">
-              {filteredNavItems.map((item) => {
+              {filteredNavItems.map(item => {
                 const Icon = item.icon;
                 return (
                   <Link

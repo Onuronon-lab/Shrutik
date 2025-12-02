@@ -34,9 +34,7 @@ def main():
         default=None,
         help=f"Override expiry minutes (default: settings.ACCESS_TOKEN_EXPIRE_MINUTES={settings.ACCESS_TOKEN_EXPIRE_MINUTES})",
     )
-    parser.add_argument(
-        "--raw", action="store_true"
-    )
+    parser.add_argument("--raw", action="store_true")
 
     args = parser.parse_args()
 
@@ -45,7 +43,9 @@ def main():
         user = _find_user(db, args.user_id, args.email)
         if not user:
             target = (
-                f"id={args.user_id}" if args.user_id is not None else f"email='{args.email}'"
+                f"id={args.user_id}"
+                if args.user_id is not None
+                else f"email='{args.email}'"
             )
             print(f"User not found ({target})", file=sys.stderr)
             return 1
@@ -68,8 +68,12 @@ def main():
             print(token)
         else:
             print("JWT access token generated\n")
-            print(f"User: {user.name} <{user.email}> (id={user.id}, role={user.role.value})")
-            print(f"Expires (minutes): {args.minutes or settings.ACCESS_TOKEN_EXPIRE_MINUTES}")
+            print(
+                f"User: {user.name} <{user.email}> (id={user.id}, role={user.role.value})"
+            )
+            print(
+                f"Expires (minutes): {args.minutes or settings.ACCESS_TOKEN_EXPIRE_MINUTES}"
+            )
             print("\nAuthorization header to use:")
             print(f"Bearer {token}\n")
             print("Example curl:")

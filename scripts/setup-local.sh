@@ -35,7 +35,7 @@ print_error() {
 # Check if running on supported OS
 check_os() {
     print_status "Checking operating system..."
-    
+
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
         OS="linux"
         print_success "Linux detected"
@@ -52,7 +52,7 @@ check_os() {
 # Check prerequisites
 check_prerequisites() {
     print_status "Checking prerequisites..."
-    
+
     # Check Python
     if command -v python3.11 &> /dev/null; then
         PYTHON_CMD="python3.11"
@@ -71,7 +71,7 @@ check_prerequisites() {
         print_error "Please install Python 3.11 or higher"
         exit 1
     fi
-    
+
     # Check Node.js
     if command -v node &> /dev/null; then
         NODE_VERSION=$(node --version | cut -d'v' -f2 | cut -d'.' -f1)
@@ -86,7 +86,7 @@ check_prerequisites() {
         print_error "Please install Node.js 18 or higher"
         exit 1
     fi
-    
+
     # Check PostgreSQL
     if command -v psql &> /dev/null; then
         print_success "PostgreSQL found"
@@ -94,7 +94,7 @@ check_prerequisites() {
         print_warning "PostgreSQL not found"
         print_warning "You'll need to install PostgreSQL manually"
     fi
-    
+
     # Check Redis
     if command -v redis-cli &> /dev/null; then
         print_success "Redis found"
@@ -107,38 +107,38 @@ check_prerequisites() {
 # Setup Python virtual environment
 setup_python_env() {
     print_status "Setting up Python virtual environment..."
-    
+
     if [[ ! -d "venv" ]]; then
         $PYTHON_CMD -m venv venv
         print_success "Virtual environment created"
     else
         print_warning "Virtual environment already exists"
     fi
-    
+
     # Activate virtual environment
     source venv/bin/activate
-    
+
     # Upgrade pip
     pip install --upgrade pip
-    
+
     # Install dependencies
     print_status "Installing Python dependencies..."
     pip install -r requirements.txt
-    
+
     print_success "Python dependencies installed"
 }
 
 # Setup frontend
 setup_frontend() {
     print_status "Setting up frontend..."
-    
+
     if [[ -d "frontend" ]]; then
         cd frontend
-        
+
         # Install dependencies
         print_status "Installing Node.js dependencies..."
         npm install
-        
+
         # Copy environment file
         if [[ ! -f ".env.local" ]]; then
             cp .env.example .env.local
@@ -146,7 +146,7 @@ setup_frontend() {
         else
             print_warning "Frontend environment file already exists"
         fi
-        
+
         cd ..
         print_success "Frontend setup complete"
     else
@@ -157,7 +157,7 @@ setup_frontend() {
 # Setup environment files
 setup_environment() {
     print_status "Setting up environment configuration..."
-    
+
     # Backend environment
     if [[ ! -f ".env.development" ]]; then
         cp .env.example .env.development
@@ -171,11 +171,11 @@ setup_environment() {
 # Setup database
 setup_database() {
     print_status "Setting up database..."
-    
+
     # Check if PostgreSQL is running
     if command -v pg_isready &> /dev/null && pg_isready -q; then
         print_success "PostgreSQL is running"
-        
+
         # Create database if it doesn't exist
         if ! psql -lqt | cut -d \| -f 1 | grep -qw shrutik_dev; then
             createdb shrutik_dev
@@ -183,12 +183,12 @@ setup_database() {
         else
             print_warning "Development database already exists"
         fi
-        
+
         # Run migrations
         source venv/bin/activate
         alembic upgrade head
         print_success "Database migrations applied"
-        
+
     else
         print_warning "PostgreSQL is not running or not accessible"
         print_warning "Please start PostgreSQL and run: createdb shrutik_dev"
@@ -199,7 +199,7 @@ setup_database() {
 # Create admin user
 create_admin_user() {
     print_status "Creating admin user..."
-    
+
     if [[ -f "create_admin.py" ]]; then
         source venv/bin/activate
         print_warning "Please follow the prompts to create an admin user:"

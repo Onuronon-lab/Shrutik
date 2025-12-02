@@ -19,10 +19,10 @@ const RecordPage: React.FC = () => {
     <div className="max-w-4xl mx-auto">
       <div className="text-center mb-8">
         <MicrophoneIcon className="mx-auto h-16 w-16 text-primary mb-4" />
-        <h1 className="text-3xl font-bold text-foreground mb-2">{t('recordPage-voice-recording-title')}</h1>
-        <p className="text-secondary-foreground">
-          {t('recordPage-voice-recording-description')}
-        </p>
+        <h1 className="text-3xl font-bold text-foreground mb-2">
+          {t('recordPage-voice-recording-title')}
+        </h1>
+        <p className="text-secondary-foreground">{t('recordPage-voice-recording-description')}</p>
       </div>
 
       {/* Recording Interface */}
@@ -38,12 +38,13 @@ const RecordPage: React.FC = () => {
             Recent Recordings
           </h3>
           <div className="space-y-3">
-            {completedRecordings.slice(0, 5).map((recording) => (
-              <div key={recording.id} className="flex items-center justify-between p-3 bg-background rounded-lg">
+            {completedRecordings.slice(0, 5).map(recording => (
+              <div
+                key={recording.id}
+                className="flex items-center justify-between p-3 bg-background rounded-lg"
+              >
                 <div>
-                  <div className="font-medium text-foreground">
-                    Recording #{recording.id}
-                  </div>
+                  <div className="font-medium text-foreground">Recording #{recording.id}</div>
                   <div className="text-sm text-secondary-foreground">
                     Duration: {Math.round(recording.duration)}s • Status: {recording.status}
                   </div>

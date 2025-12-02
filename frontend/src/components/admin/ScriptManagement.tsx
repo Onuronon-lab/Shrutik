@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  DocumentTextIcon, 
-  PlusIcon, 
-  PencilIcon, 
-  TrashIcon, 
+import {
+  DocumentTextIcon,
+  PlusIcon,
+  PencilIcon,
+  TrashIcon,
   MagnifyingGlassIcon,
   CheckCircleIcon,
   XCircleIcon,
-  ClockIcon
+  ClockIcon,
 } from '@heroicons/react/24/outline';
 import { apiService } from '../../services/api';
 import { Script, ScriptListResponse, ScriptValidation } from '../../types/api';
@@ -25,7 +25,7 @@ const ScriptManagement: React.FC = () => {
     text: '',
     duration_category: '2_minutes',
     language_id: 1,
-    meta_data: {}
+    meta_data: {},
   });
   const [validation, setValidation] = useState<ScriptValidation | null>(null);
   const [validating, setValidating] = useState(false);
@@ -34,7 +34,7 @@ const ScriptManagement: React.FC = () => {
     page: 1,
     per_page: 20,
     total: 0,
-    total_pages: 0
+    total_pages: 0,
   });
 
   const loadScripts = useCallback(async () => {
@@ -43,8 +43,8 @@ const ScriptManagement: React.FC = () => {
       setError(null);
       const skip = (pagination.page - 1) * pagination.per_page;
       const data: ScriptListResponse = await apiService.getScripts(
-        skip, 
-        pagination.per_page, 
+        skip,
+        pagination.per_page,
         durationFilter || undefined
       );
       setScripts(data.scripts);
@@ -52,7 +52,7 @@ const ScriptManagement: React.FC = () => {
         page: data.page,
         per_page: data.per_page,
         total: data.total,
-        total_pages: data.total_pages
+        total_pages: data.total_pages,
       });
     } catch (err) {
       console.error('Failed to load scripts:', err);
@@ -83,7 +83,7 @@ const ScriptManagement: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       setSubmitting(true);
       setError(null);
@@ -99,12 +99,12 @@ const ScriptManagement: React.FC = () => {
         text: '',
         duration_category: '2_minutes',
         language_id: 1,
-        meta_data: {}
+        meta_data: {},
       });
       setValidation(null);
       setShowCreateModal(false);
       setEditingScript(null);
-      
+
       // Reload scripts
       await loadScripts();
     } catch (err) {
@@ -116,7 +116,9 @@ const ScriptManagement: React.FC = () => {
   };
 
   const handleDelete = async (scriptId: number) => {
-    if (!window.confirm('Are you sure you want to delete this script? This action cannot be undone.')) {
+    if (
+      !window.confirm('Are you sure you want to delete this script? This action cannot be undone.')
+    ) {
       return;
     }
 
@@ -135,7 +137,7 @@ const ScriptManagement: React.FC = () => {
       text: script.text,
       duration_category: script.duration_category,
       language_id: script.language_id,
-      meta_data: script.meta_data || {}
+      meta_data: script.meta_data || {},
     });
     setValidation(null);
     setShowCreateModal(true);
@@ -148,13 +150,13 @@ const ScriptManagement: React.FC = () => {
       text: '',
       duration_category: '2_minutes',
       language_id: 1,
-      meta_data: {}
+      meta_data: {},
     });
     setValidation(null);
     setError(null);
   };
 
-  const filteredScripts = scripts.filter(script => 
+  const filteredScripts = scripts.filter(script =>
     script.text.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -230,13 +232,13 @@ const ScriptManagement: React.FC = () => {
               type="text"
               placeholder="Search scripts..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={e => setSearchTerm(e.target.value)}
               className="pl-10 pr-4 py-2 w-full border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
             />
           </div>
           <select
             value={durationFilter}
-            onChange={(e) => setDurationFilter(e.target.value)}
+            onChange={e => setDurationFilter(e.target.value)}
             className="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
           >
             <option value="">All Durations</option>
@@ -268,7 +270,7 @@ const ScriptManagement: React.FC = () => {
               </tr>
             </thead>
             <tbody className="bg-card divide-y divide-border">
-              {filteredScripts.map((script) => (
+              {filteredScripts.map(script => (
                 <tr key={script.id} className="hover:bg-background">
                   <td className="px-6 py-4">
                     <div className="text-sm text-foreground">
@@ -276,7 +278,9 @@ const ScriptManagement: React.FC = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getDurationColor(script.duration_category)}`}>
+                    <span
+                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getDurationColor(script.duration_category)}`}
+                    >
                       {getDurationLabel(script.duration_category)}
                     </span>
                   </td>
@@ -310,7 +314,9 @@ const ScriptManagement: React.FC = () => {
             <DocumentTextIcon className="mx-auto h-12 w-12 text-gray-accent" />
             <h3 className="mt-2 text-sm font-medium text-foreground">No scripts found</h3>
             <p className="mt-1 text-sm text-secondary-foreground">
-              {searchTerm || durationFilter ? 'Try adjusting your filters.' : 'Get started by adding a new script.'}
+              {searchTerm || durationFilter
+                ? 'Try adjusting your filters.'
+                : 'Get started by adding a new script.'}
             </p>
           </div>
         )}
@@ -320,7 +326,9 @@ const ScriptManagement: React.FC = () => {
       {pagination.total_pages > 1 && (
         <div className="flex items-center justify-between">
           <div className="text-sm text-secondary-foreground">
-            Showing {((pagination.page - 1) * pagination.per_page) + 1} to {Math.min(pagination.page * pagination.per_page, pagination.total)} of {pagination.total} scripts
+            Showing {(pagination.page - 1) * pagination.per_page + 1} to{' '}
+            {Math.min(pagination.page * pagination.per_page, pagination.total)} of{' '}
+            {pagination.total} scripts
           </div>
           <div className="flex space-x-2">
             <button
@@ -349,7 +357,7 @@ const ScriptManagement: React.FC = () => {
               <h3 className="text-lg font-medium text-foreground mb-4">
                 {editingScript ? 'Edit Script' : 'Add New Script'}
               </h3>
-              
+
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-secondary-foreground mb-2">
@@ -357,7 +365,9 @@ const ScriptManagement: React.FC = () => {
                   </label>
                   <select
                     value={formData.duration_category}
-                    onChange={(e) => setFormData({ ...formData, duration_category: e.target.value as any })}
+                    onChange={e =>
+                      setFormData({ ...formData, duration_category: e.target.value as any })
+                    }
                     className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
                   >
                     <option value="2_minutes">2 Minutes</option>
@@ -372,7 +382,7 @@ const ScriptManagement: React.FC = () => {
                   </label>
                   <textarea
                     value={formData.text}
-                    onChange={(e) => setFormData({ ...formData, text: e.target.value })}
+                    onChange={e => setFormData({ ...formData, text: e.target.value })}
                     rows={8}
                     className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
                     placeholder="Enter the Bangla script text here..."
@@ -394,23 +404,29 @@ const ScriptManagement: React.FC = () => {
                 </div>
 
                 {validation && (
-                  <div className={`p-4 rounded-lg ${validation.is_valid ? 'bg-success border border-success-border' : 'bg-destructive border border-destructive-border'}`}>
+                  <div
+                    className={`p-4 rounded-lg ${validation.is_valid ? 'bg-success border border-success-border' : 'bg-destructive border border-destructive-border'}`}
+                  >
                     <div className="flex items-center mb-2">
                       {validation.is_valid ? (
                         <CheckCircleIcon className="h-5 w-5 text-success-foreground mr-2" />
                       ) : (
                         <XCircleIcon className="h-5 w-5 text-destructive-foreground mr-2" />
                       )}
-                      <span className={`font-medium ${validation.is_valid ? 'text-success-foreground' : 'text-destructive-foreground'}`}>
+                      <span
+                        className={`font-medium ${validation.is_valid ? 'text-success-foreground' : 'text-destructive-foreground'}`}
+                      >
                         {validation.is_valid ? 'Script is valid' : 'Script has issues'}
                       </span>
                     </div>
-                    
+
                     <div className="text-sm space-y-1">
                       <p>Word count: {validation.word_count}</p>
                       <p>Character count: {validation.character_count}</p>
                       {validation.estimated_duration && (
-                        <p>Estimated duration: {validation.estimated_duration.toFixed(1)} minutes</p>
+                        <p>
+                          Estimated duration: {validation.estimated_duration.toFixed(1)} minutes
+                        </p>
                       )}
                     </div>
 

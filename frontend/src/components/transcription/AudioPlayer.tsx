@@ -7,17 +7,13 @@ interface AudioPlayerProps {
   className?: string;
 }
 
-const AudioPlayer: React.FC<AudioPlayerProps> = ({ 
-  audioUrl, 
-  onLoadError,
-  className = '' 
-}) => {
+const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioUrl, onLoadError, className = '' }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   const audioRef = useRef<HTMLAudioElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | null>(null);
@@ -76,34 +72,34 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
 
     const width = canvas.width;
     const height = canvas.height;
-    
+
     // Clear canvas
     ctx.clearRect(0, 0, width, height);
-    
+
     // Draw background
     ctx.fillStyle = '#f3f4f6';
     ctx.fillRect(0, 0, width, height);
-    
+
     // Draw waveform bars (simplified visualization)
     const barCount = 50;
     const barWidth = width / barCount;
     const progress = duration > 0 ? currentTime / duration : 0;
-    
+
     for (let i = 0; i < barCount; i++) {
       const barHeight = Math.random() * height * 0.8 + height * 0.1;
       const x = i * barWidth;
       const y = (height - barHeight) / 2;
-      
+
       // Color based on progress
       if (i / barCount <= progress) {
         ctx.fillStyle = '#10b981'; // Green for played portion
       } else {
         ctx.fillStyle = '#d1d5db'; // Gray for unplayed portion
       }
-      
+
       ctx.fillRect(x, y, barWidth - 1, barHeight);
     }
-    
+
     // Draw progress line
     const progressX = progress * width;
     ctx.strokeStyle = '#059669';
@@ -146,7 +142,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
     const x = event.clientX - rect.left;
     const clickProgress = x / canvas.width;
     const newTime = clickProgress * duration;
-    
+
     audio.currentTime = newTime;
     setCurrentTime(newTime);
   };
@@ -168,7 +164,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
   return (
     <div className={`bg-white border border-gray-200 rounded-lg p-4 ${className}`}>
       <audio ref={audioRef} src={audioUrl} preload="metadata" />
-      
+
       {/* Waveform Canvas */}
       <div className="mb-4">
         <canvas
@@ -179,7 +175,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
           onClick={handleCanvasClick}
         />
       </div>
-      
+
       {/* Controls */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
@@ -196,7 +192,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
               <PlayIcon className="w-5 h-5 ml-0.5" />
             )}
           </button>
-          
+
           <button
             onClick={handleRestart}
             disabled={isLoading}
@@ -205,7 +201,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
             <ArrowPathIcon className="w-4 h-4" />
           </button>
         </div>
-        
+
         {/* Time Display */}
         <div className="text-sm text-gray-600">
           {formatTime(currentTime)} / {formatTime(duration)}

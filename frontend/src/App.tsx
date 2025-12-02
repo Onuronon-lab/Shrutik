@@ -21,31 +21,46 @@ function App() {
           <Route path="/register" element={<RegisterForm />} />
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
           <Route path="/" element={<Layout />}>
-            <Route index element={
-              <ProtectedRoute>
-                <HomePage />
-              </ProtectedRoute>
-            } />
-            <Route path="/record" element={
-              <ProtectedRoute>
-                <RecordPage />
-              </ProtectedRoute>
-            } />
-            <Route path="/transcribe" element={
-              <ProtectedRoute>
-                <TranscribePage />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin" element={
-              <ProtectedRoute requiredRole="admin">
-                <AdminPage />
-              </ProtectedRoute>
-            } />
-            <Route path="/export" element={
-              <ProtectedRoute requiredRole={['admin', 'sworik_developer']}>
-                <ExportPage />
-              </ProtectedRoute>
-            } />
+            <Route
+              index
+              element={
+                <ProtectedRoute>
+                  <HomePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/record"
+              element={
+                <ProtectedRoute>
+                  <RecordPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/transcribe"
+              element={
+                <ProtectedRoute>
+                  <TranscribePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <AdminPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/export"
+              element={
+                <ProtectedRoute requiredRole={['admin', 'sworik_developer']}>
+                  <ExportPage />
+                </ProtectedRoute>
+              }
+            />
           </Route>
         </Routes>
       </Router>

@@ -1,8 +1,10 @@
-from pydantic import BaseModel
-from typing import Optional, Dict, Any, List
 from datetime import datetime
-from app.models.user import UserRole
+from typing import Any, Dict, List, Optional
+
+from pydantic import BaseModel
+
 from app.models.quality_review import ReviewDecision
+from app.models.user import UserRole
 from app.models.voice_recording import RecordingStatus
 
 
@@ -16,7 +18,7 @@ class UserStatsResponse(BaseModel):
     quality_reviews_count: int
     avg_transcription_quality: Optional[float] = None
     created_at: datetime
-    
+
     model_config = {"from_attributes": True}
 
 
@@ -46,7 +48,7 @@ class UserManagementResponse(BaseModel):
     quality_reviews_count: int
     created_at: datetime
     last_activity: Optional[datetime] = None
-    
+
     model_config = {"from_attributes": True}
 
 
@@ -67,7 +69,7 @@ class QualityReviewItemResponse(BaseModel):
     reviewer_name: Optional[str] = None
     created_at: datetime
     chunk_file_path: str
-    
+
     model_config = {"from_attributes": True}
 
 
@@ -82,7 +84,7 @@ class FlaggedTranscriptionResponse(BaseModel):
     chunk_file_path: str
     created_at: datetime
     review_count: int
-    
+
     model_config = {"from_attributes": True}
 
 
@@ -103,10 +105,96 @@ class UsageAnalyticsResponse(BaseModel):
     user_activity_by_role: Dict[str, int]
     popular_script_durations: Dict[str, int]
     transcription_quality_trend: List[Dict[str, Any]]
-    top_contributors: List[Dict[str, Any]]  # [{user_id: int, name: str, contribution_count: int}, ...]
+    top_contributors: List[
+        Dict[str, Any]
+    ]  # [{user_id: int, name: str, contribution_count: int}, ...]
 
 
 class QualityReviewUpdateRequest(BaseModel):
     decision: ReviewDecision
     rating: Optional[float] = None
     comment: Optional[str] = None
+
+
+class AdminConsensusCalculateRequest(BaseModel):
+    """Request to trigger consensus calculation for specific chunks."""
+
+    chunk_ids: List[int]
+
+    model_config = {"json_schema_extra": {"example": {"chunk_ids": [1, 2, 3, 4, 5]}}}
+
+
+class AdminConsensusCalculateResponse(BaseModel):
+    """Response for consensus calculation trigger."""
+
+    task_ids: List[str]
+    chunk_count: int
+    message: str
+
+
+class AdminConsensusStatsResponse(BaseModel):
+    """Response for consensus statistics."""
+
+    total_chunks: int
+    chunks_with_transcriptions: int
+    chunks_ready_for_export: int
+    chunks_pending_consensus: int
+    chunks_failed_consensus: int
+    average_consensus_quality: float
+    average_transcript_count: float
+    consensus_success_rate: float
+    chunks_by_transcript_count: Dict[str, int]
+
+
+class AdminConsensusReviewQueueItem(BaseModel):
+    """Item in the consensus review queue."""
+
+    chunk_id: int
+    recording_id: int
+    transcript_count: int
+    consensus_failed_count: int
+    consensus_quality: float
+    ready_for_export: bool
+    created_at: datetime
+    file_path: str
+
+    model_config = {"from_attributes": True}
+
+
+class AdminConsensusReviewQueueResponse(BaseModel):
+    """Response for consensus review queue."""
+
+    items: List[AdminConsensusReviewQueueItem]
+    total_count: int
+    page: int
+    page_size: int
+
+
+class AdminR2UsageResponse(BaseModel):
+    """Response for R2 usage statistics."""
+
+    class_a_operations_this_month: int
+    class_a_operations_limit: int
+    class_a_usage_percentage: float
+    class_b_operations_this_month: int
+    class_b_operations_limit: int
+    class_b_usage_percentage: float
+    storage_used_gb: float
+    storage_limit_gb: int
+    storage_usage_percentage: float
+    month_start: datetime
+    month_end: datetime
+
+
+class AdminR2LimitsResponse(BaseModel):
+    """Response for R2 free tier limits."""
+
+    free_tier_enabled: bool
+    class_a_limit: int
+    class_b_limit: int
+    storage_limit_gb: int
+    class_a_remaining: int
+    class_b_remaining: int
+    storage_remaining_gb: float
+    approaching_limits: bool
+    limit_warnings: List[str]

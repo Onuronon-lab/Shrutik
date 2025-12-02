@@ -10,12 +10,7 @@ describe('QuantitySelector', () => {
   });
 
   test('renders quantity options', () => {
-    render(
-      <QuantitySelector
-        selectedQuantity={0}
-        onQuantityChange={mockOnQuantityChange}
-      />
-    );
+    render(<QuantitySelector selectedQuantity={0} onQuantityChange={mockOnQuantityChange} />);
 
     expect(screen.getByText('২টি বাক্য')).toBeInTheDocument();
     expect(screen.getByText('৫টি বাক্য')).toBeInTheDocument();
@@ -25,12 +20,7 @@ describe('QuantitySelector', () => {
   });
 
   test('calls onQuantityChange when option is selected', () => {
-    render(
-      <QuantitySelector
-        selectedQuantity={0}
-        onQuantityChange={mockOnQuantityChange}
-      />
-    );
+    render(<QuantitySelector selectedQuantity={0} onQuantityChange={mockOnQuantityChange} />);
 
     const fiveOption = screen.getByText('৫টি বাক্য').closest('button');
     fireEvent.click(fiveOption!);
@@ -39,25 +29,17 @@ describe('QuantitySelector', () => {
   });
 
   test('shows selected quantity with visual indicator', () => {
-    render(
-      <QuantitySelector
-        selectedQuantity={10}
-        onQuantityChange={mockOnQuantityChange}
-      />
-    );
+    render(<QuantitySelector selectedQuantity={10} onQuantityChange={mockOnQuantityChange} />);
 
     const tenOption = screen.getByText('১০টি বাক্য').closest('button');
     expect(tenOption).toHaveClass('border-current');
   });
 
   test('shows instructions when quantity is selected', () => {
-    render(
-      <QuantitySelector
-        selectedQuantity={5}
-        onQuantityChange={mockOnQuantityChange}
-      />
-    );
+    render(<QuantitySelector selectedQuantity={5} onQuantityChange={mockOnQuantityChange} />);
 
-    expect(screen.getByText(/আপনি ৫টি বাক্য ট্রান্সক্রাইব করার জন্য নির্বাচন করেছেন/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/আপনি ৫টি বাক্য ট্রান্সক্রাইব করার জন্য নির্বাচন করেছেন/)
+    ).toBeInTheDocument();
   });
 });

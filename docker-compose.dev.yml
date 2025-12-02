@@ -17,7 +17,7 @@ services:
       - LOG_LEVEL=DEBUG
       - RELOAD=true
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-    
+
   worker:
     build:
       context: .
@@ -30,7 +30,7 @@ services:
       - DEBUG=true
       - LOG_LEVEL=DEBUG
     command: celery -A app.tasks.celery_app worker --loglevel=debug --reload
-    
+
   frontend:
     build:
       context: ./frontend
@@ -42,13 +42,13 @@ services:
     environment:
       - NODE_ENV=development
       - NEXT_PUBLIC_API_URL=http://localhost:8000
-    
+
   # Development database with exposed port for direct access
   postgres:
     environment:
       - POSTGRES_DB=voice_collection
-      
-  # Development Redis with exposed port for direct access  
+
+  # Development Redis with exposed port for direct access
   redis:
     ports:
       - "6379:6379"
