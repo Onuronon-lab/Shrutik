@@ -53,6 +53,26 @@ else
     echo -e "${YELLOW}💡 Tip: Install flake8 for style checking: pip install flake8${NC}"
 fi
 
+# Optional: Run pylint for deeper analysis (non-blocking)
+if command -v pylint &> /dev/null; then
+    echo -e "${BLUE}🔍 Running pylint analysis...${NC}"
+    pylint app/ --rcfile=pylintrc --exit-zero 2>/dev/null || {
+        echo -e "${YELLOW}⚠️  pylint found some issues (not blocking)${NC}"
+    }
+else
+    echo -e "${YELLOW}💡 Tip: Install pylint for deeper analysis: pip install pylint${NC}"
+fi
+
+# Optional: Run pyright for type checking (non-blocking)
+if command -v pyright &> /dev/null; then
+    echo -e "${BLUE}🔍 Running pyright type checking...${NC}"
+    pyright app/ tests/ 2>/dev/null || {
+        echo -e "${YELLOW}⚠️  pyright found some type issues (not blocking)${NC}"
+    }
+else
+    echo -e "${YELLOW}💡 Tip: Install pyright for type checking: npm install -g pyright${NC}"
+fi
+
 echo ""
 
 # Frontend TypeScript/React formatting
