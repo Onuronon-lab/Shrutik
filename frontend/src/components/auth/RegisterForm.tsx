@@ -34,7 +34,7 @@ const RegisterForm: React.FC = () => {
     hasUppercase: /[A-Z]/.test(password),
     hasLowercase: /[a-z]/.test(password),
     hasNumber: /[0-9]/.test(password),
-    hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+    hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/.test(password),
   };
 
   const allValidationsPassed = Object.values(passwordValidation).every(Boolean);
@@ -48,9 +48,19 @@ const RegisterForm: React.FC = () => {
   // Calculate password strength
   const getPasswordStrength = () => {
     const validCount = Object.values(passwordValidation).filter(Boolean).length;
-    if (validCount <= 2) return { label: t('signupPage-password-strength-weak'), color: 'bg-red-500', width: '33%' };
-    if (validCount <= 4) return { label: t('signupPage-password-strength-medium'), color: 'bg-yellow-500', width: '66%' };
-    return { label: t('signupPage-password-strength-strong'), color: 'bg-green-500', width: '100%' };
+    if (validCount <= 2)
+      return { label: t('signupPage-password-strength-weak'), color: 'bg-red-500', width: '33%' };
+    if (validCount <= 4)
+      return {
+        label: t('signupPage-password-strength-medium'),
+        color: 'bg-yellow-500',
+        width: '66%',
+      };
+    return {
+      label: t('signupPage-password-strength-strong'),
+      color: 'bg-green-500',
+      width: '100%',
+    };
   };
 
   const passwordStrength = password.length > 0 ? getPasswordStrength() : null;
@@ -73,7 +83,10 @@ const RegisterForm: React.FC = () => {
   }, []);
 
   // Clear error when any field changes
-  const handleFieldChange = (setter: React.Dispatch<React.SetStateAction<string>>, value: string) => {
+  const handleFieldChange = (
+    setter: React.Dispatch<React.SetStateAction<string>>,
+    value: string
+  ) => {
     setter(value);
     if (error) {
       setError('');
@@ -82,13 +95,13 @@ const RegisterForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Set all fields as touched to show validation errors
     setNameTouched(true);
     setEmailTouched(true);
     setPasswordTouched(true);
     setConfirmPasswordTouched(true);
-    
+
     // Clear messages using functional updates
     clearAllMessages();
 
@@ -130,24 +143,23 @@ const RegisterForm: React.FC = () => {
         setIsLoading(false);
         navigate('/login', {
           state: {
-            message: t('registration_success')
-          }
+            message: t('registration_success'),
+          },
         });
       }
     } catch (error: any) {
       setIsLoading(false);
-      
+
       // Clear any previous messages before setting new error
       clearAllMessages();
-      
+
       if (error.response) {
-        setError(error.response.data?.error.message || "Server returned an error");
+        setError(error.response.data?.error.message || 'Server returned an error');
       } else if (error.request) {
-        setError("No response from server. It might be offline.");
+        setError('No response from server. It might be offline.');
       } else {
-        setError(error.message || "Network Error");
+        setError(error.message || 'Network Error');
       }
-      
     }
   };
 
@@ -165,9 +177,9 @@ const RegisterForm: React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8 relative">
       <div className="max-w-md w-full space-y-8">
-          <div className="absolute top-4 right-4 flex items-center space-x-2">
-              <ThemeToggle className="h-8 w-16 px-1 lg:h-10 lg:w-20 lg:px-2" />
-              <LanguageSwitch />
+        <div className="absolute top-4 right-4 flex items-center space-x-2">
+          <ThemeToggle className="h-8 w-16 px-1 lg:h-10 lg:w-20 lg:px-2" />
+          <LanguageSwitch />
         </div>
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-foreground">
@@ -178,11 +190,15 @@ const RegisterForm: React.FC = () => {
           </p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit} noValidate> {/* Add noValidate to disable browser validation */}
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit} noValidate>
+          {' '}
+          {/* Add noValidate to disable browser validation */}
           <div className="rounded-md shadow-sm space-y-2">
             {/* Name */}
             <div>
-              <label htmlFor="name" className="sr-only">{t('signupPage-name-label')}</label>
+              <label htmlFor="name" className="sr-only">
+                {t('signupPage-name-label')}
+              </label>
               <input
                 id="name"
                 name="name"
@@ -197,22 +213,24 @@ const RegisterForm: React.FC = () => {
                 onBlur={() => setNameTouched(true)}
               />
               {nameTouched && !name.trim() && (
-                <div className="px-3 text-red-600 text-xs mt-1">
-                  {t('signupPage-enter-name')}
-                </div>
+                <div className="px-3 text-red-600 text-xs mt-1">{t('signupPage-enter-name')}</div>
               )}
             </div>
 
             {/* Email */}
             <div>
-              <label htmlFor="email" className="sr-only">{t('signupPage-email-label')}</label>
+              <label htmlFor="email" className="sr-only">
+                {t('signupPage-email-label')}
+              </label>
               <input
                 id="email"
                 name="email"
                 type="email"
                 required
                 className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${
-                  emailTouched && (!email.trim() || !isValidEmail(email)) ? 'border-red-500' : 'border-border'
+                  emailTouched && (!email.trim() || !isValidEmail(email))
+                    ? 'border-red-500'
+                    : 'border-border'
                 } placeholder-nutral text-nutral-foreground focus:outline-none focus:ring-primary focus:border-primary sm:text-sm`}
                 placeholder={t('signupPage-email-label')}
                 value={email}
@@ -222,9 +240,7 @@ const RegisterForm: React.FC = () => {
                 autoComplete="email"
               />
               {emailTouched && !email.trim() && (
-                <div className="px-3 text-red-600 text-xs mt-1">
-                  {t('signupPage-enter-email')}
-                </div>
+                <div className="px-3 text-red-600 text-xs mt-1">{t('signupPage-enter-email')}</div>
               )}
               {emailTouched && email.trim() && !isValidEmail(email) && (
                 <div className="px-3 text-red-600 text-xs mt-1">
@@ -235,15 +251,18 @@ const RegisterForm: React.FC = () => {
 
             {/* Password */}
             <div className="relative">
-              <label htmlFor="password" className="sr-only">{t('signupPage-password-label')}</label>
+              <label htmlFor="password" className="sr-only">
+                {t('signupPage-password-label')}
+              </label>
               <input
                 id="password"
                 name="password"
                 type={showPassword ? 'text' : 'password'}
                 required
-                className={`appearance-none rounded-none relative block w-full px-3 py-2 pr-10 border ${passwordTouched && !allValidationsPassed ? 'border-red-500' : 'border-border'
-                  } placeholder-nutral text-nutral-foreground focus:outline-none focus:ring-primary focus:border-primary sm:text-sm`}
-                placeholder= {t("signupPage-password-label")}
+                className={`appearance-none rounded-none relative block w-full px-3 py-2 pr-10 border ${
+                  passwordTouched && !allValidationsPassed ? 'border-red-500' : 'border-border'
+                } placeholder-nutral text-nutral-foreground focus:outline-none focus:ring-primary focus:border-primary sm:text-sm`}
+                placeholder={t('signupPage-password-label')}
                 value={password}
                 onChange={e => handleFieldChange(setPassword, e.target.value)}
                 onBlur={() => setPasswordTouched(true)}
@@ -255,7 +274,11 @@ const RegisterForm: React.FC = () => {
                 className="absolute inset-y-0 right-0 pr-3 flex items-center"
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? <EyeSlashIcon className="h-5 w-5 text-muted-foreground" /> : <EyeIcon className="h-5 w-5 text-muted-foreground" />}
+                {showPassword ? (
+                  <EyeSlashIcon className="h-5 w-5 text-muted-foreground" />
+                ) : (
+                  <EyeIcon className="h-5 w-5 text-muted-foreground" />
+                )}
               </button>
             </div>
 
@@ -264,10 +287,15 @@ const RegisterForm: React.FC = () => {
               <div className="px-3 py-2 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-gray-600">{t('signupPage-password-strength')}</span>
-                  <span className={`text-xs font-medium ${passwordStrength?.label === t('signupPage-password-strength-weak') ? 'text-red-600' :
-                      passwordStrength?.label === t('signupPage-password-strength-medium') ? 'text-yellow-600' :
-                        'text-green-600'
-                    }`}>
+                  <span
+                    className={`text-xs font-medium ${
+                      passwordStrength?.label === t('signupPage-password-strength-weak')
+                        ? 'text-red-600'
+                        : passwordStrength?.label === t('signupPage-password-strength-medium')
+                          ? 'text-yellow-600'
+                          : 'text-green-600'
+                    }`}
+                  >
                     {passwordStrength?.label}
                   </span>
                 </div>
@@ -279,12 +307,29 @@ const RegisterForm: React.FC = () => {
                 </div>
 
                 <div className="pt-2 space-y-1">
-                  <p className="text-xs text-gray-600 font-medium mb-1.5">{t('signupPage-password-must-contain')}</p>
-                  <ValidationItem isValid={passwordValidation.minLength} text={t('signupPage-min-chars')} />
-                  <ValidationItem isValid={passwordValidation.hasUppercase} text={t('signupPage-one-uppercase')} />
-                  <ValidationItem isValid={passwordValidation.hasLowercase} text={t('signupPage-one-lowercase')} />
-                  <ValidationItem isValid={passwordValidation.hasNumber} text={t('signupPage-one-number')} />
-                  <ValidationItem isValid={passwordValidation.hasSpecialChar} text={t('signupPage-one-special')} />
+                  <p className="text-xs text-gray-600 font-medium mb-1.5">
+                    {t('signupPage-password-must-contain')}
+                  </p>
+                  <ValidationItem
+                    isValid={passwordValidation.minLength}
+                    text={t('signupPage-min-chars')}
+                  />
+                  <ValidationItem
+                    isValid={passwordValidation.hasUppercase}
+                    text={t('signupPage-one-uppercase')}
+                  />
+                  <ValidationItem
+                    isValid={passwordValidation.hasLowercase}
+                    text={t('signupPage-one-lowercase')}
+                  />
+                  <ValidationItem
+                    isValid={passwordValidation.hasNumber}
+                    text={t('signupPage-one-number')}
+                  />
+                  <ValidationItem
+                    isValid={passwordValidation.hasSpecialChar}
+                    text={t('signupPage-one-special')}
+                  />
                 </div>
 
                 {/* Error messages for missing requirements */}
@@ -303,14 +348,19 @@ const RegisterForm: React.FC = () => {
 
             {/* Confirm Password */}
             <div className="relative mt-2">
-              <label htmlFor="confirmPassword" className="sr-only">{t('signupPage-confirm-password-label')}</label>
+              <label htmlFor="confirmPassword" className="sr-only">
+                {t('signupPage-confirm-password-label')}
+              </label>
               <input
                 id="confirmPassword"
                 name="confirmPassword"
                 type={showConfirmPassword ? 'text' : 'password'}
                 required
-                className={`appearance-none rounded-none relative block w-full px-3 py-2 pr-10 border ${confirmPasswordTouched && confirmPassword && password !== confirmPassword ? 'border-red-500' : 'border-border'
-                  } placeholder-nutral text-nutral-foreground rounded-b-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm`}
+                className={`appearance-none rounded-none relative block w-full px-3 py-2 pr-10 border ${
+                  confirmPasswordTouched && confirmPassword && password !== confirmPassword
+                    ? 'border-red-500'
+                    : 'border-border'
+                } placeholder-nutral text-nutral-foreground rounded-b-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm`}
                 placeholder={t('signupPage-confirm-password-label')}
                 value={confirmPassword}
                 onChange={e => handleFieldChange(setConfirmPassword, e.target.value)}
@@ -323,30 +373,24 @@ const RegisterForm: React.FC = () => {
                 className="absolute inset-y-0 right-0 pr-3 flex items-center"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               >
-                {showConfirmPassword ? <EyeSlashIcon className="h-5 w-5 text-muted-foreground" /> : <EyeIcon className="h-5 w-5 text-muted-foreground" />}
+                {showConfirmPassword ? (
+                  <EyeSlashIcon className="h-5 w-5 text-muted-foreground" />
+                ) : (
+                  <EyeIcon className="h-5 w-5 text-muted-foreground" />
+                )}
               </button>
             </div>
 
             {/* Confirm Password Mismatch Error */}
             {confirmPasswordTouched && confirmPassword && password !== confirmPassword && (
-              <div className="px-3 text-red-600 text-xs">
-                {t('signupPage-passwords-mismatch')}
-              </div>
+              <div className="px-3 text-red-600 text-xs">{t('signupPage-passwords-mismatch')}</div>
             )}
           </div>
-
           {/* Error & Success */}
-          {error && (
-            <div className="text-red-600 text-sm text-center">
-              {error}
-            </div>
-          )}
+          {error && <div className="text-red-600 text-sm text-center">{error}</div>}
           {successMessage && (
-            <div className="text-green-600 text-sm text-center">
-              {successMessage}
-            </div>
+            <div className="text-green-600 text-sm text-center">{successMessage}</div>
           )}
-
           <div>
             <button
               type="submit"

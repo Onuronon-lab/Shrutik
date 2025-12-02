@@ -39,14 +39,14 @@ check_docker() {
 # Function to start all services
 start_services() {
     print_status "Starting Voice Data Collection Platform..."
-    
+
     check_docker
-    
+
     # Build and start services
     docker compose up --build -d
-    
+
     print_status "Waiting for services to be ready..."
-    
+
     # Wait for backend to be healthy
     print_status "Waiting for backend to start..."
     timeout=60
@@ -57,13 +57,13 @@ start_services() {
         sleep 2
         timeout=$((timeout-2))
     done
-    
+
     if [ $timeout -le 0 ]; then
         print_error "Backend failed to start within 60 seconds"
         docker compose logs backend
         exit 1
     fi
-    
+
     print_success "All services are running!"
     print_status "Frontend: http://localhost:3000"
     print_status "Backend API: http://localhost:8000"
@@ -115,7 +115,7 @@ cleanup() {
 # Function to run database migrations
 run_migrations() {
     print_status "Running database initialization..."
-    
+
     # Try the comprehensive initialization script first
     if docker compose exec backend python scripts/init-db.py; then
         print_success "Database initialization completed!"

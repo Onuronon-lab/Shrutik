@@ -6,7 +6,7 @@ import {
   PauseIcon,
   ArrowPathIcon,
   CheckCircleIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
 } from '@heroicons/react/24/solid';
 import { ClockIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import { apiService } from '../../services/api';
@@ -35,15 +35,30 @@ interface VoiceRecordingInterfaceProps {
 }
 
 const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
-  onRecordingComplete
+  onRecordingComplete,
 }) => {
   const { t } = useTranslation();
 
   const DURATION_OPTIONS: DurationOption[] = [
-  { value: '2_minutes', label: t('recordPage-2-minutes'), minutes: 2, description: t('recordPage-quick-record-session') },
-  { value: '5_minutes', label: t('recordPage-5-minutes'), minutes: 5, description: t('recordPage-standard-record-session') },
-  { value: '10_minutes', label: t('recordPage-10-minutes'), minutes: 10, description: t('recordPage-extended-record-session') }
-];
+    {
+      value: '2_minutes',
+      label: t('recordPage-2-minutes'),
+      minutes: 2,
+      description: t('recordPage-quick-record-session'),
+    },
+    {
+      value: '5_minutes',
+      label: t('recordPage-5-minutes'),
+      minutes: 5,
+      description: t('recordPage-standard-record-session'),
+    },
+    {
+      value: '10_minutes',
+      label: t('recordPage-10-minutes'),
+      minutes: 10,
+      description: t('recordPage-extended-record-session'),
+    },
+  ];
   // State management
   const [selectedDuration, setSelectedDuration] = useState<DurationOption | null>(null);
   const [currentScript, setCurrentScript] = useState<Script | null>(null);
@@ -53,12 +68,14 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
     isPaused: false,
     recordingTime: 0,
     audioBlob: null,
-    audioUrl: null
+    audioUrl: null,
   });
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
+  const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>(
+    'idle'
+  );
 
   // Refs for audio recording
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -134,14 +151,17 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
   }, []);
 
   // Handle duration selection
-  const handleDurationSelect = useCallback((duration: DurationOption) => {
-    setSelectedDuration(duration);
-    setCurrentScript(null);
-    setRecordingSession(null);
-    setRecordingState(prev => ({ ...prev, audioBlob: null, audioUrl: null }));
-    setUploadStatus('idle');
-    loadScript(duration);
-  }, [loadScript]);
+  const handleDurationSelect = useCallback(
+    (duration: DurationOption) => {
+      setSelectedDuration(duration);
+      setCurrentScript(null);
+      setRecordingSession(null);
+      setRecordingState(prev => ({ ...prev, audioBlob: null, audioUrl: null }));
+      setUploadStatus('idle');
+      loadScript(duration);
+    },
+    [loadScript]
+  );
 
   // Start recording
   const startRecording = useCallback(async () => {
@@ -165,7 +185,7 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
 
       mediaRecorderRef.current = mediaRecorder;
 
-      mediaRecorder.ondataavailable = (event) => {
+      mediaRecorder.ondataavailable = event => {
         if (event.data.size > 0) {
           chunksRef.current.push(event.data);
         }
@@ -180,7 +200,7 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
           audioBlob,
           audioUrl,
           isRecording: false,
-          isPaused: false
+          isPaused: false,
         }));
 
         cleanup();
@@ -191,7 +211,7 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
         ...prev,
         isRecording: true,
         isPaused: false,
-        recordingTime: 0
+        recordingTime: 0,
       }));
 
       // Start timer
@@ -215,7 +235,6 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
           return { ...prev, recordingTime: newTime };
         });
       }, 1000);
-
     } catch (err) {
       console.error('Error starting recording:', err);
       setError('Failed to access microphone. Please check permissions.');
@@ -286,7 +305,7 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
     try {
       // Convert webm to wav for better compatibility
       const audioFile = new File([recordingState.audioBlob], 'recording.webm', {
-        type: 'audio/webm'
+        type: 'audio/webm',
       });
 
       let sessionToUse = recordingSession;
@@ -299,7 +318,7 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
         file_size: recordingState.audioBlob.size,
         sample_rate: 44100,
         channels: 1,
-        bit_depth: 16
+        bit_depth: 16,
       };
 
       console.log('Upload data:', uploadData);
@@ -317,10 +336,11 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
         return;
       } catch (sessionError: any) {
         // If session is invalid or forbidden, try to create a new one
-        if ((sessionError.response?.status === 400 &&
-          sessionError.response?.data?.detail?.includes('session')) ||
-          (sessionError.response?.status === 403)) {
-
+        if (
+          (sessionError.response?.status === 400 &&
+            sessionError.response?.data?.detail?.includes('session')) ||
+          sessionError.response?.status === 403
+        ) {
           console.log('Session expired, creating new session...');
 
           // Create new session
@@ -348,16 +368,22 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
         // If it's not a session error, re-throw
         throw sessionError;
       }
-
     } catch (err: any) {
       console.error('Upload error:', err);
       console.error('Error response:', err.response?.data);
       console.error('Error status:', err.response?.status);
-      const errorMessage = err.response?.data?.detail || err.message || 'Failed to upload recording';
+      const errorMessage =
+        err.response?.data?.detail || err.message || 'Failed to upload recording';
       setError(typeof errorMessage === 'string' ? errorMessage : 'Failed to upload recording');
       setUploadStatus('error');
     }
-  }, [recordingState.audioBlob, recordingState.recordingTime, recordingSession, currentScript, onRecordingComplete]);
+  }, [
+    recordingState.audioBlob,
+    recordingState.recordingTime,
+    recordingSession,
+    currentScript,
+    onRecordingComplete,
+  ]);
 
   // Play recorded audio
   const playRecording = useCallback(() => {
@@ -373,7 +399,7 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
       isPaused: false,
       recordingTime: 0,
       audioBlob: null,
-      audioUrl: null
+      audioUrl: null,
     });
     setUploadStatus('idle');
     setUploadProgress(0);
@@ -415,7 +441,7 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
             {t('recordPage-selection-record-duration')}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {DURATION_OPTIONS.map((option) => (
+            {DURATION_OPTIONS.map(option => (
               <button
                 key={option.value}
                 onClick={() => handleDurationSelect(option)}
@@ -485,11 +511,12 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
             </div>
             <div className="text-sm text-secondary-foreground mb-4">
               {recordingState.isRecording
-                ? (recordingState.isPaused ? 'Paused' : 'Recording...')
+                ? recordingState.isPaused
+                  ? 'Paused'
+                  : 'Recording...'
                 : recordingState.audioBlob
                   ? 'Recording Complete'
-                  : 'Ready to Record'
-              }
+                  : 'Ready to Record'}
             </div>
 
             {/* Audio Visualizer */}
@@ -508,8 +535,9 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
               <div className="mb-4">
                 <div className="w-full bg-background rounded-full h-2">
                   <div
-                    className={`h-2 rounded-full transition-all duration-1000 ${recordingState.isRecording ? 'bg-destructive' : 'bg-primary'
-                      }`}
+                    className={`h-2 rounded-full transition-all duration-1000 ${
+                      recordingState.isRecording ? 'bg-destructive' : 'bg-primary'
+                    }`}
                     style={{ width: `${getProgressPercentage()}%` }}
                   />
                 </div>
@@ -545,8 +573,9 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
                 </button>
                 <button
                   onClick={stopRecording}
-                  className={`w-16 h-16 rounded-full bg-destructive hover:bg-destructive-hover text-destructive-foreground flex items-center justify-center transition-all duration-200 shadow-lg ${!recordingState.isPaused ? 'recording-pulse' : ''
-                    }`}
+                  className={`w-16 h-16 rounded-full bg-destructive hover:bg-destructive-hover text-destructive-foreground flex items-center justify-center transition-all duration-200 shadow-lg ${
+                    !recordingState.isPaused ? 'recording-pulse' : ''
+                  }`}
                 >
                   <StopIcon className="w-8 h-8" />
                 </button>
@@ -573,12 +602,7 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
 
           {/* Audio Playback */}
           {recordingState.audioUrl && (
-            <audio
-              ref={audioRef}
-              src={recordingState.audioUrl}
-              controls
-              className="w-full mb-4"
-            />
+            <audio ref={audioRef} src={recordingState.audioUrl} controls className="w-full mb-4" />
           )}
 
           {/* Upload Section */}

@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  UsersIcon, 
-  PencilIcon, 
-  TrashIcon, 
+import {
+  UsersIcon,
+  PencilIcon,
+  TrashIcon,
   MagnifyingGlassIcon,
   UserCircleIcon,
-  XCircleIcon
+  XCircleIcon,
 } from '@heroicons/react/24/outline';
 import { apiService } from '../../services/api';
 import { UserManagement as UserManagementType } from '../../types/api';
@@ -45,14 +45,12 @@ const UserManagement: React.FC = () => {
     try {
       setUpdating(true);
       await apiService.updateUserRole(editingUser.id, newRole);
-      
+
       // Update local state
-      setUsers(users.map(user => 
-        user.id === editingUser.id 
-          ? { ...user, role: newRole as any }
-          : user
-      ));
-      
+      setUsers(
+        users.map(user => (user.id === editingUser.id ? { ...user, role: newRole as any } : user))
+      );
+
       setEditingUser(null);
       setNewRole('');
     } catch (err) {
@@ -64,7 +62,9 @@ const UserManagement: React.FC = () => {
   };
 
   const handleDeleteUser = async (userId: number) => {
-    if (!window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+    if (
+      !window.confirm('Are you sure you want to delete this user? This action cannot be undone.')
+    ) {
       return;
     }
 
@@ -78,8 +78,9 @@ const UserManagement: React.FC = () => {
   };
 
   const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch =
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
   });
 
@@ -141,13 +142,13 @@ const UserManagement: React.FC = () => {
               type="text"
               placeholder="Search users..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={e => setSearchTerm(e.target.value)}
               className="pl-10 pr-4 py-2 w-full border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
             />
           </div>
           <select
             value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
+            onChange={e => setRoleFilter(e.target.value)}
             className="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
           >
             <option value="">All Roles</option>
@@ -182,7 +183,7 @@ const UserManagement: React.FC = () => {
               </tr>
             </thead>
             <tbody className="bg-card divide-y divide-border">
-              {filteredUsers.map((user) => (
+              {filteredUsers.map(user => (
                 <tr key={user.id} className="hover:bg-background">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
@@ -194,7 +195,9 @@ const UserManagement: React.FC = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(user.role)}`}>
+                    <span
+                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(user.role)}`}
+                    >
                       {user.role.replace('_', ' ')}
                     </span>
                   </td>
@@ -249,9 +252,7 @@ const UserManagement: React.FC = () => {
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 overflow-y-auto h-full w-full z-50">
           <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-card">
             <div className="mt-3">
-              <h3 className="text-lg font-medium text-foreground mb-4">
-                Edit User Role
-              </h3>
+              <h3 className="text-lg font-medium text-foreground mb-4">Edit User Role</h3>
               <div className="mb-4">
                 <p className="text-sm text-secondary-foreground mb-2">User: {editingUser.name}</p>
                 <p className="text-sm text-secondary-foreground mb-4">Email: {editingUser.email}</p>
@@ -260,7 +261,7 @@ const UserManagement: React.FC = () => {
                 </label>
                 <select
                   value={newRole}
-                  onChange={(e) => setNewRole(e.target.value)}
+                  onChange={e => setNewRole(e.target.value)}
                   className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
                 >
                   <option value="contributor">Contributor</option>

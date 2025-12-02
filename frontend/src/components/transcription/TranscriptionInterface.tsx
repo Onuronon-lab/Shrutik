@@ -18,7 +18,7 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
   selectedQuantity,
   onComplete,
   onBack,
-  className = ''
+  className = '',
 }) => {
   const [chunks, setChunks] = useState<AudioChunk[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -49,9 +49,9 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
     try {
       setIsLoading(true);
       setError(null);
-      
+
       const response = await apiService.getRandomChunks(selectedQuantity);
-      
+
       if (response.chunks && response.chunks.length > 0) {
         setChunks(response.chunks);
         setSessionId(response.session_id);
@@ -89,28 +89,30 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
 
       const submission: TranscriptionSubmission = {
         session_id: sessionId || 'default-session',
-        transcriptions: [{
-          chunk_id: currentChunk.id,
-          text: text,
-          language_id: 1 // Assuming Bangla language ID is 1
-        }],
-        skipped_chunk_ids: []
+        transcriptions: [
+          {
+            chunk_id: currentChunk.id,
+            text: text,
+            language_id: 1, // Assuming Bangla language ID is 1
+          },
+        ],
+        skipped_chunk_ids: [],
       };
 
       await apiService.submitTranscription(submission);
-      
+
       setCompletedCount(prev => prev + 1);
       moveToNext();
     } catch (err: any) {
       console.error('Error submitting transcription:', err);
-      
+
       // If session is invalid, try to reload chunks to get a new session
       if (err.response?.data?.detail?.includes('session')) {
         setError(t('transcription-error-session-expired'));
         await loadChunks();
         return;
       }
-      
+
       setError(t('transcription-error-submit'));
     } finally {
       setIsSubmitting(false);
@@ -123,7 +125,7 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
     try {
       setIsSubmitting(true);
       await apiService.skipChunk(currentChunk.id);
-      
+
       setSkippedCount(prev => prev + 1);
       moveToNext();
     } catch (err: any) {
@@ -180,7 +182,7 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
             onClick={onBack}
             className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition-colors"
           >
-           {t('transcription-go-back')}
+            {t('transcription-go-back')}
           </button>
         </div>
       </div>
@@ -189,32 +191,28 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
 
   if (sessionComplete) {
     return (
-      <div className={`bg-green-50 border border-green-200 rounded-lg p-8 text-center ${className}`}>
+      <div
+        className={`bg-green-50 border border-green-200 rounded-lg p-8 text-center ${className}`}
+      >
         <CheckCircleIcon className="w-16 h-16 text-green-600 mx-auto mb-4" />
         <h2 className="text-2xl font-bold text-green-800 mb-4">
           {t('transcription-session-complete-title')}
         </h2>
-        
+
         <div className="bg-white rounded-lg p-6 mb-6 inline-block">
           <div className="grid grid-cols-2 gap-6 text-center">
             <div>
-              <div className="text-3xl font-bold text-green-600 mb-1">
-                {completedCount}
-              </div>
+              <div className="text-3xl font-bold text-green-600 mb-1">{completedCount}</div>
               <div className="text-sm text-gray-600">{t('transcription-session-completed')}</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-orange-600 mb-1">
-                {skippedCount}
-              </div>
+              <div className="text-3xl font-bold text-orange-600 mb-1">{skippedCount}</div>
               <div className="text-sm text-gray-600">{t('transcription-session-skipped')}</div>
             </div>
           </div>
         </div>
 
-        <p className="text-green-700 mb-6">
-          {t('transcription-session-thanks')}
-        </p>
+        <p className="text-green-700 mb-6">{t('transcription-session-thanks')}</p>
 
         <div className="flex justify-center space-x-4">
           <button
@@ -227,7 +225,7 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
             onClick={onComplete}
             className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition-colors"
           >
-           {t('transcription-finish')}
+            {t('transcription-finish')}
           </button>
         </div>
       </div>
@@ -259,18 +257,16 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <div className="flex justify-between items-center">
           <div>
-            <h3 className="font-semibold text-blue-800">
-              চাঙ্ক #{currentIndex + 1}
-            </h3>
+            <h3 className="font-semibold text-blue-800">চাঙ্ক #{currentIndex + 1}</h3>
             <p className="text-sm text-blue-600">
-              {t('transcription-chunk-duration')} { currentChunk.duration.toFixed(1)} {t('seconds')}
+              {t('transcription-chunk-duration')} {currentChunk.duration.toFixed(1)} {t('seconds')}
             </p>
           </div>
           <button
             onClick={onBack}
             className="px-3 py-1 text-sm bg-blue-100 hover:bg-blue-200 text-blue-800 rounded transition-colors"
           >
-           {t('transcription-go-back')}
+            {t('transcription-go-back')}
           </button>
         </div>
       </div>
@@ -278,7 +274,7 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
       {/* Audio Player */}
       <AudioPlayer
         audioUrl={audioUrl}
-        onLoadError={(error) => setError(t('transcription-error', { err: error }))}
+        onLoadError={error => setError(t('transcription-error', { err: error }))}
       />
 
       {/* Transcription Form */}

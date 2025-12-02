@@ -33,7 +33,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       setUser(response.user || response);
-
     } catch (error) {
       localStorage.removeItem('auth_token');
       setToken(null);
@@ -42,7 +41,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsLoading(false);
     }
   };
-
 
   const login = async (email: string, password: string): Promise<AuthResponse> => {
     try {

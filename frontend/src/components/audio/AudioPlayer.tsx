@@ -125,17 +125,13 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
   return (
     <div className={`bg-white border border-gray-200 rounded-lg p-4 shadow-sm ${className}`}>
       <audio ref={audioRef} src={src} preload="metadata" />
-      
+
       <div className="flex items-center space-x-4">
         <button
           onClick={togglePlayPause}
           className="flex-shrink-0 w-10 h-10 bg-indigo-600 hover:bg-indigo-700 rounded-full flex items-center justify-center text-white transition-colors"
         >
-          {isPlaying ? (
-            <PauseIcon className="w-5 h-5" />
-          ) : (
-            <PlayIcon className="w-5 h-5 ml-0.5" />
-          )}
+          {isPlaying ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5 ml-0.5" />}
         </button>
 
         <div className="flex-1">
@@ -144,7 +140,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
             <span>/</span>
             <span>{formatTime(duration)}</span>
           </div>
-          
+
           <input
             type="range"
             min="0"
@@ -166,7 +162,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
               <SpeakerWaveIcon className="w-5 h-5" />
             )}
           </button>
-          
+
           <input
             type="range"
             min="0"

@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  ExclamationTriangleIcon, 
-  PlayIcon, 
-  PauseIcon, 
-  CheckCircleIcon, 
+import {
+  ExclamationTriangleIcon,
+  PlayIcon,
+  PauseIcon,
+  CheckCircleIcon,
   XCircleIcon,
   StarIcon,
-  ChatBubbleLeftIcon
+  ChatBubbleLeftIcon,
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 import { apiService } from '../../services/api';
@@ -25,7 +25,7 @@ const QualityReview: React.FC = () => {
   const [reviewForm, setReviewForm] = useState({
     decision: 'APPROVED',
     rating: 5,
-    comment: ''
+    comment: '',
   });
   const [submittingReview, setSubmittingReview] = useState(false);
 
@@ -33,7 +33,7 @@ const QualityReview: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       if (activeTab === 'flagged') {
         const data = await apiService.getFlaggedTranscriptions(50);
         setFlaggedTranscriptions(data);
@@ -98,7 +98,7 @@ const QualityReview: React.FC = () => {
       );
 
       // Remove the reviewed item from the flagged list
-      setFlaggedTranscriptions(prev => 
+      setFlaggedTranscriptions(prev =>
         prev.filter(item => item.transcription_id !== reviewingItem.transcription_id)
       );
 
@@ -107,7 +107,7 @@ const QualityReview: React.FC = () => {
       setReviewForm({
         decision: 'APPROVED',
         rating: 5,
-        comment: ''
+        comment: '',
       });
     } catch (err) {
       console.error('Failed to submit review:', err);
@@ -134,10 +134,14 @@ const QualityReview: React.FC = () => {
     }
   };
 
-  const renderStarRating = (rating: number, interactive = false, onChange?: (rating: number) => void) => {
+  const renderStarRating = (
+    rating: number,
+    interactive = false,
+    onChange?: (rating: number) => void
+  ) => {
     return (
       <div className="flex space-x-1">
-        {[1, 2, 3, 4, 5].map((star) => (
+        {[1, 2, 3, 4, 5].map(star => (
           <button
             key={star}
             type="button"
@@ -220,14 +224,19 @@ const QualityReview: React.FC = () => {
           {flaggedTranscriptions.length === 0 ? (
             <div className="text-center py-12 bg-card rounded-lg shadow-md border border-border">
               <CheckCircleIcon className="mx-auto h-12 w-12 text-success" />
-              <h3 className="mt-2 text-sm font-medium text-foreground">No flagged transcriptions</h3>
+              <h3 className="mt-2 text-sm font-medium text-foreground">
+                No flagged transcriptions
+              </h3>
               <p className="mt-1 text-sm text-secondary-foreground">
                 All transcriptions are meeting quality standards.
               </p>
             </div>
           ) : (
-            flaggedTranscriptions.map((item) => (
-              <div key={item.transcription_id} className="bg-card rounded-lg shadow-md border border-border p-6">
+            flaggedTranscriptions.map(item => (
+              <div
+                key={item.transcription_id}
+                className="bg-card rounded-lg shadow-md border border-border p-6"
+              >
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
                     <div className="flex items-center space-x-3 mb-2">
@@ -242,7 +251,8 @@ const QualityReview: React.FC = () => {
                       </span>
                     </div>
                     <p className="text-sm text-secondary-foreground mb-2">
-                      By: {item.contributor_name} • {formatDate(item.created_at)} • {item.review_count} reviews
+                      By: {item.contributor_name} • {formatDate(item.created_at)} •{' '}
+                      {item.review_count} reviews
                     </p>
                   </div>
                   <div className="flex space-x-2">
@@ -264,7 +274,7 @@ const QualityReview: React.FC = () => {
                     </button>
                   </div>
                 </div>
-                
+
                 <div className="bg-muted rounded-lg p-4">
                   <p className="text-foreground font-medium mb-1">Transcription:</p>
                   <p className="text-muted-foreground">{item.text}</p>
@@ -303,7 +313,7 @@ const QualityReview: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="bg-card divide-y divide-border">
-                {qualityReviews.map((review) => (
+                {qualityReviews.map(review => (
                   <tr key={review.id} className="hover:bg-background">
                     <td className="px-6 py-4">
                       <div className="text-sm text-foreground">
@@ -314,7 +324,9 @@ const QualityReview: React.FC = () => {
                       {review.contributor_name}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getDecisionColor(review.decision)}`}>
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getDecisionColor(review.decision)}`}
+                      >
                         {review.decision.replace('_', ' ')}
                       </span>
                     </td>
@@ -353,7 +365,7 @@ const QualityReview: React.FC = () => {
               <h3 className="text-lg font-medium text-foreground mb-4">
                 Review Transcription #{reviewingItem.transcription_id}
               </h3>
-              
+
               <div className="space-y-4">
                 <div className="bg-background rounded-lg p-4">
                   <div className="flex justify-between items-center mb-2">
@@ -361,7 +373,9 @@ const QualityReview: React.FC = () => {
                       By: {reviewingItem.contributor_name} • {formatDate(reviewingItem.created_at)}
                     </p>
                     <button
-                      onClick={() => playAudio(reviewingItem.chunk_id, reviewingItem.chunk_file_path)}
+                      onClick={() =>
+                        playAudio(reviewingItem.chunk_id, reviewingItem.chunk_file_path)
+                      }
                       className="p-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors"
                     >
                       {playingAudio === reviewingItem.chunk_id ? (
@@ -381,7 +395,7 @@ const QualityReview: React.FC = () => {
                   </label>
                   <select
                     value={reviewForm.decision}
-                    onChange={(e) => setReviewForm({ ...reviewForm, decision: e.target.value })}
+                    onChange={e => setReviewForm({ ...reviewForm, decision: e.target.value })}
                     className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
                   >
                     <option value="APPROVED">Approved</option>
@@ -394,7 +408,7 @@ const QualityReview: React.FC = () => {
                   <label className="block text-sm font-medium text-secondary-foreground mb-2">
                     Rating
                   </label>
-                  {renderStarRating(reviewForm.rating, true, (rating) => 
+                  {renderStarRating(reviewForm.rating, true, rating =>
                     setReviewForm({ ...reviewForm, rating })
                   )}
                 </div>
@@ -405,7 +419,7 @@ const QualityReview: React.FC = () => {
                   </label>
                   <textarea
                     value={reviewForm.comment}
-                    onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
+                    onChange={e => setReviewForm({ ...reviewForm, comment: e.target.value })}
                     rows={3}
                     className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
                     placeholder="Add any additional comments..."

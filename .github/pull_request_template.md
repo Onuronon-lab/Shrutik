@@ -27,9 +27,9 @@
 
 <!-- Provide a bullet list of specific changes in this PR -->
 
-- 
-- 
-- 
+-
+-
+-
 
 ## Testing Checklist
 

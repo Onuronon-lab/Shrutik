@@ -34,46 +34,42 @@ const LoginForm: React.FC = () => {
     setError('');
     setIsLoading(true);
 
-    const trimmedEmail = email.trim();  
+    const trimmedEmail = email.trim();
     if (!/^\S+@\S+\.\S+$/.test(trimmedEmail)) {
       setError('Invalid email format');
       setIsLoading(false);
       return;
     }
 
-    
- try {
-   const success = await login(trimmedEmail, password);
+    try {
+      const success = await login(trimmedEmail, password);
 
-   if (success.user) {
-     setIsLoading(false);
-     navigate(from, { replace: true });
-   } else {
-     setError('Invalid email or password');
-   }
+      if (success.user) {
+        setIsLoading(false);
+        navigate(from, { replace: true });
+      } else {
+        setError('Invalid email or password');
+      }
+    } catch (error: any) {
+      setIsLoading(false); // IMPORTANT
 
-   
- } catch (error:any) {
-   setIsLoading(false); // IMPORTANT
-
-   // Axios Error Parsing
-   if (error.response) {
-
-     setError(error.response.data?.error.message || "Server returned an error");
-   } else if (error.request) {
-     setError("No response from server. It might be offline.");
-   } else {
-     setError(error.message || "Network Error");
-   }
- }
+      // Axios Error Parsing
+      if (error.response) {
+        setError(error.response.data?.error.message || 'Server returned an error');
+      } else if (error.request) {
+        setError('No response from server. It might be offline.');
+      } else {
+        setError(error.message || 'Network Error');
+      }
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8 relative">
       <div className="max-w-md w-full space-y-8">
         <div className="absolute top-4 right-4 flex items-center space-x-2">
-            <ThemeToggle className="h-8 w-16 px-1 lg:h-10 lg:w-20 lg:px-2" />
-            <LanguageSwitch />
+          <ThemeToggle className="h-8 w-16 px-1 lg:h-10 lg:w-20 lg:px-2" />
+          <LanguageSwitch />
         </div>
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-foreground">
@@ -93,7 +89,9 @@ const LoginForm: React.FC = () => {
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm space-y-2">
             <div>
-              <label htmlFor="email" className="sr-only">{t('login-email')}</label>
+              <label htmlFor="email" className="sr-only">
+                {t('login-email')}
+              </label>
               <input
                 id="email"
                 name="email"
@@ -101,11 +99,13 @@ const LoginForm: React.FC = () => {
                 autoComplete="email"
                 required
                 className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${
-                  error ? 'border-destructive focus:ring-destructive focus:border-destructive' : 'border-border focus:ring-primary focus:border-primary'
+                  error
+                    ? 'border-destructive focus:ring-destructive focus:border-destructive'
+                    : 'border-border focus:ring-primary focus:border-primary'
                 } placeholder-nutral text-nutral-foreground rounded-t-md focus:outline-none focus:ring-2 sm:text-sm`}
-                placeholder= {t('login-email')}
+                placeholder={t('login-email')}
                 value={email}
-                onChange={(e) => {
+                onChange={e => {
                   setEmail(e.target.value);
                   if (error) setError(''); // Clear error when user starts typing
                 }}
@@ -113,7 +113,9 @@ const LoginForm: React.FC = () => {
             </div>
 
             <div className="relative">
-              <label htmlFor="password" className="sr-only">{t('login-password')}</label>
+              <label htmlFor="password" className="sr-only">
+                {t('login-password')}
+              </label>
               <input
                 id="password"
                 name="password"
@@ -121,11 +123,13 @@ const LoginForm: React.FC = () => {
                 autoComplete="current-password"
                 required
                 className={`appearance-none rounded-none relative block w-full px-3 py-2 pr-10 border ${
-                  error ? 'border-destructive focus:ring-destructive focus:border-destructive' : 'border-border focus:ring-primary focus:border-primary'
+                  error
+                    ? 'border-destructive focus:ring-destructive focus:border-destructive'
+                    : 'border-border focus:ring-primary focus:border-primary'
                 } placeholder-nutral text-nutral-foreground rounded-b-md focus:outline-none focus:ring-2 sm:text-sm`}
-                placeholder= {t('login-password')}
+                placeholder={t('login-password')}
                 value={password}
-                onChange={(e) => {
+                onChange={e => {
                   setPassword(e.target.value);
                   if (error) setError(''); // Clear error when user starts typing
                 }}
@@ -144,9 +148,7 @@ const LoginForm: React.FC = () => {
             </div>
           </div>
 
-          {error && (
-            <div className="text-destructive text-sm text-center">{error}</div>
-          )}
+          {error && <div className="text-destructive text-sm text-center">{error}</div>}
 
           <div>
             <button

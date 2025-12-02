@@ -46,9 +46,7 @@ const TranscribePage: React.FC = () => {
       <div className="text-center mb-8">
         <DocumentTextIcon className="mx-auto h-16 w-16 text-success mb-4" />
         <h1 className="text-3xl font-bold text-foreground mb-2">{t('transcriptionPage-title')}</h1>
-        <p className="text-secondary-foreground">
-          {t('transcriptionPage-description')}
-        </p>
+        <p className="text-secondary-foreground">{t('transcriptionPage-description')}</p>
       </div>
 
       <div className="space-y-6">
@@ -72,7 +70,9 @@ const TranscribePage: React.FC = () => {
 
         {/* Instructions */}
         <div className="bg-info border border-info-border rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-info-foreground mb-4">{t('transcriptionPage-instruction')}</h3>
+          <h3 className="text-lg font-semibold text-info-foreground mb-4">
+            {t('transcriptionPage-instruction')}
+          </h3>
           <div className="grid md:grid-cols-2 gap-4 text-sm text-info-foreground">
             <div>
               <h4 className="font-medium mb-2">{t('transcriptionPage-audio-instructions')}</h4>

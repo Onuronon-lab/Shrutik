@@ -1,17 +1,19 @@
 # Database models package
 
-from .user import User, UserRole
-from .language import Language
-from .script import Script, DurationCategory
-from .voice_recording import VoiceRecording, RecordingStatus
 from .audio_chunk import AudioChunk
-from .transcription import Transcription
-from .quality_review import QualityReview, ReviewDecision
 from .export_audit import ExportAuditLog
+from .export_batch import ExportBatch, ExportBatchStatus, StorageType
+from .export_download import ExportDownload
+from .language import Language
+from .quality_review import QualityReview, ReviewDecision
+from .script import DurationCategory, Script
+from .transcription import Transcription
+from .user import User, UserRole
+from .voice_recording import RecordingStatus, VoiceRecording
 
 __all__ = [
     "User",
-    "UserRole", 
+    "UserRole",
     "Language",
     "Script",
     "DurationCategory",
@@ -22,4 +24,8 @@ __all__ = [
     "QualityReview",
     "ReviewDecision",
     "ExportAuditLog",
+    "ExportBatch",
+    "ExportBatchStatus",
+    "StorageType",
+    "ExportDownload",
 ]

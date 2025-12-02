@@ -17,6 +17,7 @@ A clear and concise description of the problem or limitation you're experiencing
 **Describe the feature you'd like to see**
 
 A clear and detailed description of what you want to happen. Include:
+
 - How the feature would work
 - What the user experience would be like
 - Any specific implementation details you envision
@@ -32,6 +33,7 @@ Describe any alternative solutions or features you've considered. This helps us 
 **Who would benefit from this feature and how?**
 
 Describe specific scenarios where this feature would be valuable:
+
 - User personas (e.g., transcribers, administrators, voice recording contributors)
 - Workflow improvements
 - Problems it would solve for different user types
@@ -41,6 +43,7 @@ Describe specific scenarios where this feature would be valuable:
 **Technical considerations or constraints**
 
 If you have thoughts on implementation, share them here:
+
 - Potential technical challenges
 - Dependencies on other features
 - Performance or scalability considerations

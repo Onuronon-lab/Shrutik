@@ -45,13 +45,13 @@ jobs:
       run: |
         # Create missing directories if they don't exist
         mkdir -p docs/theme
-        
+
         # Build the book
         mdbook build
-        
+
         # Create .nojekyll file to bypass Jekyll processing
         touch book/.nojekyll
-        
+
         # Create CNAME file for custom domain (if needed)
         # echo "docs.shrutik.org" > book/CNAME
 
@@ -81,7 +81,7 @@ jobs:
   #     run: |
   #       # Check if the book builds without errors
   #       mdbook build
-  #       
+  #
   #       # Check for broken internal links
   #       mdbook test
 

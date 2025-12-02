@@ -5,7 +5,9 @@ interface FormFieldProps {
   id: string;
   type?: string;
   value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
+  onChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => void;
   placeholder?: string;
   required?: boolean;
   error?: string;
@@ -86,9 +88,7 @@ const FormField: React.FC<FormFieldProps> = ({
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
       {renderField()}
-      {error && (
-        <p className="mt-1 text-sm text-red-600">{error}</p>
-      )}
+      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
     </div>
   );
 };

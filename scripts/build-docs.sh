@@ -55,10 +55,10 @@ check_mdbook() {
 # Function to build documentation
 build_docs() {
     print_status "Building Shrutik documentation..."
-    
+
     # Create theme directory if it doesn't exist
     mkdir -p docs/theme
-    
+
     # Build the book
     if mdbook build; then
         print_success "Documentation built successfully!"
@@ -75,7 +75,7 @@ serve_docs() {
     print_status "Documentation will be available at: http://localhost:3000"
     print_status "Press Ctrl+C to stop the server"
     echo ""
-    
+
     # Serve the book with live reload
     mdbook serve --port 3000 --hostname 0.0.0.0
 }
@@ -86,7 +86,7 @@ watch_docs() {
     print_status "Documentation will be available at: http://localhost:3000"
     print_status "Press Ctrl+C to stop watching"
     echo ""
-    
+
     # Watch and serve with live reload
     mdbook serve --port 3000 --hostname 0.0.0.0 --open
 }
@@ -94,7 +94,7 @@ watch_docs() {
 # Function to clean build artifacts
 clean_docs() {
     print_status "Cleaning documentation build artifacts..."
-    
+
     if [ -d "book" ]; then
         rm -rf book
         print_success "Cleaned build directory"
@@ -106,7 +106,7 @@ clean_docs() {
 # Function to test documentation
 test_docs() {
     print_status "Testing documentation..."
-    
+
     # Test the book for broken links and other issues
     if mdbook test; then
         print_success "Documentation tests passed!"
@@ -144,7 +144,7 @@ show_help() {
 main() {
     # Check if mdBook is installed
     check_mdbook
-    
+
     # Parse command line arguments
     case "${1:-watch}" in
         "build")
