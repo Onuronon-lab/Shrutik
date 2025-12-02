@@ -1,7 +1,6 @@
 [book]
 authors = ["Shrutik Team"]
 language = "en"
-multilingual = false
 src = "docs"
 title = "Shrutik Documentation"
 description = "Complete documentation for Shrutik - Voice Data Collection Platform"
