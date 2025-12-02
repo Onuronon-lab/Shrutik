@@ -109,7 +109,7 @@ async def create_export_batch(
         if not is_admin and request_body.force_create:
             logger.warning(
                 f"User {current_user.id} (role: {current_user.role.value}) attempted to use "
-                "force_create but is not admin. Ignoring force_create parameter."
+                f"force_create but is not admin. Ignoring force_create parameter."
             )
 
         # Create export batch with filters

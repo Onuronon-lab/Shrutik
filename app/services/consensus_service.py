@@ -1,8 +1,10 @@
 """
 Consensus and Quality Validation Service
 
-This service implements the consensus engine to compare multiple transcriptions
-per chunk, calculate quality scores, and manage validation status with audit trails.
+This service implements the consensus engine for export optimization.
+It calculates consensus quality for chunks with multiple transcriptions,
+marks chunks ready for export when quality thresholds are met, and uses
+Redis locks to prevent duplicate calculations.
 """
 
 import logging
@@ -15,6 +17,8 @@ from typing import Any, Dict, List, Optional, Tuple
 from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
 
+from app.core.export_metrics import consensus_metrics_collector
+from app.core.redis_client import redis_client
 from app.models.audio_chunk import AudioChunk
 from app.models.quality_review import QualityReview, ReviewDecision
 from app.models.transcription import Transcription
@@ -395,7 +399,7 @@ class ConsensusService:
         validated_chunks = (
             self.db.query(AudioChunk.id)
             .join(Transcription)
-            .filter(Transcription.is_validated.is_(True))
+            .filter(Transcription.is_validated == True)
             .distinct()
             .count()
         )
@@ -420,14 +424,14 @@ class ConsensusService:
         # Consensus transcriptions
         consensus_transcriptions = (
             self.db.query(Transcription)
-            .filter(Transcription.is_consensus.is_(True))
+            .filter(Transcription.is_consensus == True)
             .count()
         )
 
         # Average confidence scores
         avg_confidence = (
             self.db.query(func.avg(Transcription.confidence))
-            .filter(Transcription.is_validated.is_(True))
+            .filter(Transcription.is_validated == True)
             .scalar()
             or 0.0
         )
@@ -435,7 +439,7 @@ class ConsensusService:
         # Average quality scores
         avg_quality = (
             self.db.query(func.avg(Transcription.quality))
-            .filter(Transcription.is_validated.is_(True))
+            .filter(Transcription.is_validated == True)
             .scalar()
             or 0.0
         )
@@ -657,3 +661,334 @@ class ConsensusService:
                 },
             )
             self.db.add(quality_review)
+
+    # ========================================================================
+    # Export Optimization Methods
+    # ========================================================================
+
+    def calculate_consensus_for_chunk(self, chunk_id: int) -> Optional[Transcription]:
+        """
+        Calculate consensus for a single chunk for export optimization.
+
+        This method:
+        1. Checks if chunk has >= 5 transcriptions
+        2. Calculates consensus quality score
+        3. Selects consensus transcript
+        4. Updates chunk fields: consensus_quality, ready_for_export, consensus_transcript_id
+        5. Returns the consensus transcription if quality threshold (90%) is met
+
+        Args:
+            chunk_id: ID of the audio chunk
+
+        Returns:
+            Consensus transcription if quality >= 90%, None otherwise
+        """
+        # Acquire Redis lock to prevent duplicate calculations
+        lock_key = f"consensus_lock:chunk_{chunk_id}"
+        lock_timeout = 60  # 60 seconds
+
+        # Try to acquire lock (use SET with NX option for atomic lock acquisition)
+        try:
+            # Check if lock already exists
+            if redis_client.exists(lock_key):
+                logger.info(
+                    f"Consensus calculation already in progress for chunk {chunk_id}, skipping"
+                )
+                return None
+
+            # Acquire lock
+            redis_client.set(lock_key, "1", ex=lock_timeout)
+        except Exception as e:
+            logger.warning(f"Failed to acquire Redis lock for chunk {chunk_id}: {e}")
+            # Continue anyway if Redis is unavailable
+
+        try:
+            # Get chunk
+            chunk = self.db.query(AudioChunk).filter(AudioChunk.id == chunk_id).first()
+            if not chunk:
+                logger.error(f"Chunk {chunk_id} not found")
+                return None
+
+            # Get all transcriptions for this chunk
+            transcriptions = (
+                self.db.query(Transcription)
+                .filter(Transcription.chunk_id == chunk_id)
+                .all()
+            )
+
+            # Check minimum transcription count (5 required)
+            if len(transcriptions) < 5:
+                logger.info(
+                    f"Chunk {chunk_id} has only {len(transcriptions)} transcriptions, "
+                    f"minimum 5 required for export consensus",
+                    extra={
+                        "operation_type": "consensus_calculation",
+                        "chunk_id": chunk_id,
+                        "transcript_count": len(transcriptions),
+                        "status": "insufficient_transcriptions",
+                    },
+                )
+                # Update chunk but don't mark ready
+                chunk.transcript_count = len(transcriptions)
+                chunk.consensus_quality = 0.0
+                chunk.ready_for_export = False
+                self.db.commit()
+                return None
+
+            # Calculate quality score
+            quality_score = self.calculate_quality_score(transcriptions)
+
+            # Get consensus transcript
+            consensus_transcript = self.get_consensus_transcript(transcriptions)
+
+            # Update chunk fields
+            chunk.transcript_count = len(transcriptions)
+            chunk.consensus_quality = quality_score
+            chunk.consensus_transcript_id = (
+                consensus_transcript.id if consensus_transcript else None
+            )
+
+            # Check if quality meets export threshold (90%)
+            if quality_score >= 0.90:
+                chunk.ready_for_export = True
+                chunk.consensus_failed_count = 0  # Reset failure count on success
+                logger.info(
+                    f"Chunk {chunk_id} marked ready for export with quality {quality_score:.3f}",
+                    extra={
+                        "operation_type": "consensus_calculation",
+                        "chunk_id": chunk_id,
+                        "transcript_count": len(transcriptions),
+                        "consensus_quality": quality_score,
+                        "ready_for_export": True,
+                        "status": "success",
+                    },
+                )
+            else:
+                chunk.ready_for_export = False
+                logger.info(
+                    f"Chunk {chunk_id} quality {quality_score:.3f} below 90% threshold, "
+                    f"not ready for export",
+                    extra={
+                        "operation_type": "consensus_calculation",
+                        "chunk_id": chunk_id,
+                        "transcript_count": len(transcriptions),
+                        "consensus_quality": quality_score,
+                        "ready_for_export": False,
+                        "status": "below_threshold",
+                    },
+                )
+
+            self.db.commit()
+            self.db.refresh(chunk)
+
+            # Record metrics
+            consensus_metrics_collector.record_consensus_calculated(
+                chunk_id=chunk_id,
+                quality_score=quality_score,
+                ready_for_export=chunk.ready_for_export,
+            )
+
+            return consensus_transcript if chunk.ready_for_export else None
+
+        except Exception as e:
+            logger.error(
+                f"Error calculating consensus for chunk {chunk_id}: {e}",
+                extra={
+                    "operation_type": "consensus_calculation",
+                    "chunk_id": chunk_id,
+                    "error": str(e),
+                    "status": "failed",
+                },
+                exc_info=True,
+            )
+            self.db.rollback()
+
+            # Increment failure count
+            try:
+                chunk = (
+                    self.db.query(AudioChunk).filter(AudioChunk.id == chunk_id).first()
+                )
+                if chunk:
+                    chunk.consensus_failed_count = (
+                        chunk.consensus_failed_count or 0
+                    ) + 1
+                    self.db.commit()
+                    logger.warning(
+                        f"Incremented consensus_failed_count for chunk {chunk_id} "
+                        f"to {chunk.consensus_failed_count}",
+                        extra={
+                            "operation_type": "consensus_calculation",
+                            "chunk_id": chunk_id,
+                            "consensus_failed_count": chunk.consensus_failed_count,
+                            "status": "failure_tracked",
+                        },
+                    )
+            except Exception as inner_e:
+                logger.error(
+                    f"Failed to increment consensus_failed_count for chunk {chunk_id}: {inner_e}",
+                    extra={
+                        "operation_type": "consensus_calculation",
+                        "chunk_id": chunk_id,
+                        "error": str(inner_e),
+                    },
+                )
+                self.db.rollback()
+
+            # Record failure metrics
+            consensus_metrics_collector.record_consensus_failed(
+                chunk_id=chunk_id, error_message=str(inner_e)
+            )
+
+            return None
+
+        finally:
+            # Release lock
+            redis_client.delete(lock_key)
+
+    def calculate_consensus_for_chunks(self, chunk_ids: List[int]) -> Dict[int, bool]:
+        """
+        Bulk calculate consensus for multiple chunks.
+
+        Args:
+            chunk_ids: List of chunk IDs to process
+
+        Returns:
+            Dictionary mapping chunk_id to ready_for_export status
+        """
+        results = {}
+
+        for chunk_id in chunk_ids:
+            try:
+                self.calculate_consensus_for_chunk(chunk_id)
+
+                # Get updated chunk to check ready_for_export status
+                chunk = (
+                    self.db.query(AudioChunk).filter(AudioChunk.id == chunk_id).first()
+                )
+                if chunk:
+                    results[chunk_id] = chunk.ready_for_export
+                else:
+                    results[chunk_id] = False
+
+            except Exception as e:
+                logger.error(
+                    f"Error processing chunk {chunk_id} in bulk operation: {e}"
+                )
+                results[chunk_id] = False
+
+        logger.info(
+            f"Bulk consensus calculation completed for {len(chunk_ids)} chunks. "
+            f"Ready for export: {sum(results.values())}",
+            extra={
+                "operation_type": "consensus_calculation_bulk",
+                "chunk_count": len(chunk_ids),
+                "ready_for_export_count": sum(results.values()),
+                "status": "completed",
+            },
+        )
+
+        return results
+
+    def get_consensus_transcript(
+        self, transcriptions: List[Transcription]
+    ) -> Optional[Transcription]:
+        """
+        Determine the consensus transcript from multiple transcriptions.
+
+        Uses quality scores and text similarity to select the best transcript.
+        The transcript with the highest average similarity to all other transcripts
+        is selected as the consensus.
+
+        Args:
+            transcriptions: List of transcriptions for a chunk
+
+        Returns:
+            The consensus transcription, or None if no suitable consensus found
+        """
+        if not transcriptions:
+            return None
+
+        if len(transcriptions) == 1:
+            return transcriptions[0]
+
+        # Calculate average similarity for each transcription
+        best_transcription = None
+        best_score = -1.0
+
+        for candidate in transcriptions:
+            # Calculate similarity to all other transcriptions
+            similarities = []
+            for other in transcriptions:
+                if candidate.id != other.id:
+                    similarity = SequenceMatcher(
+                        None, candidate.text.strip().lower(), other.text.strip().lower()
+                    ).ratio()
+                    similarities.append(similarity)
+
+            # Average similarity score
+            avg_similarity = statistics.mean(similarities) if similarities else 0.0
+
+            # Factor in quality score if available
+            quality_factor = candidate.quality if candidate.quality else 0.5
+
+            # Combined score (70% similarity, 30% quality)
+            combined_score = (avg_similarity * 0.7) + (quality_factor * 0.3)
+
+            if combined_score > best_score:
+                best_score = combined_score
+                best_transcription = candidate
+
+        return best_transcription
+
+    def calculate_quality_score(self, transcriptions: List[Transcription]) -> float:
+        """
+        Calculate aggregate quality score from multiple transcriptions.
+
+        The quality score is based on:
+        - Text similarity between transcriptions (60%)
+        - Individual quality scores (20%)
+        - Length consistency (20%)
+
+        Args:
+            transcriptions: List of transcriptions for a chunk
+
+        Returns:
+            Quality score between 0.0 and 1.0
+        """
+        if not transcriptions:
+            return 0.0
+
+        if len(transcriptions) == 1:
+            # Single transcription gets its own quality score or 0.5 default
+            return transcriptions[0].quality if transcriptions[0].quality else 0.5
+
+        # Calculate pairwise text similarities
+        similarities = []
+        texts = [t.text.strip().lower() for t in transcriptions]
+
+        for i in range(len(texts)):
+            for j in range(i + 1, len(texts)):
+                similarity = SequenceMatcher(None, texts[i], texts[j]).ratio()
+                similarities.append(similarity)
+
+        avg_similarity = statistics.mean(similarities) if similarities else 0.0
+
+        # Calculate average individual quality scores
+        quality_scores = [t.quality for t in transcriptions if t.quality is not None]
+        avg_quality = statistics.mean(quality_scores) if quality_scores else 0.5
+
+        # Calculate length consistency
+        lengths = [len(t.text) for t in transcriptions]
+        if len(lengths) > 1 and statistics.mean(lengths) > 0:
+            length_std = statistics.stdev(lengths)
+            avg_length = statistics.mean(lengths)
+            length_consistency = 1.0 - min(length_std / avg_length, 1.0)
+        else:
+            length_consistency = 1.0
+
+        # Combine factors
+        quality_score = (
+            avg_similarity * 0.6 + avg_quality * 0.2 + length_consistency * 0.2
+        )
+
+        return min(max(quality_score, 0.0), 1.0)  # Clamp to [0, 1]

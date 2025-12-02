@@ -296,7 +296,7 @@ def create_export_batch_task(self, batch_id: Optional[str] = None) -> dict:
         if available_chunks_count < 200:
             logger.info(
                 f"Insufficient chunks for scheduled export: {available_chunks_count} < 200. "
-                "Skipping export batch creation."
+                f"Skipping export batch creation."
             )
             return {
                 "status": "skipped",

@@ -1,4 +1,14 @@
-from sqlalchemy import JSON, Column, DateTime, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    Column,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -21,6 +31,27 @@ class AudioChunk(Base):
     meta_data = Column(JSON, default=dict)  # Audio quality, processing info, etc.
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+    # Export optimization fields
+    transcript_count = Column(Integer, default=0, nullable=False, index=True)
+    ready_for_export = Column(Boolean, default=False, nullable=False, index=True)
+    consensus_quality = Column(Float, default=0.0, nullable=False)
+    consensus_transcript_id = Column(
+        Integer,
+        ForeignKey("transcriptions.id", use_alter=True, name="fk_consensus_transcript"),
+        nullable=True,
+    )
+    consensus_failed_count = Column(Integer, default=0, nullable=False)
+
     # Relationships
     recording = relationship("VoiceRecording", back_populates="audio_chunks")
-    transcriptions = relationship("Transcription", back_populates="chunk")
+    transcriptions = relationship(
+        "Transcription",
+        back_populates="chunk",
+        foreign_keys="Transcription.chunk_id",
+        overlaps="consensus_transcript",
+    )
+    consensus_transcript = relationship(
+        "Transcription",
+        foreign_keys=[consensus_transcript_id],
+        overlaps="transcriptions",
+    )

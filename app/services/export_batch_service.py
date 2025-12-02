@@ -240,6 +240,7 @@ class ExportBatchService:
             extra={
                 "operation_type": "export_batch_creation",
                 "chunk_count": len(chunks),
+                "batch_id": batch_id,
             },
         )
 
@@ -247,7 +248,7 @@ class ExportBatchService:
         if not force_create and len(chunks) < max_chunks:
             raise ValidationError(
                 f"Insufficient chunks for scheduled export: {len(chunks)} < {max_chunks}. "
-                "Use force_create=True to create batch with fewer chunks."
+                f"Use force_create=True to create batch with fewer chunks."
             )
 
         if len(chunks) == 0:
@@ -541,7 +542,7 @@ class ExportBatchService:
                         manifest_temp_path.unlink()
 
                         # Create and add README.txt
-                        readme_content = """Shrutik Export Batch {batch_id}
+                        readme_content = f"""Shrutik Export Batch {batch_id}
 =====================================
 
 This archive contains voice recording chunks and their consensus transcriptions.
@@ -559,7 +560,7 @@ Total Duration: {sum(chunk.duration for chunk in chunks):.1f} seconds
 To extract:
   tar -I zstd -xf {archive_filename}
 
-For more information, visit: https://github.com/Onuronon-lab/shrutik
+For more information, visit: https://github.com/yourusername/shrutik
 """
 
                         readme_temp_path = temp_dir / "README.txt"

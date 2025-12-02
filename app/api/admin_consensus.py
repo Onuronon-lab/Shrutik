@@ -139,7 +139,7 @@ async def get_consensus_statistics(
     # Chunks ready for export
     chunks_ready_for_export = (
         db.query(func.count(AudioChunk.id))
-        .filter(AudioChunk.ready_for_export.is_(True))
+        .filter(AudioChunk.ready_for_export == True)
         .scalar()
         or 0
     )
@@ -148,9 +148,7 @@ async def get_consensus_statistics(
     chunks_pending_consensus = (
         db.query(func.count(AudioChunk.id))
         .filter(
-            and_(
-                AudioChunk.transcript_count > 0, AudioChunk.ready_for_export.is_(False)
-            )
+            and_(AudioChunk.transcript_count > 0, AudioChunk.ready_for_export == False)
         )
         .scalar()
         or 0

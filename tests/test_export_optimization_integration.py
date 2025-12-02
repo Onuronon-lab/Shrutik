@@ -157,7 +157,7 @@ class TestEndToEndExportWorkflow:
 
         chunks = []
         for i in range(3):
-            audio_file_path = os.path.join(temp_audio_dir, "chunk_{i}.webm")
+            audio_file_path = os.path.join(temp_audio_dir, f"chunk_{i}.webm")
             with open(audio_file_path, "wb") as f:
                 f.write(b"WEBM_DUMMY_AUDIO_DATA_" + str(i).encode() * 100)
 
@@ -168,7 +168,7 @@ class TestEndToEndExportWorkflow:
                 start_time=i * 5.0,
                 end_time=(i + 1) * 5.0,
                 duration=5.0,
-                sentence_hint="Test sentence {i}",
+                sentence_hint=f"Test sentence {i}",
                 transcript_count=0,
                 ready_for_export=False,
                 consensus_quality=0.0,
@@ -184,7 +184,7 @@ class TestEndToEndExportWorkflow:
                     chunk_id=chunk.id,
                     user_id=test_user.id,
                     language_id=test_language.id,
-                    text="This is test transcription {i}.",
+                    text=f"This is test transcription {i}.",
                     quality=0.95,
                     confidence=0.92,
                     is_consensus=False,
@@ -195,29 +195,29 @@ class TestEndToEndExportWorkflow:
             chunk.transcript_count = 5
             db_session.commit()
 
-        print("Created {len(chunks)} chunks with 5 transcriptions each")
+        print(f"Created {len(chunks)} chunks with 5 transcriptions each")
 
         # Step 2: Trigger consensus calculation
         consensus_service = ConsensusService(db_session)
         chunk_ids = [chunk.id for chunk in chunks]
-        consensus_service.calculate_consensus_for_chunks(chunk_ids)
+        results = consensus_service.calculate_consensus_for_chunks(chunk_ids)
 
-        print("Consensus calculation results: {results}")
+        print(f"Consensus calculation results: {results}")
 
         # Step 3: Verify ready_for_export flag set
         for chunk in chunks:
             db_session.refresh(chunk)
             assert (
                 chunk.ready_for_export is True
-            ), "Chunk {chunk.id} not marked ready for export"
+            ), f"Chunk {chunk.id} not marked ready for export"
             assert (
                 chunk.consensus_quality >= 0.90
-            ), "Chunk {chunk.id} quality too low: {chunk.consensus_quality}"
+            ), f"Chunk {chunk.id} quality too low: {chunk.consensus_quality}"
             assert (
                 chunk.consensus_transcript_id is not None
-            ), "Chunk {chunk.id} has no consensus transcript"
+            ), f"Chunk {chunk.id} has no consensus transcript"
             print(
-                "✓ Chunk {chunk.id}: ready={chunk.ready_for_export}, quality={chunk.consensus_quality:.2f}"
+                f"✓ Chunk {chunk.id}: ready={chunk.ready_for_export}, quality={chunk.consensus_quality:.2f}"
             )
 
         print("Consensus calculation workflow test PASSED")
@@ -267,7 +267,7 @@ class TestEndToEndExportWorkflow:
         chunks = []
         for i in range(3):
             # Create dummy audio file
-            audio_file_path = os.path.join(temp_audio_dir, "chunk_{i}.webm")
+            audio_file_path = os.path.join(temp_audio_dir, f"chunk_{i}.webm")
             with open(audio_file_path, "wb") as f:
                 f.write(b"WEBM_DUMMY_AUDIO_DATA_" + str(i).encode() * 100)
 
@@ -278,7 +278,7 @@ class TestEndToEndExportWorkflow:
                 start_time=i * 5.0,
                 end_time=(i + 1) * 5.0,
                 duration=5.0,
-                sentence_hint="Test sentence {i}",
+                sentence_hint=f"Test sentence {i}",
                 transcript_count=0,
                 ready_for_export=False,
                 consensus_quality=0.0,
@@ -294,7 +294,7 @@ class TestEndToEndExportWorkflow:
                     chunk_id=chunk.id,
                     user_id=test_user.id,
                     language_id=test_language.id,
-                    text="This is test transcription {i}.",
+                    text=f"This is test transcription {i}.",
                     quality=0.95,
                     confidence=0.92,
                     is_consensus=False,
@@ -306,7 +306,7 @@ class TestEndToEndExportWorkflow:
             chunk.transcript_count = 5
             db_session.commit()
 
-        print("Created {len(chunks)} chunks with 5 transcriptions each")
+        print(f"Created {len(chunks)} chunks with 5 transcriptions each")
 
         # Step 2: Trigger consensus calculation
         print("\n=== Step 2: Triggering consensus calculation ===")
@@ -314,9 +314,9 @@ class TestEndToEndExportWorkflow:
         consensus_service = ConsensusService(db_session)
         chunk_ids = [chunk.id for chunk in chunks]
 
-        consensus_service.calculate_consensus_for_chunks(chunk_ids)
+        results = consensus_service.calculate_consensus_for_chunks(chunk_ids)
 
-        print("Consensus calculation results: {results}")
+        print(f"Consensus calculation results: {results}")
 
         # Step 3: Verify ready_for_export flag set
         print("\n=== Step 3: Verifying ready_for_export flags ===")
@@ -325,15 +325,15 @@ class TestEndToEndExportWorkflow:
             db_session.refresh(chunk)
             assert (
                 chunk.ready_for_export is True
-            ), "Chunk {chunk.id} not marked ready for export"
+            ), f"Chunk {chunk.id} not marked ready for export"
             assert (
                 chunk.consensus_quality >= 0.90
-            ), "Chunk {chunk.id} quality too low: {chunk.consensus_quality}"
+            ), f"Chunk {chunk.id} quality too low: {chunk.consensus_quality}"
             assert (
                 chunk.consensus_transcript_id is not None
-            ), "Chunk {chunk.id} has no consensus transcript"
+            ), f"Chunk {chunk.id} has no consensus transcript"
             print(
-                "Chunk {chunk.id}: ready={chunk.ready_for_export}, quality={chunk.consensus_quality:.2f}"
+                f"Chunk {chunk.id}: ready={chunk.ready_for_export}, quality={chunk.consensus_quality:.2f}"
             )
 
         # Step 4: Create export batch
@@ -395,7 +395,7 @@ class TestEndToEndExportWorkflow:
                         },
                     }
 
-                    metadata_file = os.path.join(chunks_dir, "chunk_{chunk.id}.json")
+                    metadata_file = os.path.join(chunks_dir, f"chunk_{chunk.id}.json")
                     with open(metadata_file, "w", encoding="utf-8") as f:
                         json.dump(metadata, f, indent=2, ensure_ascii=False)
 
@@ -420,8 +420,8 @@ class TestEndToEndExportWorkflow:
                 with open(readme_file, "w") as f:
                     f.write("Export Batch Archive\n")
                     f.write("===================\n\n")
-                    f.write("Chunks: {len(chunks)}\n")
-                    f.write("Format: WebM audio + JSON metadata\n")
+                    f.write(f"Chunks: {len(chunks)}\n")
+                    f.write(f"Format: WebM audio + JSON metadata\n")
 
                 # Create tar archive (uncompressed for testing)
                 with tarfile.open(archive_path, "w:gz") as tar:
@@ -439,7 +439,7 @@ class TestEndToEndExportWorkflow:
         assert batch.status == ExportBatchStatus.COMPLETED
         assert batch.chunk_count == 3
         assert len(batch.chunk_ids) == 3
-        print("Created export batch: {batch.batch_id} with {batch.chunk_count} chunks")
+        print(f"Created export batch: {batch.batch_id} with {batch.chunk_count} chunks")
 
         # Step 5: Verify tar.zst archive contents
         print("\n=== Step 5: Verifying archive contents ===")
@@ -477,10 +477,10 @@ class TestEndToEndExportWorkflow:
 
             assert (
                 len(webm_files) == 3
-            ), "Expected 3 webm files, found {len(webm_files)}"
+            ), f"Expected 3 webm files, found {len(webm_files)}"
             assert (
                 len(json_files) == 3
-            ), "Expected 3 json files, found {len(json_files)}"
+            ), f"Expected 3 json files, found {len(json_files)}"
 
             # Verify JSON metadata
             for json_file in json_files:
@@ -494,7 +494,7 @@ class TestEndToEndExportWorkflow:
                     assert "metadata" in metadata
                     assert metadata["metadata"]["consensus_quality"] >= 0.90
 
-            print("Successfully extracted and verified {len(webm_files)} chunks")
+            print(f"Successfully extracted and verified {len(webm_files)} chunks")
 
         # Step 7: Verify cleanup
         print("\n=== Step 7: Verifying cleanup ===")
@@ -508,7 +508,7 @@ class TestEndToEndExportWorkflow:
             .filter(AudioChunk.id.in_(batch.chunk_ids))
             .count()
         )
-        assert remaining_chunks == 0, "Expected 0 chunks, found {remaining_chunks}"
+        assert remaining_chunks == 0, f"Expected 0 chunks, found {remaining_chunks}"
 
         # Verify transcriptions deleted
         remaining_transcriptions = (
@@ -518,7 +518,7 @@ class TestEndToEndExportWorkflow:
         )
         assert (
             remaining_transcriptions == 0
-        ), "Expected 0 transcriptions, found {remaining_transcriptions}"
+        ), f"Expected 0 transcriptions, found {remaining_transcriptions}"
 
         print("Cleanup completed successfully")
         print("\n=== End-to-end export workflow test PASSED ===")
@@ -556,7 +556,7 @@ class TestStorageBackendSwitching:
 
         chunks = []
         for i in range(2):
-            audio_file_path = os.path.join(temp_audio_dir, "chunk_{i}.webm")
+            audio_file_path = os.path.join(temp_audio_dir, f"chunk_{i}.webm")
             with open(audio_file_path, "wb") as f:
                 f.write(b"WEBM_DATA_" + str(i).encode() * 50)
 
@@ -579,7 +579,7 @@ class TestStorageBackendSwitching:
                 chunk_id=chunk.id,
                 user_id=test_user.id,
                 language_id=test_language.id,
-                text="Local storage test {i}",
+                text=f"Local storage test {i}",
                 quality=0.95,
                 confidence=0.92,
                 is_consensus=True,
@@ -615,7 +615,7 @@ class TestStorageBackendSwitching:
         assert batch is not None
         assert batch.storage_type == StorageType.LOCAL
         assert os.path.exists(batch.archive_path)
-        print("Local storage export successful: {batch.archive_path}")
+        print(f"Local storage export successful: {batch.archive_path}")
 
         # Test download functionality
         file_path, mime_type = export_service.download_export_batch(
@@ -658,7 +658,7 @@ class TestStorageBackendSwitching:
 
         chunks = []
         for i in range(2):
-            audio_file_path = os.path.join(temp_audio_dir, "chunk_r2_{i}.webm")
+            audio_file_path = os.path.join(temp_audio_dir, f"chunk_r2_{i}.webm")
             with open(audio_file_path, "wb") as f:
                 f.write(b"WEBM_DATA_R2_" + str(i).encode() * 50)
 
@@ -681,7 +681,7 @@ class TestStorageBackendSwitching:
                 chunk_id=chunk.id,
                 user_id=test_user.id,
                 language_id=test_language.id,
-                text="R2 storage test {i}",
+                text=f"R2 storage test {i}",
                 quality=0.95,
                 confidence=0.92,
                 is_consensus=True,
@@ -743,7 +743,7 @@ class TestStorageBackendSwitching:
                 "r2.cloudflarestorage.com" in batch.archive_path
                 or batch.archive_path.startswith("exports/")
             )
-            print("R2 storage export successful: {batch.archive_path}")
+            print(f"R2 storage export successful: {batch.archive_path}")
 
             # Verify upload was called
             assert mock_s3.upload_file.called
@@ -880,7 +880,7 @@ class TestBulkOperationsPerformance:
 
         chunks = []
         for i in range(100):
-            audio_file_path = os.path.join(temp_audio_dir, "bulk_chunk_{i}.webm")
+            audio_file_path = os.path.join(temp_audio_dir, f"bulk_chunk_{i}.webm")
             # Don't create actual files for performance test
 
             chunk = AudioChunk(
@@ -910,11 +910,11 @@ class TestBulkOperationsPerformance:
         )
 
         assert chunk_count == 100
-        print("Inserted 100 chunks in {elapsed_time:.3f} seconds")
-        print("Average: {elapsed_time/100*1000:.2f} ms per chunk")
+        print(f"Inserted 100 chunks in {elapsed_time:.3f} seconds")
+        print(f"Average: {elapsed_time/100*1000:.2f} ms per chunk")
 
         # Performance assertion (should be fast)
-        assert elapsed_time < 5.0, "Bulk insert too slow: {elapsed_time:.3f}s"
+        assert elapsed_time < 5.0, f"Bulk insert too slow: {elapsed_time:.3f}s"
 
     def test_bulk_transcription_insert(
         self, db_session, test_user, test_language, test_script, temp_audio_dir
@@ -940,7 +940,7 @@ class TestBulkOperationsPerformance:
             chunk = AudioChunk(
                 recording_id=recording.id,
                 chunk_index=i,
-                file_path="/test/bulk_trans_chunk_{i}.webm",
+                file_path=f"/test/bulk_trans_chunk_{i}.webm",
                 start_time=i * 5.0,
                 end_time=(i + 1) * 5.0,
                 duration=5.0,
@@ -972,7 +972,7 @@ class TestBulkOperationsPerformance:
                     chunk_id=chunk_id,
                     user_id=test_user.id,
                     language_id=test_language.id,
-                    text="Bulk transcription for chunk {chunk_id}, version {j}",
+                    text=f"Bulk transcription for chunk {chunk_id}, version {j}",
                     quality=0.90 + (j * 0.01),
                     confidence=0.85 + (j * 0.02),
                 )
@@ -992,11 +992,11 @@ class TestBulkOperationsPerformance:
         )
 
         assert trans_count == 500
-        print("Inserted 500 transcriptions in {elapsed_time:.3f} seconds")
-        print("Average: {elapsed_time/500*1000:.2f} ms per transcription")
+        print(f"Inserted 500 transcriptions in {elapsed_time:.3f} seconds")
+        print(f"Average: {elapsed_time/500*1000:.2f} ms per transcription")
 
         # Performance assertion
-        assert elapsed_time < 10.0, "Bulk insert too slow: {elapsed_time:.3f}s"
+        assert elapsed_time < 10.0, f"Bulk insert too slow: {elapsed_time:.3f}s"
 
     def test_prioritized_chunk_query_performance(
         self, db_session, test_user, test_language, test_script, temp_audio_dir
@@ -1023,7 +1023,7 @@ class TestBulkOperationsPerformance:
             chunk = AudioChunk(
                 recording_id=recording.id,
                 chunk_index=i,
-                file_path="/test/perf_chunk_{i}.webm",
+                file_path=f"/test/perf_chunk_{i}.webm",
                 start_time=i * 5.0,
                 end_time=(i + 1) * 5.0,
                 duration=5.0,
@@ -1052,7 +1052,7 @@ class TestBulkOperationsPerformance:
 
         results = (
             db_session.query(AudioChunk)
-            .filter(AudioChunk.ready_for_export.is_(False))
+            .filter(AudioChunk.ready_for_export == False)
             .order_by(AudioChunk.transcript_count.asc())
             .limit(50)
             .all()
@@ -1063,14 +1063,14 @@ class TestBulkOperationsPerformance:
         assert len(results) == 50
         assert results[0].transcript_count <= results[-1].transcript_count
 
-        print("Query completed in {elapsed_time:.3f} seconds")
-        print("First chunk transcript_count: {results[0].transcript_count}")
-        print("Last chunk transcript_count: {results[-1].transcript_count}")
+        print(f"Query completed in {elapsed_time:.3f} seconds")
+        print(f"First chunk transcript_count: {results[0].transcript_count}")
+        print(f"Last chunk transcript_count: {results[-1].transcript_count}")
 
         # Performance assertion (should be < 1 second with proper indexing)
         assert (
             elapsed_time < 1.0
-        ), "Query too slow: {elapsed_time:.3f}s (needs indexing)"
+        ), f"Query too slow: {elapsed_time:.3f}s (needs indexing)"
 
     def test_index_usage_verification(
         self, db_session, test_user, test_language, test_script
@@ -1096,7 +1096,7 @@ class TestBulkOperationsPerformance:
             chunk = AudioChunk(
                 recording_id=recording.id,
                 chunk_index=i,
-                file_path="/test/index_chunk_{i}.webm",
+                file_path=f"/test/index_chunk_{i}.webm",
                 start_time=i * 5.0,
                 end_time=(i + 1) * 5.0,
                 duration=5.0,
@@ -1125,7 +1125,7 @@ class TestBulkOperationsPerformance:
 
         print("Query plan:")
         for row in explain_output:
-            print("  {row}")
+            print(f"  {row}")
 
         # For SQLite, check if index is mentioned in query plan
         str(explain_output).lower()
@@ -1150,7 +1150,7 @@ class TestBulkOperationsPerformance:
 
         print("\nExport batch query plan:")
         for row in explain_output2:
-            print("  {row}")
+            print(f"  {row}")
 
         assert (
             len(explain_output2) > 0
