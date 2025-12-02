@@ -1,7 +1,9 @@
-from sqlalchemy import Column, Integer, String, Text, Float, DateTime, JSON, ForeignKey, Enum
-from sqlalchemy.sql import func
-from sqlalchemy.orm import relationship
 import enum
+
+from sqlalchemy import JSON, Column, DateTime, Enum, Float, ForeignKey, Integer, Text
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+
 from app.db.database import Base
 
 
@@ -16,7 +18,9 @@ class QualityReview(Base):
     __tablename__ = "quality_reviews"
 
     id = Column(Integer, primary_key=True, index=True)
-    transcription_id = Column(Integer, ForeignKey("transcriptions.id"), nullable=False, index=True)
+    transcription_id = Column(
+        Integer, ForeignKey("transcriptions.id"), nullable=False, index=True
+    )
     reviewer_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     decision = Column(Enum(ReviewDecision), nullable=False, index=True)
     rating = Column(Float, nullable=True)  # Optional numeric rating (1-5)

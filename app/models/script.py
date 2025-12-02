@@ -1,7 +1,9 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, JSON, ForeignKey, Enum
-from sqlalchemy.sql import func
-from sqlalchemy.orm import relationship
 import enum
+
+from sqlalchemy import JSON, Column, DateTime, Enum, ForeignKey, Integer, Text
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+
 from app.db.database import Base
 
 
@@ -17,10 +19,14 @@ class Script(Base):
     id = Column(Integer, primary_key=True, index=True)
     text = Column(Text, nullable=False)
     duration_category = Column(Enum(DurationCategory), nullable=False, index=True)
-    language_id = Column(Integer, ForeignKey("languages.id"), nullable=False, index=True)
+    language_id = Column(
+        Integer, ForeignKey("languages.id"), nullable=False, index=True
+    )
     meta_data = Column(JSON, default=dict)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    updated_at = Column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
 
     # Relationships
     language = relationship("Language", back_populates="scripts")

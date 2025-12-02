@@ -1,17 +1,19 @@
 import pytest
-import io
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from app.main import app
-from app.db.database import get_db, Base
-from app.models.user import User, UserRole
-from app.models.language import Language
-from app.models.script import Script, DurationCategory
+
 from app.core.security import get_password_hash
+from app.db.database import Base, get_db
+from app.main import app
+from app.models.language import Language
+from app.models.script import DurationCategory, Script
+from app.models.user import User, UserRole
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test_voice_recordings.db"
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
@@ -54,18 +56,18 @@ def contributor_user(client):
         name="Contributor User",
         email="contributor@example.com",
         password_hash=get_password_hash("contributorpass123"),
-        role=UserRole.CONTRIBUTOR
+        role=UserRole.CONTRIBUTOR,
     )
     db.add(user)
     db.commit()
     db.refresh(user)
     db.close()
-    
+
     # Login to get token
-    login_response = client.post("/api/auth/login", json={
-        "email": "contributor@example.com",
-        "password": "contributorpass123"
-    })
+    login_response = client.post(
+        "/api/auth/login",
+        json={"email": "contributor@example.com", "password": "contributorpass123"},
+    )
     return login_response.json()["access_token"]
 
 
@@ -77,18 +79,18 @@ def admin_user(client):
         name="Admin User",
         email="admin@example.com",
         password_hash=get_password_hash("adminpass123"),
-        role=UserRole.ADMIN
+        role=UserRole.ADMIN,
     )
     db.add(user)
     db.commit()
     db.refresh(user)
     db.close()
-    
+
     # Login to get token
-    login_response = client.post("/api/auth/login", json={
-        "email": "admin@example.com",
-        "password": "adminpass123"
-    })
+    login_response = client.post(
+        "/api/auth/login",
+        json={"email": "admin@example.com", "password": "adminpass123"},
+    )
     return login_response.json()["access_token"]
 
 
@@ -100,7 +102,7 @@ def sample_script(client, test_language):
         text="এটি একটি নমুনা বাংলা স্ক্রিপ্ট যা পরীক্ষার জন্য ব্যবহৃত হচ্ছে। এই স্ক্রিপ্টটি দুই মিনিটের জন্য উপযুক্ত।",
         duration_category=DurationCategory.SHORT,
         language_id=test_language.id,
-        meta_data={"source": "test"}
+        meta_data={"source": "test"},
     )
     db.add(script)
     db.commit()
@@ -114,11 +116,13 @@ def test_create_recording_session_success(client, contributor_user, sample_scrip
     headers = {"Authorization": f"Bearer {contributor_user}"}
     session_data = {
         "script_id": sample_script.id,
-        "language_id": sample_script.language_id
+        "language_id": sample_script.language_id,
     }
-    
-    response = client.post("/api/recordings/sessions", json=session_data, headers=headers)
-    
+
+    response = client.post(
+        "/api/recordings/sessions", json=session_data, headers=headers
+    )
+
     assert response.status_code == 201
     data = response.json()
     assert "session_id" in data
@@ -135,9 +139,11 @@ def test_create_recording_session_invalid_script(client, contributor_user):
     session_data = {
         "script_id": 999,  # Non-existent script
     }
-    
-    response = client.post("/api/recordings/sessions", json=session_data, headers=headers)
-    
+
+    response = client.post(
+        "/api/recordings/sessions", json=session_data, headers=headers
+    )
+
     assert response.status_code == 404
     assert "Script not found" in response.json()["detail"]
 
@@ -147,18 +153,18 @@ def test_create_recording_session_unauthorized(client, sample_script):
     session_data = {
         "script_id": sample_script.id,
     }
-    
+
     response = client.post("/api/recordings/sessions", json=session_data)
-    
+
     assert response.status_code in [401, 403]  # Either unauthorized or forbidden
 
 
 def test_get_user_recordings_empty(client, contributor_user):
     """Test getting user recordings when none exist."""
     headers = {"Authorization": f"Bearer {contributor_user}"}
-    
+
     response = client.get("/api/recordings/", headers=headers)
-    
+
     assert response.status_code == 200
     data = response.json()
     assert data["recordings"] == []
@@ -169,9 +175,9 @@ def test_get_user_recordings_empty(client, contributor_user):
 def test_get_user_recordings_pagination(client, contributor_user):
     """Test user recordings pagination parameters."""
     headers = {"Authorization": f"Bearer {contributor_user}"}
-    
+
     response = client.get("/api/recordings/?skip=10&limit=5", headers=headers)
-    
+
     assert response.status_code == 200
     data = response.json()
     assert "recordings" in data
@@ -184,9 +190,9 @@ def test_get_user_recordings_pagination(client, contributor_user):
 def test_get_recording_statistics_admin(client, admin_user):
     """Test getting recording statistics as admin."""
     headers = {"Authorization": f"Bearer {admin_user}"}
-    
+
     response = client.get("/api/recordings/admin/statistics", headers=headers)
-    
+
     assert response.status_code == 200
     data = response.json()
     assert "total_recordings" in data
@@ -200,18 +206,18 @@ def test_get_recording_statistics_admin(client, admin_user):
 def test_get_recording_statistics_contributor_forbidden(client, contributor_user):
     """Test that contributors cannot access recording statistics."""
     headers = {"Authorization": f"Bearer {contributor_user}"}
-    
+
     response = client.get("/api/recordings/admin/statistics", headers=headers)
-    
+
     assert response.status_code == 403
 
 
 def test_get_all_recordings_admin(client, admin_user):
     """Test getting all recordings as admin."""
     headers = {"Authorization": f"Bearer {admin_user}"}
-    
+
     response = client.get("/api/recordings/admin/all", headers=headers)
-    
+
     assert response.status_code == 200
     data = response.json()
     assert "recordings" in data
@@ -223,18 +229,18 @@ def test_get_all_recordings_admin(client, admin_user):
 def test_get_all_recordings_contributor_forbidden(client, contributor_user):
     """Test that contributors cannot access all recordings."""
     headers = {"Authorization": f"Bearer {contributor_user}"}
-    
+
     response = client.get("/api/recordings/admin/all", headers=headers)
-    
+
     assert response.status_code == 403
 
 
 def test_get_nonexistent_recording(client, contributor_user):
     """Test getting a recording that doesn't exist."""
     headers = {"Authorization": f"Bearer {contributor_user}"}
-    
+
     response = client.get("/api/recordings/999", headers=headers)
-    
+
     assert response.status_code == 404
     assert "Recording not found" in response.json()["detail"]
 
@@ -242,9 +248,9 @@ def test_get_nonexistent_recording(client, contributor_user):
 def test_get_recording_progress_nonexistent(client, contributor_user):
     """Test getting progress for a recording that doesn't exist."""
     headers = {"Authorization": f"Bearer {contributor_user}"}
-    
+
     response = client.get("/api/recordings/999/progress", headers=headers)
-    
+
     assert response.status_code == 404
     assert "Recording not found" in response.json()["detail"]
 
@@ -252,8 +258,8 @@ def test_get_recording_progress_nonexistent(client, contributor_user):
 def test_delete_nonexistent_recording(client, contributor_user):
     """Test deleting a recording that doesn't exist."""
     headers = {"Authorization": f"Bearer {contributor_user}"}
-    
+
     response = client.delete("/api/recordings/999", headers=headers)
-    
+
     assert response.status_code == 404
     assert "Recording not found" in response.json()["detail"]

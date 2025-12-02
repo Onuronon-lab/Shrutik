@@ -16,8 +16,8 @@ const TranscriptionForm: React.FC<TranscriptionFormProps> = ({
   onSubmit,
   onSkip,
   isSubmitting = false,
-  placeholder = "এখানে বাংলায় অডিওর ট্রান্সক্রিপশন লিখুন...",
-  className = ''
+  placeholder = 'এখানে বাংলায় অডিওর ট্রান্সক্রিপশন লিখুন...',
+  className = '',
 }) => {
   const [text, setText] = useState('');
   const [showBanglaKeyboard, setShowBanglaKeyboard] = useState(false);
@@ -33,7 +33,7 @@ const TranscriptionForm: React.FC<TranscriptionFormProps> = ({
     ['প', 'ফ', 'ব', 'ভ', 'ম', 'য', 'র', 'ল', 'শ', 'ষ'],
     ['স', 'হ', 'ড়', 'ঢ়', 'য়', 'ৎ', 'ং', 'ঃ', 'ঁ'],
     ['া', 'ি', 'ী', 'ু', 'ূ', 'ৃ', 'ে', 'ৈ', 'ো', 'ৌ'],
-    ['্', '।', '?', '!', ',', ';', ':', '"', "'", ' ']
+    ['্', '।', '?', '!', ',', ';', ':', '"', "'", ' '],
   ];
 
   useEffect(() => {
@@ -55,9 +55,9 @@ const TranscriptionForm: React.FC<TranscriptionFormProps> = ({
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
     const newText = text.substring(0, start) + key + text.substring(end);
-    
+
     setText(newText);
-    
+
     // Set cursor position after the inserted character
     setTimeout(() => {
       textarea.selectionStart = textarea.selectionEnd = start + key.length;
@@ -90,7 +90,7 @@ const TranscriptionForm: React.FC<TranscriptionFormProps> = ({
               ref={textareaRef}
               id="transcription"
               value={text}
-              onChange={(e) => setText(e.target.value)}
+              onChange={e => setText(e.target.value)}
               onKeyDown={handleTextareaKeyDown}
               placeholder={placeholder}
               rows={4}
@@ -98,20 +98,22 @@ const TranscriptionForm: React.FC<TranscriptionFormProps> = ({
               style={{ fontFamily: 'SolaimanLipi, Kalpurush, Arial, sans-serif' }}
               disabled={isSubmitting}
             />
-            
+
             {/* Virtual Keyboard Toggle */}
             <button
               type="button"
               onClick={() => setShowBanglaKeyboard(!showBanglaKeyboard)}
               className="absolute top-2 right-2 px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 rounded transition-colors"
             >
-              {showBanglaKeyboard ? t('transcriptionForm-hide-keyboard') : t('transcriptionForm-toggle-keyboard')}
+              {showBanglaKeyboard
+                ? t('transcriptionForm-hide-keyboard')
+                : t('transcriptionForm-toggle-keyboard')}
             </button>
           </div>
-          
+
           {/* Character Count */}
           <div className="mt-1 text-xs text-gray-500 text-right">
-            {t('transcriptionForm-char-count', {count:text.length})} {text.length} অক্ষর
+            {t('transcriptionForm-char-count', { count: text.length })} {text.length} অক্ষর
           </div>
         </div>
 
@@ -151,9 +153,7 @@ const TranscriptionForm: React.FC<TranscriptionFormProps> = ({
           </button>
 
           <div className="flex items-center space-x-3">
-            <div className="text-sm text-gray-500">
-              {t('transcriptionForm-shortcut')}
-            </div>
+            <div className="text-sm text-gray-500">{t('transcriptionForm-shortcut')}</div>
             <button
               type="submit"
               disabled={!isTextValid || isSubmitting}

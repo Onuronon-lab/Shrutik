@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import React from "react";
-import { useTranslation } from "react-i18next";
-import { cn } from "../../frontend_lib/utils";
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { cn } from '../../frontend_lib/utils';
 
 const LanguageSwitch: React.FC<{ className?: string }> = ({ className }) => {
   const { i18n } = useTranslation();
-  const isBangla = i18n.language === "bn";
+  const isBangla = i18n.language === 'bn';
 
   const toggleLanguage = () => {
-    const newLang = isBangla ? "en" : "bn";
+    const newLang = isBangla ? 'en' : 'bn';
     i18n.changeLanguage(newLang);
-    localStorage.setItem("lang", newLang);
+    localStorage.setItem('lang', newLang);
   };
 
   return (
@@ -20,15 +20,15 @@ const LanguageSwitch: React.FC<{ className?: string }> = ({ className }) => {
       onClick={toggleLanguage}
       aria-label="Toggle language"
       className={cn(
-        "relative flex h-8 w-16 items-center rounded-full bg-muted px-1 ring-1 ring-border transition-all",
+        'relative flex h-8 w-16 items-center rounded-full bg-muted px-1 ring-1 ring-border transition-all',
         className
       )}
     >
       {/* EN */}
       <span
         className={cn(
-          "absolute left-1 text-[10px] font-medium transition-colors",
-          !isBangla ? "text-foreground" : "text-muted-foreground"
+          'absolute left-1 text-[10px] font-medium transition-colors',
+          !isBangla ? 'text-foreground' : 'text-muted-foreground'
         )}
       >
         EN
@@ -37,8 +37,8 @@ const LanguageSwitch: React.FC<{ className?: string }> = ({ className }) => {
       {/* বাংলা */}
       <span
         className={cn(
-          "absolute right-1 text-[10px] font-medium transition-colors",
-          isBangla ? "text-foreground" : "text-muted-foreground"
+          'absolute right-1 text-[10px] font-medium transition-colors',
+          isBangla ? 'text-foreground' : 'text-muted-foreground'
         )}
       >
         বাংলা
@@ -47,8 +47,8 @@ const LanguageSwitch: React.FC<{ className?: string }> = ({ className }) => {
       {/* Slider knob */}
       <div
         className={cn(
-          "absolute top-0.5 h-7 w-7 rounded-full bg-background shadow transition-transform duration-300",
-          isBangla ? "translate-x-8" : "translate-x-0"
+          'absolute top-0.5 h-7 w-7 rounded-full bg-background shadow transition-transform duration-300',
+          isBangla ? 'translate-x-8' : 'translate-x-0'
         )}
       />
     </button>

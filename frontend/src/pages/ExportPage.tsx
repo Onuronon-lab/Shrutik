@@ -1,8 +1,12 @@
 import React from 'react';
-import { DataExport } from '../components/admin';
+import ExportBatchManager from '../components/export/ExportBatchManager';
 
 const ExportPage: React.FC = () => {
-  return <DataExport />;
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <ExportBatchManager />
+    </div>
+  );
 };
 
 export default ExportPage;

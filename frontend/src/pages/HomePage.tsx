@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { MicrophoneIcon, DocumentTextIcon, ChartBarIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+import {
+  MicrophoneIcon,
+  DocumentTextIcon,
+  ChartBarIcon,
+  ArrowDownTrayIcon,
+} from '@heroicons/react/24/outline';
 import { apiService } from '../services/api';
 import { CurrentUserStats } from '../types/api';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -37,9 +42,7 @@ const HomePage: React.FC = () => {
       <div className="text-center">
         <div className="max-w-3xl mx-auto">
           <MicrophoneIcon className="mx-auto h-16 w-16 text-primary mb-8" />
-          <h1 className="text-4xl font-bold text-foreground mb-4">
-            Shrutik
-          </h1>
+          <h1 className="text-4xl font-bold text-foreground mb-4">Shrutik</h1>
           <p className="text-xl text-secondary-foreground mb-8">
             Help us build better AI by contributing your voice and transcription skills
           </p>
@@ -101,13 +104,11 @@ const HomePage: React.FC = () => {
         <h1 className="text-4xl font-bold text-foreground mb-4">
           {t('welcome')}, {user?.name}!
         </h1>
-        <p className="text-xl text-secondary-foreground">
-          {t('choose-contribution')}
-        </p>
+        <p className="text-xl text-secondary-foreground">{t('choose-contribution')}</p>
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {features.map((feature) => {
+        {features.map(feature => {
           const Icon = feature.icon;
           return (
             <Link
@@ -115,15 +116,13 @@ const HomePage: React.FC = () => {
               to={feature.href}
               className="bg-card rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 border border-border"
             >
-              <div className={`w-12 h-12 ${feature.bgcolor} rounded-lg flex items-center justify-center mb-4`}>
+              <div
+                className={`w-12 h-12 ${feature.bgcolor} rounded-lg flex items-center justify-center mb-4`}
+              >
                 <Icon className={`h-6 w-6 ${feature.color}`} />
               </div>
-              <h3 className="text-xl font-semibold text-card-foreground mb-2">
-                {feature.name}
-              </h3>
-              <p className="text-secondary-foreground">
-                {feature.description}
-              </p>
+              <h3 className="text-xl font-semibold text-card-foreground mb-2">{feature.name}</h3>
+              <p className="text-secondary-foreground">{feature.description}</p>
             </Link>
           );
         })}
@@ -151,7 +150,9 @@ const HomePage: React.FC = () => {
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-info mb-2">
-                {userStats?.avg_transcription_quality ? userStats.avg_transcription_quality.toFixed(1) : 'N/A'}
+                {userStats?.avg_transcription_quality
+                  ? userStats.avg_transcription_quality.toFixed(1)
+                  : 'N/A'}
               </div>
               <div className="text-secondary-foreground">{t('contribution-quality-score')}</div>
             </div>

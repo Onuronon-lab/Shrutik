@@ -2,14 +2,17 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from app.main import app
-from app.db.database import get_db, Base
-from app.models.user import User, UserRole
+
 from app.core.security import get_password_hash
+from app.db.database import Base, get_db
+from app.main import app
+from app.models.user import User, UserRole
 
 # Create test database
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
@@ -37,7 +40,7 @@ def test_user_data():
     return {
         "name": "Test User",
         "email": "test@example.com",
-        "password": "testpassword123"
+        "password": "testpassword123",
         # Note: role is intentionally excluded - public registration always creates CONTRIBUTOR
     }
 
@@ -51,19 +54,19 @@ def admin_user(client: TestClient):
             name="Admin User",
             email="admin@example.com",
             password_hash=get_password_hash("adminpass123"),
-            role=UserRole.ADMIN
+            role=UserRole.ADMIN,
         )
         db.add(admin)
         db.commit()
         db.refresh(admin)
-        
+
         # Login to get token
-        login_response = client.post("/api/auth/login", json={
-            "email": "admin@example.com",
-            "password": "adminpass123"
-        })
+        login_response = client.post(
+            "/api/auth/login",
+            json={"email": "admin@example.com", "password": "adminpass123"},
+        )
         token = login_response.json()["access_token"]
-        
+
         return {"user": admin, "token": token}
     finally:
         db.close()
@@ -84,7 +87,7 @@ def test_register_duplicate_email(client: TestClient, test_user_data):
     """Test registration with duplicate email fails."""
     # Register first user
     client.post("/api/auth/register", json=test_user_data)
-    
+
     # Try to register with same email
     response = client.post("/api/auth/register", json=test_user_data)
     assert response.status_code == 400
@@ -95,11 +98,11 @@ def test_login_success(client: TestClient, test_user_data):
     """Test successful login."""
     # Register user first
     client.post("/api/auth/register", json=test_user_data)
-    
+
     # Login
     login_data = {
         "email": test_user_data["email"],
-        "password": test_user_data["password"]
+        "password": test_user_data["password"],
     }
     response = client.post("/api/auth/login", json=login_data)
     assert response.status_code == 200
@@ -112,12 +115,9 @@ def test_login_invalid_credentials(client: TestClient, test_user_data):
     """Test login with invalid credentials."""
     # Register user first
     client.post("/api/auth/register", json=test_user_data)
-    
+
     # Try login with wrong password
-    login_data = {
-        "email": test_user_data["email"],
-        "password": "wrongpassword"
-    }
+    login_data = {"email": test_user_data["email"], "password": "wrongpassword"}
     response = client.post("/api/auth/login", json=login_data)
     assert response.status_code == 401
     assert "Incorrect email or password" in response.json()["detail"]
@@ -127,12 +127,12 @@ def test_get_current_user(client: TestClient, test_user_data):
     """Test getting current user info with valid token."""
     # Register and login
     client.post("/api/auth/register", json=test_user_data)
-    login_response = client.post("/api/auth/login", json={
-        "email": test_user_data["email"],
-        "password": test_user_data["password"]
-    })
+    login_response = client.post(
+        "/api/auth/login",
+        json={"email": test_user_data["email"], "password": test_user_data["password"]},
+    )
     token = login_response.json()["access_token"]
-    
+
     # Get current user
     headers = {"Authorization": f"Bearer {token}"}
     response = client.get("/api/auth/me", headers=headers)
@@ -153,12 +153,12 @@ def test_admin_role_required(client: TestClient, test_user_data):
     """Test that admin endpoints require admin role."""
     # Register regular user
     client.post("/api/auth/register", json=test_user_data)
-    login_response = client.post("/api/auth/login", json={
-        "email": test_user_data["email"],
-        "password": test_user_data["password"]
-    })
+    login_response = client.post(
+        "/api/auth/login",
+        json={"email": test_user_data["email"], "password": test_user_data["password"]},
+    )
     token = login_response.json()["access_token"]
-    
+
     # Try to access admin endpoint
     headers = {"Authorization": f"Bearer {token}"}
     response = client.get("/api/auth/users", headers=headers)
@@ -173,7 +173,7 @@ def test_register_ignores_role_parameter(client: TestClient):
         "name": "Hacker",
         "email": "hacker@example.com",
         "password": "password123",
-        "role": "admin"  # This should be rejected by Pydantic's extra="forbid"
+        "role": "admin",  # This should be rejected by Pydantic's extra="forbid"
     }
     response = client.post("/api/auth/register", json=malicious_data)
     # Should fail with 422 because extra fields are forbidden
@@ -185,7 +185,7 @@ def test_register_without_role_creates_contributor(client: TestClient):
     user_data = {
         "name": "Regular User",
         "email": "user@example.com",
-        "password": "password123"
+        "password": "password123",
     }
     response = client.post("/api/auth/register", json=user_data)
     assert response.status_code == 201
@@ -196,13 +196,13 @@ def test_register_without_role_creates_contributor(client: TestClient):
 def test_admin_can_create_user_with_role(client: TestClient, admin_user):
     """Test that admin can create users with specific roles."""
     headers = {"Authorization": f"Bearer {admin_user['token']}"}
-    
+
     # Create a new admin user
     new_admin_data = {
         "name": "New Admin",
         "email": "newadmin@example.com",
         "password": "adminpass456",
-        "role": "admin"
+        "role": "admin",
     }
     response = client.post("/api/auth/users", json=new_admin_data, headers=headers)
     assert response.status_code == 201
@@ -215,19 +215,19 @@ def test_non_admin_cannot_create_user_with_role(client: TestClient, test_user_da
     """Test that non-admin users cannot access the admin user creation endpoint."""
     # Register and login as regular user
     client.post("/api/auth/register", json=test_user_data)
-    login_response = client.post("/api/auth/login", json={
-        "email": test_user_data["email"],
-        "password": test_user_data["password"]
-    })
+    login_response = client.post(
+        "/api/auth/login",
+        json={"email": test_user_data["email"], "password": test_user_data["password"]},
+    )
     token = login_response.json()["access_token"]
     headers = {"Authorization": f"Bearer {token}"}
-    
+
     # Try to create an admin user
     new_admin_data = {
         "name": "Fake Admin",
         "email": "fakeadmin@example.com",
         "password": "password123",
-        "role": "admin"
+        "role": "admin",
     }
     response = client.post("/api/auth/users", json=new_admin_data, headers=headers)
     assert response.status_code == 403

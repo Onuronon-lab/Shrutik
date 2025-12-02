@@ -7,7 +7,7 @@ import {
   ExclamationTriangleIcon,
   CheckCircleIcon,
   XCircleIcon,
-  ArrowDownTrayIcon
+  ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline';
 import { apiService } from '../services/api';
 import { PlatformStats, SystemHealth } from '../types/api';
@@ -17,7 +17,7 @@ import {
   ScriptManagement,
   QualityReview,
   StatsDashboard,
-  DataExport
+  DataExport,
 } from '../components/admin';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 
@@ -41,7 +41,7 @@ const AdminPage: React.FC = () => {
       setError(null);
       const [statsData, healthData] = await Promise.all([
         apiService.getPlatformStats(),
-        apiService.getSystemHealth()
+        apiService.getSystemHealth(),
       ]);
       setPlatformStats(statsData);
       setSystemHealth(healthData);
@@ -59,7 +59,9 @@ const AdminPage: React.FC = () => {
     { id: 'scripts' as TabType, name: 'Scripts', icon: DocumentTextIcon },
     { id: 'quality' as TabType, name: 'Quality Review', icon: ExclamationTriangleIcon },
     { id: 'stats' as TabType, name: 'Analytics', icon: ChartBarIcon },
-    ...(user?.role === 'sworik_developer' ? [{ id: 'export' as TabType, name: 'Data Export', icon: ArrowDownTrayIcon }] : []),
+    ...(user?.role === 'sworik_developer'
+      ? [{ id: 'export' as TabType, name: 'Data Export', icon: ArrowDownTrayIcon }]
+      : []),
   ];
 
   const renderTabContent = () => {
@@ -122,20 +124,28 @@ const AdminPage: React.FC = () => {
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center">
-                <p className="text-2xl font-bold text-foreground">{systemHealth.active_users_last_24h}</p>
+                <p className="text-2xl font-bold text-foreground">
+                  {systemHealth.active_users_last_24h}
+                </p>
                 <p className="text-sm text-secondary-foreground">Active Users (24h)</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-foreground">{systemHealth.processing_queue_size}</p>
+                <p className="text-2xl font-bold text-foreground">
+                  {systemHealth.processing_queue_size}
+                </p>
                 <p className="text-sm text-secondary-foreground">Processing Queue</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-foreground">{systemHealth.failed_recordings_count}</p>
+                <p className="text-2xl font-bold text-foreground">
+                  {systemHealth.failed_recordings_count}
+                </p>
                 <p className="text-sm text-secondary-foreground">Failed Recordings</p>
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-foreground">
-                  {systemHealth.avg_response_time ? `${systemHealth.avg_response_time.toFixed(0)}ms` : 'N/A'}
+                  {systemHealth.avg_response_time
+                    ? `${systemHealth.avg_response_time.toFixed(0)}ms`
+                    : 'N/A'}
                 </p>
                 <p className="text-sm text-secondary-foreground">Avg Response Time</p>
               </div>
@@ -161,7 +171,12 @@ const AdminPage: React.FC = () => {
               <p className="text-3xl font-bold text-success">{platformStats.total_recordings}</p>
               <div className="mt-2 text-sm text-secondary-foreground">
                 <p>Chunks: {platformStats.total_chunks}</p>
-                <p>Avg Duration: {platformStats.avg_recording_duration ? `${platformStats.avg_recording_duration.toFixed(1)}min` : 'N/A'}</p>
+                <p>
+                  Avg Duration:{' '}
+                  {platformStats.avg_recording_duration
+                    ? `${platformStats.avg_recording_duration.toFixed(1)}min`
+                    : 'N/A'}
+                </p>
               </div>
             </div>
 
@@ -170,13 +185,20 @@ const AdminPage: React.FC = () => {
               <p className="text-3xl font-bold text-info">{platformStats.total_transcriptions}</p>
               <div className="mt-2 text-sm text-secondary-foreground">
                 <p>Validated: {platformStats.total_validated_transcriptions}</p>
-                <p>Avg Quality: {platformStats.avg_transcription_quality ? platformStats.avg_transcription_quality.toFixed(2) : 'N/A'}</p>
+                <p>
+                  Avg Quality:{' '}
+                  {platformStats.avg_transcription_quality
+                    ? platformStats.avg_transcription_quality.toFixed(2)
+                    : 'N/A'}
+                </p>
               </div>
             </div>
 
             <div className="bg-card rounded-lg shadow-md p-6 border border-border">
               <h4 className="text-lg font-semibold text-card-foreground mb-2">Quality Reviews</h4>
-              <p className="text-3xl font-bold text-warning">{platformStats.total_quality_reviews}</p>
+              <p className="text-3xl font-bold text-warning">
+                {platformStats.total_quality_reviews}
+              </p>
               <div className="mt-2 text-sm text-secondary-foreground">
                 <p>Pending reviews available</p>
               </div>
@@ -187,7 +209,9 @@ const AdminPage: React.FC = () => {
         {/* Quick Actions */}
         <div className="bg-card rounded-lg shadow-md p-6 border border-border">
           <h3 className="text-lg font-semibold text-card-foreground mb-4">Quick Actions</h3>
-          <div className={`grid grid-cols-1 md:grid-cols-2 ${user?.role === 'sworik_developer' ? 'lg:grid-cols-5' : 'lg:grid-cols-4'} gap-4`}>
+          <div
+            className={`grid grid-cols-1 md:grid-cols-2 ${user?.role === 'sworik_developer' ? 'lg:grid-cols-5' : 'lg:grid-cols-4'} gap-4`}
+          >
             <button
               onClick={() => setActiveTab('users')}
               className="p-4 border border-border rounded-lg hover:bg-background transition-colors text-left"
@@ -227,7 +251,9 @@ const AdminPage: React.FC = () => {
               >
                 <ArrowDownTrayIcon className="h-8 w-8 text-info mb-2" />
                 <p className="font-medium text-foreground">Export Data</p>
-                <p className="text-sm text-secondary-foreground">Download datasets for AI training</p>
+                <p className="text-sm text-secondary-foreground">
+                  Download datasets for AI training
+                </p>
               </button>
             )}
           </div>
@@ -249,7 +275,7 @@ const AdminPage: React.FC = () => {
       {/* Tab Navigation */}
       <div className="border-b border-border mb-8">
         <nav className="-mb-px flex space-x-8">
-          {tabs.map((tab) => {
+          {tabs.map(tab => {
             const Icon = tab.icon;
             return (
               <button
@@ -270,9 +296,7 @@ const AdminPage: React.FC = () => {
       </div>
 
       {/* Tab Content */}
-      <div className="min-h-96">
-        {renderTabContent()}
-      </div>
+      <div className="min-h-96">{renderTabContent()}</div>
     </div>
   );
 };

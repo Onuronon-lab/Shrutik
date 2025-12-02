@@ -28,7 +28,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
   const startRecording = useCallback(async () => {
     try {
       setError(null);
-      
+
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           echoCancellation: true,
@@ -46,7 +46,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
 
       mediaRecorderRef.current = mediaRecorder;
 
-      mediaRecorder.ondataavailable = (event) => {
+      mediaRecorder.ondataavailable = event => {
         if (event.data.size > 0) {
           chunksRef.current.push(event.data);
         }
@@ -55,7 +55,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
       mediaRecorder.onstop = () => {
         const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
         onRecordingComplete(audioBlob);
-        
+
         // Clean up
         if (streamRef.current) {
           streamRef.current.getTracks().forEach(track => track.stop());
@@ -78,7 +78,6 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
           return newTime;
         });
       }, 1000);
-
     } catch (err) {
       console.error('Error starting recording:', err);
       setError('Failed to access microphone. Please check permissions.');

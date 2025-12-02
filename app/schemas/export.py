@@ -6,13 +6,15 @@ and audit logging related to data export operations.
 """
 
 from datetime import datetime
-from typing import Optional, List, Dict, Any, Literal
-from pydantic import BaseModel, Field
 from enum import Enum
+from typing import Any, Dict, List, Literal, Optional
+
+from pydantic import BaseModel, Field
 
 
 class ExportFormat(str, Enum):
     """Supported export formats."""
+
     JSON = "json"
     CSV = "csv"
     JSONL = "jsonl"  # JSON Lines format
@@ -21,27 +23,50 @@ class ExportFormat(str, Enum):
 
 class QualityThreshold(BaseModel):
     """Quality filtering thresholds."""
-    min_confidence: Optional[float] = Field(None, ge=0.0, le=1.0, description="Minimum confidence score")
-    min_quality: Optional[float] = Field(None, ge=0.0, le=1.0, description="Minimum quality score")
-    consensus_only: bool = Field(False, description="Only include consensus transcriptions")
-    validated_only: bool = Field(False, description="Only include validated transcriptions")
+
+    min_confidence: Optional[float] = Field(
+        None, ge=0.0, le=1.0, description="Minimum confidence score"
+    )
+    min_quality: Optional[float] = Field(
+        None, ge=0.0, le=1.0, description="Minimum quality score"
+    )
+    consensus_only: bool = Field(
+        False, description="Only include consensus transcriptions"
+    )
+    validated_only: bool = Field(
+        False, description="Only include validated transcriptions"
+    )
 
 
 class DatasetExportRequest(BaseModel):
     """Request schema for dataset export."""
+
     format: ExportFormat = Field(ExportFormat.JSON, description="Export format")
-    quality_filters: Optional[QualityThreshold] = Field(None, description="Quality filtering criteria")
-    language_ids: Optional[List[int]] = Field(None, description="Filter by language IDs")
-    user_ids: Optional[List[int]] = Field(None, description="Filter by contributor user IDs")
-    date_from: Optional[datetime] = Field(None, description="Filter recordings from this date")
-    date_to: Optional[datetime] = Field(None, description="Filter recordings to this date")
+    quality_filters: Optional[QualityThreshold] = Field(
+        None, description="Quality filtering criteria"
+    )
+    language_ids: Optional[List[int]] = Field(
+        None, description="Filter by language IDs"
+    )
+    user_ids: Optional[List[int]] = Field(
+        None, description="Filter by contributor user IDs"
+    )
+    date_from: Optional[datetime] = Field(
+        None, description="Filter recordings from this date"
+    )
+    date_to: Optional[datetime] = Field(
+        None, description="Filter recordings to this date"
+    )
     include_metadata: bool = Field(True, description="Include detailed metadata")
     include_audio_paths: bool = Field(True, description="Include audio file paths")
-    max_records: Optional[int] = Field(None, gt=0, description="Maximum number of records to export")
+    max_records: Optional[int] = Field(
+        None, gt=0, description="Maximum number of records to export"
+    )
 
 
 class MetadataExportRequest(BaseModel):
     """Request schema for metadata export."""
+
     format: ExportFormat = Field(ExportFormat.JSON, description="Export format")
     include_statistics: bool = Field(True, description="Include platform statistics")
     include_user_stats: bool = Field(False, description="Include per-user statistics")
@@ -50,6 +75,7 @@ class MetadataExportRequest(BaseModel):
 
 class ExportedDataItem(BaseModel):
     """Schema for individual exported data item."""
+
     chunk_id: int
     recording_id: int
     audio_file_path: str
@@ -73,6 +99,7 @@ class ExportedDataItem(BaseModel):
 
 class ExportStatistics(BaseModel):
     """Export statistics and metadata."""
+
     total_recordings: int
     total_chunks: int
     total_transcriptions: int
@@ -87,6 +114,7 @@ class ExportStatistics(BaseModel):
 
 class DatasetExportResponse(BaseModel):
     """Response schema for dataset export."""
+
     export_id: str
     data: List[ExportedDataItem]
     statistics: ExportStatistics
@@ -97,6 +125,7 @@ class DatasetExportResponse(BaseModel):
 
 class MetadataExportResponse(BaseModel):
     """Response schema for metadata export."""
+
     export_id: str
     statistics: ExportStatistics
     platform_metrics: Dict[str, Any]
@@ -108,6 +137,7 @@ class MetadataExportResponse(BaseModel):
 
 class ExportAuditLog(BaseModel):
     """Audit log entry for export operations."""
+
     id: int
     export_id: str
     user_id: int
@@ -124,6 +154,7 @@ class ExportAuditLog(BaseModel):
 
 class ExportAuditLogResponse(BaseModel):
     """Response schema for export audit logs."""
+
     logs: List[ExportAuditLog]
     total_count: int
     page: int
@@ -132,8 +163,11 @@ class ExportAuditLogResponse(BaseModel):
 
 class ExportHistoryRequest(BaseModel):
     """Request schema for export history."""
+
     user_id: Optional[int] = Field(None, description="Filter by user ID")
-    export_type: Optional[Literal["dataset", "metadata"]] = Field(None, description="Filter by export type")
+    export_type: Optional[Literal["dataset", "metadata"]] = Field(
+        None, description="Filter by export type"
+    )
     date_from: Optional[datetime] = Field(None, description="Filter from this date")
     date_to: Optional[datetime] = Field(None, description="Filter to this date")
     page: int = Field(1, ge=1, description="Page number")

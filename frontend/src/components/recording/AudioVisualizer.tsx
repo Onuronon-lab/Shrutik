@@ -9,7 +9,7 @@ interface AudioVisualizerProps {
 const AudioVisualizer: React.FC<AudioVisualizerProps> = ({
   isRecording,
   stream,
-  className = ''
+  className = '',
 }) => {
   const animationRef = useRef<number | undefined>(undefined);
   const analyserRef = useRef<AnalyserNode | undefined>(undefined);
@@ -27,11 +27,11 @@ const AudioVisualizer: React.FC<AudioVisualizerProps> = ({
     const audioContext = new AudioContext();
     const analyser = audioContext.createAnalyser();
     const source = audioContext.createMediaStreamSource(stream);
-    
+
     analyser.fftSize = 256;
     analyser.smoothingTimeConstant = 0.8;
     source.connect(analyser);
-    
+
     analyserRef.current = analyser;
 
     const dataArray = new Uint8Array(analyser.frequencyBinCount);
@@ -40,7 +40,7 @@ const AudioVisualizer: React.FC<AudioVisualizerProps> = ({
       if (!analyserRef.current) return;
 
       analyserRef.current.getByteFrequencyData(dataArray);
-      
+
       // Calculate average audio level
       const average = dataArray.reduce((sum, value) => sum + value, 0) / dataArray.length;
       setAudioLevel(average);
@@ -63,28 +63,22 @@ const AudioVisualizer: React.FC<AudioVisualizerProps> = ({
   // Simple bar visualizer when no canvas is needed
   const renderSimpleBars = () => {
     const bars = Array.from({ length: 5 }, (_, i) => {
-      const height = isRecording 
-        ? Math.max(10, (audioLevel / 255) * 40 + Math.random() * 10)
-        : 10;
-      
+      const height = isRecording ? Math.max(10, (audioLevel / 255) * 40 + Math.random() * 10) : 10;
+
       return (
         <div
           key={i}
           className="audio-bar"
-          style={{ 
+          style={{
             height: `${height}px`,
             animationDelay: `${i * 0.1}s`,
-            opacity: isRecording ? 1 : 0.3
+            opacity: isRecording ? 1 : 0.3,
           }}
         />
       );
     });
 
-    return (
-      <div className={`audio-visualizer ${className}`}>
-        {bars}
-      </div>
-    );
+    return <div className={`audio-visualizer ${className}`}>{bars}</div>;
   };
 
   return renderSimpleBars();

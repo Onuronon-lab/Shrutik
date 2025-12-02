@@ -16,8 +16,6 @@ export interface AuthContextType {
   isLoading: boolean;
 }
 
-
-
 export interface LoginCredentials {
   email: string;
   password: string;

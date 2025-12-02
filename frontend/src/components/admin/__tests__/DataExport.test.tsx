@@ -10,18 +10,18 @@ jest.mock('../../../services/api', () => ({
         total_recordings: 100,
         total_chunks: 500,
         total_transcriptions: 1000,
-        validated_transcriptions: 800
-      }
+        validated_transcriptions: 800,
+      },
     }),
     getExportHistory: jest.fn().mockResolvedValue({
       logs: [],
       total_count: 0,
       page: 1,
-      page_size: 20
+      page_size: 20,
     }),
     exportDataset: jest.fn(),
-    exportMetadata: jest.fn()
-  }
+    exportMetadata: jest.fn(),
+  },
 }));
 
 // Mock the useAuth hook
@@ -31,14 +31,14 @@ jest.mock('../../../contexts/AuthContext', () => ({
       id: 1,
       name: 'Test Developer',
       email: 'developer@sworik.com',
-      role: 'sworik_developer'
+      role: 'sworik_developer',
     },
     token: 'mock-token',
     login: jest.fn(),
     logout: jest.fn(),
     isAuthenticated: true,
-    isLoading: false
-  })
+    isLoading: false,
+  }),
 }));
 
 const renderComponent = (component: React.ReactElement) => {
@@ -48,11 +48,13 @@ const renderComponent = (component: React.ReactElement) => {
 describe('DataExport Component', () => {
   test('renders data export interface for sworik developer', () => {
     renderComponent(<DataExport />);
-    
+
     // Check if main heading is present
     expect(screen.getByText('Data Export')).toBeInTheDocument();
-    expect(screen.getByText('Export validated datasets and platform metadata for AI training')).toBeInTheDocument();
-    
+    expect(
+      screen.getByText('Export validated datasets and platform metadata for AI training')
+    ).toBeInTheDocument();
+
     // Check if tabs are present
     expect(screen.getByText('Dataset Export')).toBeInTheDocument();
     expect(screen.getByText('Metadata Export')).toBeInTheDocument();
@@ -61,7 +63,7 @@ describe('DataExport Component', () => {
 
   test('shows dataset export form by default', () => {
     renderComponent(<DataExport />);
-    
+
     // Check if dataset export form elements are present
     expect(screen.getByText('Export Format')).toBeInTheDocument();
     expect(screen.getByText('Quality Filters')).toBeInTheDocument();
@@ -79,23 +81,27 @@ describe('DataExport Access Control', () => {
           id: 1,
           name: 'Test Contributor',
           email: 'contributor@example.com',
-          role: 'contributor'
+          role: 'contributor',
         },
         token: 'mock-token',
         login: jest.fn(),
         logout: jest.fn(),
         isAuthenticated: true,
-        isLoading: false
-      })
+        isLoading: false,
+      }),
     }));
 
     // Re-import the component to get the new mock
     const DataExportWithContributor = require('../DataExport').default;
-    
+
     renderComponent(<DataExportWithContributor />);
-    
+
     // Check if access denied message is shown
     expect(screen.getByText('Access Denied')).toBeInTheDocument();
-    expect(screen.getByText('Data export functionality is restricted to Admins and Sworik developers only.')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Data export functionality is restricted to Admins and Sworik developers only.'
+      )
+    ).toBeInTheDocument();
   });
 });

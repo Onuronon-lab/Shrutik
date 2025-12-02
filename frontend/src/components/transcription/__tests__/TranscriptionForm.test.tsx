@@ -12,13 +12,7 @@ describe('TranscriptionForm', () => {
   });
 
   test('renders transcription form elements', () => {
-    render(
-      <TranscriptionForm
-        chunkId={1}
-        onSubmit={mockOnSubmit}
-        onSkip={mockOnSkip}
-      />
-    );
+    render(<TranscriptionForm chunkId={1} onSubmit={mockOnSubmit} onSkip={mockOnSkip} />);
 
     expect(screen.getByLabelText('ট্রান্সক্রিপশন')).toBeInTheDocument();
     expect(screen.getByText('জমা দিন')).toBeInTheDocument();
@@ -26,13 +20,7 @@ describe('TranscriptionForm', () => {
   });
 
   test('calls onSubmit when form is submitted with text', () => {
-    render(
-      <TranscriptionForm
-        chunkId={1}
-        onSubmit={mockOnSubmit}
-        onSkip={mockOnSkip}
-      />
-    );
+    render(<TranscriptionForm chunkId={1} onSubmit={mockOnSubmit} onSkip={mockOnSkip} />);
 
     const textarea = screen.getByLabelText('ট্রান্সক্রিপশন');
     const submitButton = screen.getByText('জমা দিন');
@@ -44,13 +32,7 @@ describe('TranscriptionForm', () => {
   });
 
   test('calls onSkip when skip button is clicked', () => {
-    render(
-      <TranscriptionForm
-        chunkId={1}
-        onSubmit={mockOnSubmit}
-        onSkip={mockOnSkip}
-      />
-    );
+    render(<TranscriptionForm chunkId={1} onSubmit={mockOnSubmit} onSkip={mockOnSkip} />);
 
     const skipButton = screen.getByText('এড়িয়ে যান');
     fireEvent.click(skipButton);
@@ -59,26 +41,14 @@ describe('TranscriptionForm', () => {
   });
 
   test('disables submit button when text is empty', () => {
-    render(
-      <TranscriptionForm
-        chunkId={1}
-        onSubmit={mockOnSubmit}
-        onSkip={mockOnSkip}
-      />
-    );
+    render(<TranscriptionForm chunkId={1} onSubmit={mockOnSubmit} onSkip={mockOnSkip} />);
 
     const submitButton = screen.getByText('জমা দিন');
     expect(submitButton).toBeDisabled();
   });
 
   test('shows character count', () => {
-    render(
-      <TranscriptionForm
-        chunkId={1}
-        onSubmit={mockOnSubmit}
-        onSkip={mockOnSkip}
-      />
-    );
+    render(<TranscriptionForm chunkId={1} onSubmit={mockOnSubmit} onSkip={mockOnSkip} />);
 
     const textarea = screen.getByLabelText('ট্রান্সক্রিপশন');
     fireEvent.change(textarea, { target: { value: 'পরীক্ষা' } });

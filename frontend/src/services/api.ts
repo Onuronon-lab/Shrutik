@@ -17,7 +17,7 @@ class ApiService {
     });
 
     // Request interceptor to add auth token
-    this.api.interceptors.request.use((config) => {
+    this.api.interceptors.request.use(config => {
       const token = localStorage.getItem('auth_token');
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
@@ -28,13 +28,13 @@ class ApiService {
     // Response interceptor for error handling
     this.api.interceptors.response.use(
       (response: AxiosResponse) => response,
-      (error) => {
+      error => {
         if (error.response?.status === 401) {
           // Only redirect to login if we're not already on the login page
           // and if there's a token (meaning it expired)
           const hasToken = localStorage.getItem('auth_token');
           const isLoginPage = window.location.pathname === '/login';
-          
+
           if (hasToken && !isLoginPage) {
             // Token expired or invalid - redirect to login
             localStorage.removeItem('auth_token');
@@ -50,7 +50,10 @@ class ApiService {
   // Auth endpoints
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     // Login returns token directly, not wrapped in ApiResponse
-    const loginResponse = await this.api.post<{ access_token: string; token_type: string }>('/auth/login', credentials);
+    const loginResponse = await this.api.post<{ access_token: string; token_type: string }>(
+      '/auth/login',
+      credentials
+    );
 
     // Get user info using the token
     const token = loginResponse.data.access_token;
@@ -64,7 +67,7 @@ class ApiService {
 
       return {
         user: userResponse.data,
-        token: token
+        token: token,
       };
     } finally {
       // Restore original auth header
@@ -80,13 +83,10 @@ class ApiService {
         email: userData.email,
         password: userData.password,
       });
-
     } catch (error: any) {
-      console.error("Register API Error:", error);
+      console.error('Register API Error:', error);
 
-      const backendError =
-        error.response?.data ||
-        { message: "Unknown server error" };
+      const backendError = error.response?.data || { message: 'Unknown server error' };
 
       throw {
         ...error,
@@ -94,7 +94,6 @@ class ApiService {
       };
     }
   }
-
 
   async validateToken(): Promise<any> {
     const response = await this.api.get<any>('/auth/me');
@@ -127,7 +126,10 @@ class ApiService {
   }
 
   // Script endpoints
-  async getRandomScript(duration_category: '2_minutes' | '5_minutes' | '10_minutes', language_id?: number): Promise<any> {
+  async getRandomScript(
+    duration_category: '2_minutes' | '5_minutes' | '10_minutes',
+    language_id?: number
+  ): Promise<any> {
     const params = new URLSearchParams({ duration_category });
     if (language_id) {
       params.append('language_id', language_id.toString());
@@ -173,7 +175,7 @@ class ApiService {
   async getUserRecordings(skip = 0, limit = 100, status?: string): Promise<any> {
     const params = new URLSearchParams({
       skip: skip.toString(),
-      limit: limit.toString()
+      limit: limit.toString(),
     });
     if (status) {
       params.append('status', status);
@@ -186,7 +188,7 @@ class ApiService {
     const taskRequest = {
       quantity: count,
       language_id: language_id || null,
-      skip_chunk_ids: []
+      skip_chunk_ids: [],
     };
     return this.post('/transcriptions/tasks', taskRequest);
   }
@@ -202,7 +204,7 @@ class ApiService {
   async getUserTranscriptions(skip = 0, limit = 100): Promise<any> {
     const params = new URLSearchParams({
       skip: skip.toString(),
-      limit: limit.toString()
+      limit: limit.toString(),
     });
     return this.get(`/transcriptions?${params.toString()}`);
   }
@@ -211,7 +213,7 @@ class ApiService {
     // Fetch the audio file as a blob and return an object URL
     try {
       const response = await this.api.get(`/chunks/${chunk_id}/audio`, {
-        responseType: 'blob'
+        responseType: 'blob',
       });
 
       // Create an object URL from the blob
@@ -255,11 +257,16 @@ class ApiService {
     return this.get(`/admin/quality-reviews/flagged?limit=${limit}`);
   }
 
-  async createQualityReview(transcriptionId: number, decision: string, rating?: number, comment?: string): Promise<any> {
+  async createQualityReview(
+    transcriptionId: number,
+    decision: string,
+    rating?: number,
+    comment?: string
+  ): Promise<any> {
     return this.post(`/admin/quality-reviews/${transcriptionId}`, {
       decision,
       rating,
-      comment
+      comment,
     });
   }
 
@@ -272,10 +279,15 @@ class ApiService {
   }
 
   // Script management endpoints
-  async getScripts(skip = 0, limit = 100, durationCategory?: string, languageId?: number): Promise<any> {
+  async getScripts(
+    skip = 0,
+    limit = 100,
+    durationCategory?: string,
+    languageId?: number
+  ): Promise<any> {
     const params = new URLSearchParams({
       skip: skip.toString(),
-      limit: limit.toString()
+      limit: limit.toString(),
     });
     if (durationCategory) {
       params.append('duration_category', durationCategory);
@@ -305,7 +317,7 @@ class ApiService {
   async validateScript(text: string, durationCategory: string): Promise<any> {
     const params = new URLSearchParams({
       text,
-      duration_category: durationCategory
+      duration_category: durationCategory,
     });
     return this.post(`/scripts/validate?${params.toString()}`);
   }

@@ -1,9 +1,10 @@
-from pydantic import BaseModel
-from typing import Optional, Dict, Any, List
 from datetime import datetime
-from app.models.user import UserRole
+from typing import Any, Dict, List, Optional
+
+from pydantic import BaseModel
+
 from app.models.quality_review import ReviewDecision
-from app.models.voice_recording import RecordingStatus
+from app.models.user import UserRole
 
 
 class UserStatsResponse(BaseModel):
@@ -16,7 +17,7 @@ class UserStatsResponse(BaseModel):
     quality_reviews_count: int
     avg_transcription_quality: Optional[float] = None
     created_at: datetime
-    
+
     model_config = {"from_attributes": True}
 
 
@@ -46,7 +47,7 @@ class UserManagementResponse(BaseModel):
     quality_reviews_count: int
     created_at: datetime
     last_activity: Optional[datetime] = None
-    
+
     model_config = {"from_attributes": True}
 
 
@@ -67,7 +68,7 @@ class QualityReviewItemResponse(BaseModel):
     reviewer_name: Optional[str] = None
     created_at: datetime
     chunk_file_path: str
-    
+
     model_config = {"from_attributes": True}
 
 
@@ -82,7 +83,7 @@ class FlaggedTranscriptionResponse(BaseModel):
     chunk_file_path: str
     created_at: datetime
     review_count: int
-    
+
     model_config = {"from_attributes": True}
 
 
@@ -103,7 +104,9 @@ class UsageAnalyticsResponse(BaseModel):
     user_activity_by_role: Dict[str, int]
     popular_script_durations: Dict[str, int]
     transcription_quality_trend: List[Dict[str, Any]]
-    top_contributors: List[Dict[str, Any]]  # [{user_id: int, name: str, contribution_count: int}, ...]
+    top_contributors: List[
+        Dict[str, Any]
+    ]  # [{user_id: int, name: str, contribution_count: int}, ...]
 
 
 class QualityReviewUpdateRequest(BaseModel):
