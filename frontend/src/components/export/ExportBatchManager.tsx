@@ -81,8 +81,13 @@ const ExportBatchManager: React.FC = () => {
       // Only show error for actual API failures, not empty results
       console.error('Load batches error:', err);
 
-      // Check if it's a 404 or the endpoint doesn't exist
-      if (err.response?.status === 404) {
+      // Check if it's a 401 (authentication error)
+      if (err.response?.status === 401) {
+        // Not authenticated - don't show error, component will show access denied
+        setBatches([]);
+        setTotalBatches(0);
+        setError(null);
+      } else if (err.response?.status === 404) {
         // Endpoint not found - treat as empty list
         setBatches([]);
         setTotalBatches(0);

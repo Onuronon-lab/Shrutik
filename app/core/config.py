@@ -114,5 +114,30 @@ class Settings(BaseSettings):
     DB_POOL_TIMEOUT: int = 30
     DB_POOL_RECYCLE: int = 3600
 
+    # Export Storage Configuration
+    EXPORT_STORAGE_TYPE: Literal["local", "r2"] = "local"
+    EXPORT_LOCAL_DIR: str = "exports"
+
+    # R2 Configuration (Cloudflare R2 for production)
+    R2_ACCOUNT_ID: Optional[str] = None
+    R2_ACCESS_KEY_ID: Optional[str] = None
+    R2_SECRET_ACCESS_KEY: Optional[str] = None
+    R2_BUCKET_NAME: Optional[str] = None
+    R2_ENDPOINT_URL: Optional[str] = None
+
+    # R2 Free Tier Protection
+    R2_ENABLE_FREE_TIER_GUARD: bool = True
+    R2_FREE_TIER_CLASS_A_MONTHLY: int = 1000000
+    R2_FREE_TIER_CLASS_B_MONTHLY: int = 10000000
+    R2_FREE_TIER_STORAGE_GB: float = 10.0
+
+    # Export Batch Configuration
+    EXPORT_BATCH_SIZE: int = 200
+    EXPORT_SCHEDULE_CRON: str = "0 2 * * *"
+    EXPORT_MIN_CHUNKS_THRESHOLD: int = 200
+    EXPORT_COMPRESSION_LEVEL: int = 3
+    EXPORT_MAX_CHUNK_SIZE_MB: int = 50
+    EXPORT_DAILY_DOWNLOAD_LIMIT: int = 2
+
 
 settings = Settings()
