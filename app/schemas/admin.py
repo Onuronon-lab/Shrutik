@@ -113,3 +113,77 @@ class QualityReviewUpdateRequest(BaseModel):
     decision: ReviewDecision
     rating: Optional[float] = None
     comment: Optional[str] = None
+
+
+# Admin Consensus API Schemas
+class AdminConsensusCalculateRequest(BaseModel):
+    """Request to trigger consensus calculation for specific chunks."""
+
+    chunk_ids: List[int]
+
+    model_config = {"json_schema_extra": {"example": {"chunk_ids": [1, 2, 3, 4, 5]}}}
+
+
+class AdminConsensusCalculateResponse(BaseModel):
+    """Response for consensus calculation trigger."""
+
+    message: str
+    chunks_processed: int
+    chunks_validated: int
+    chunks_flagged: int
+
+
+class AdminConsensusReviewQueueItem(BaseModel):
+    """Item in the consensus review queue."""
+
+    chunk_id: int
+    recording_id: int
+    transcript_count: int
+    consensus_quality: Optional[float] = None
+    flagged_reasons: List[str]
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class AdminConsensusReviewQueueResponse(BaseModel):
+    """Response for consensus review queue."""
+
+    items: List[AdminConsensusReviewQueueItem]
+    total_count: int
+    page: int
+    page_size: int
+
+
+class AdminConsensusStatsResponse(BaseModel):
+    """Statistics about consensus system."""
+
+    total_chunks: int
+    chunks_with_consensus: int
+    chunks_validated: int
+    chunks_pending_review: int
+    chunks_ready_for_export: int
+    avg_consensus_quality: Optional[float] = None
+    avg_transcripts_per_chunk: Optional[float] = None
+
+
+class AdminR2UsageResponse(BaseModel):
+    """R2 storage usage statistics."""
+
+    class_a_operations: int
+    class_b_operations: int
+    storage_used_gb: float
+    class_a_limit: int
+    class_b_limit: int
+    storage_limit_gb: float
+    class_a_usage_pct: float
+    class_b_usage_pct: float
+    storage_usage_pct: float
+
+
+class AdminR2LimitsResponse(BaseModel):
+    """R2 free tier limits check."""
+
+    within_limits: bool
+    warnings: List[str]
+    usage: AdminR2UsageResponse

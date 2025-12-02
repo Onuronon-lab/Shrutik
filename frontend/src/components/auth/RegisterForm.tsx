@@ -27,6 +27,7 @@ const RegisterForm: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || '/';
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
   // Password validation rules
   const passwordValidation = {

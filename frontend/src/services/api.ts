@@ -88,6 +88,7 @@ class ApiService {
 
       const backendError = error.response?.data || { message: 'Unknown server error' };
 
+      // eslint-disable-next-line no-throw-literal
       throw {
         ...error,
         backend: backendError,

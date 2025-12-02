@@ -11,7 +11,6 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 import { ThemeToggle } from './ThemeSwitcher';
-import LanguageSwitcher from './LanguageSwitch';
 import LanguageSwitch from './LanguageSwitch';
 // import logo from '../../assets/shrutik_logo.png';
 
