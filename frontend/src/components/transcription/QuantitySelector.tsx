@@ -1,7 +1,6 @@
 import React from 'react';
 import { ClockIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from 'react-i18next';
-import { count } from 'console';
 
 interface QuantitySelectorProps {
   selectedQuantity: number;

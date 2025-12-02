@@ -11,7 +11,7 @@ celery_app = Celery(
     "voice_collection",
     broker=settings.REDIS_URL,
     backend=settings.REDIS_URL,
-    include=["app.tasks.audio_processing", "app.tasks.export_optimization"],
+    include=["app.tasks"],
 )
 
 # Enhanced Celery configuration with monitoring and retry mechanisms
@@ -31,20 +31,8 @@ celery_app.conf.update(
     task_soft_time_limit=25 * 60,  # 25 minutes soft limit
     # Worker configuration
     worker_prefetch_multiplier=1,
-    worker_max_tasks_per_child=(
-        settings.CELERY_WORKER_MAX_TASKS_PER_CHILD
-        if hasattr(settings, "CELERY_WORKER_MAX_TASKS_PER_CHILD")
-        else 1000
-    ),
+    worker_max_tasks_per_child=1000,
     worker_disable_rate_limits=False,
-    # Task rate limits
-    task_annotations={
-        "calculate_consensus_for_chunks_export": {
-            "rate_limit": "100/m"
-        },  # 100 per minute
-        "create_export_batch_task": {"rate_limit": "10/h"},  # 10 per hour
-        "cleanup_exported_chunks": {"rate_limit": "50/m"},  # 50 per minute
-    },
     # Result backend configuration
     result_expires=3600,  # Results expire after 1 hour
     result_persistent=True,
@@ -58,9 +46,6 @@ celery_app.conf.update(
     task_routes={
         "process_audio_recording": {"queue": "audio_processing"},
         "calculate_consensus_for_chunks": {"queue": "consensus"},
-        "calculate_consensus_for_chunks_export": {"queue": "high_priority"},
-        "create_export_batch_task": {"queue": "high_priority"},
-        "cleanup_exported_chunks": {"queue": "low_priority"},
         "batch_process_recordings": {"queue": "batch_processing"},
         "cleanup_orphaned_chunks": {"queue": "maintenance"},
         "reprocess_failed_recordings": {"queue": "maintenance"},
@@ -73,24 +58,6 @@ celery_app.conf.update(
             "exchange": "default",
             "exchange_type": "direct",
             "routing_key": "default",
-        },
-        "high_priority": {
-            "exchange": "high_priority",
-            "exchange_type": "direct",
-            "routing_key": "high_priority",
-            "priority": 10,
-        },
-        "medium_priority": {
-            "exchange": "medium_priority",
-            "exchange_type": "direct",
-            "routing_key": "medium_priority",
-            "priority": 5,
-        },
-        "low_priority": {
-            "exchange": "low_priority",
-            "exchange_type": "direct",
-            "routing_key": "low_priority",
-            "priority": 1,
         },
         "audio_processing": {
             "exchange": "audio_processing",
@@ -118,14 +85,6 @@ celery_app.conf.update(
     task_send_sent_event=True,
     # Beat schedule for periodic tasks
     beat_schedule={
-        "create-export-batch": {
-            "task": "create_export_batch_task",
-            "schedule": (
-                settings.EXPORT_SCHEDULE_CRON
-                if hasattr(settings, "EXPORT_SCHEDULE_CRON")
-                else 7200.0
-            ),  # Default: every 2 hours
-        },
         "cleanup-orphaned-chunks": {
             "task": "cleanup_orphaned_chunks",
             "schedule": 3600.0,  # Run every hour

@@ -60,7 +60,8 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioUrl, onLoadError, classN
         cancelAnimationFrame(currentAnimation);
       }
     };
-  }, [audioUrl, onLoadError]); // eslint-disable-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [audioUrl, onLoadError]);
 
   const drawWaveform = () => {
     const canvas = canvasRef.current;

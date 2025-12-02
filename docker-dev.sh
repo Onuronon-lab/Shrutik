@@ -65,11 +65,11 @@ start_services() {
     fi
 
     print_success "All services are running!"
-    print_status "Frontend: http://localhost:3000"
-    print_status "Backend API: http://localhost:8000"
-    print_status "API Docs: http://localhost:8000/docs"
-    print_status "PostgreSQL: localhost:5432"
-    print_status "Redis: localhost:6379"
+    print_status "🌐 Frontend: http://localhost:3000"
+    print_status "🔧 Backend API: http://localhost:8000"
+    print_status "📚 API Docs: http://localhost:8000/docs"
+    print_status "🗄️  PostgreSQL: localhost:5432"
+    print_status "🔴 Redis: localhost:6379"
 }
 
 # Function to stop all services

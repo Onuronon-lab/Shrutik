@@ -51,54 +51,6 @@ class TranscriptionService:
     def __init__(self, db: Session):
         self.db = db
 
-    @query_optimizer.monitor_query("get_prioritized_chunks")
-    def get_prioritized_chunks(
-        self, user_id: int, quantity: int, language_id: Optional[int] = None
-    ) -> List[AudioChunk]:
-        """
-        Get chunks prioritized by transcript_count (ascending).
-
-        Query: SELECT * FROM chunks
-               WHERE ready_for_export = FALSE
-               ORDER BY transcript_count ASC
-               LIMIT quantity
-
-        Excludes chunks already transcribed by the user.
-        """
-        # Base query for chunks that need transcription
-        query = self.db.query(AudioChunk).join(VoiceRecording)
-
-        # Filter by ready_for_export = FALSE
-        query = query.filter(AudioChunk.ready_for_export == False)
-
-        # Filter by language if specified
-        if language_id:
-            query = query.filter(VoiceRecording.language_id == language_id)
-
-        # Exclude chunks that the user has already transcribed
-        from sqlalchemy import select
-
-        user_transcribed_chunks = (
-            select(Transcription.chunk_id)
-            .where(Transcription.user_id == user_id)
-            .scalar_subquery()
-        )
-
-        query = query.filter(~AudioChunk.id.in_(user_transcribed_chunks))
-
-        # Only include chunks from successfully processed recordings
-        from app.models.voice_recording import RecordingStatus
-
-        query = query.filter(VoiceRecording.status == RecordingStatus.CHUNKED)
-
-        # Order by transcript_count ascending (prioritize chunks with fewer transcriptions)
-        query = query.order_by(AudioChunk.transcript_count.asc())
-
-        # Limit results
-        chunks = query.limit(quantity).all()
-
-        return chunks
-
     @query_optimizer.monitor_query("get_random_chunks_for_transcription")
     def get_random_chunks_for_transcription(
         self, user_id: int, task_request: TranscriptionTaskRequest
@@ -258,37 +210,31 @@ class TranscriptionService:
 
         # Create transcription records
         created_transcriptions = []
-        affected_chunk_ids = []
 
         try:
-            # Validate all chunks exist and are from processed recordings
-            from app.models.voice_recording import RecordingStatus
-
-            chunk_ids_to_validate = [t.chunk_id for t in submission.transcriptions]
-
-            valid_chunks = (
-                self.db.query(AudioChunk)
-                .join(VoiceRecording)
-                .filter(
-                    and_(
-                        AudioChunk.id.in_(chunk_ids_to_validate),
-                        VoiceRecording.status == RecordingStatus.CHUNKED,
-                    )
-                )
-                .all()
-            )
-
-            valid_chunk_ids = {chunk.id for chunk in valid_chunks}
-            invalid_chunk_ids = set(chunk_ids_to_validate) - valid_chunk_ids
-
-            if invalid_chunk_ids:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Chunks not found or not ready for transcription: {list(invalid_chunk_ids)}",
-                )
-
-            # Bulk insert transcriptions
             for transcription_data in submission.transcriptions:
+                # Validate chunk exists and is from a processed recording
+                from app.models.voice_recording import RecordingStatus
+
+                chunk = (
+                    self.db.query(AudioChunk)
+                    .join(VoiceRecording)
+                    .filter(
+                        and_(
+                            AudioChunk.id == transcription_data.chunk_id,
+                            VoiceRecording.status == RecordingStatus.CHUNKED,
+                        )
+                    )
+                    .first()
+                )
+
+                if not chunk:
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail=f"Chunk {transcription_data.chunk_id} not found or not ready for transcription",
+                    )
+
+                # Create transcription record
                 db_transcription = Transcription(
                     chunk_id=transcription_data.chunk_id,
                     user_id=user_id,
@@ -301,27 +247,6 @@ class TranscriptionService:
 
                 self.db.add(db_transcription)
                 created_transcriptions.append(db_transcription)
-                affected_chunk_ids.append(transcription_data.chunk_id)
-
-            # Flush to get IDs but don't commit yet
-            self.db.flush()
-
-            # Update transcript_count using database-level atomic increment
-            # Use PostgreSQL RETURNING clause to prevent race conditions
-            from sqlalchemy import update
-
-            for chunk_id in affected_chunk_ids:
-                stmt = (
-                    update(AudioChunk)
-                    .where(AudioChunk.id == chunk_id)
-                    .values(transcript_count=AudioChunk.transcript_count + 1)
-                    .returning(AudioChunk.transcript_count)
-                )
-                result = self.db.execute(stmt)
-                updated_count = result.scalar_one()
-                logger.info(
-                    f"Updated transcript_count for chunk {chunk_id} to {updated_count}"
-                )
 
             # Handle skipped chunks
             if submission.skipped_chunk_ids:
@@ -329,7 +254,6 @@ class TranscriptionService:
                     user_id, submission.skipped_chunk_ids, session.session_id
                 )
 
-            # Commit all changes in single transaction
             self.db.commit()
 
             # Refresh all created transcriptions
@@ -527,12 +451,12 @@ class TranscriptionService:
         # Calculate consensus and validation rates
         consensus_count = (
             self.db.query(Transcription)
-            .filter(Transcription.is_consensus == True)
+            .filter(Transcription.is_consensus.is_(True))
             .count()
         )
         validated_count = (
             self.db.query(Transcription)
-            .filter(Transcription.is_validated == True)
+            .filter(Transcription.is_validated.is_(True))
             .count()
         )
 
@@ -611,12 +535,10 @@ class TranscriptionService:
 
         try:
             # Import here to avoid circular imports
-            from app.tasks.export_optimization import (
-                calculate_consensus_for_chunks_export,
-            )
+            from app.tasks.audio_processing import calculate_consensus_for_chunks
 
-            # Queue consensus calculation task (export optimization version)
-            task = calculate_consensus_for_chunks_export.delay(chunk_ids)
+            # Queue consensus calculation task
+            task = calculate_consensus_for_chunks.delay(chunk_ids)
 
             # Log task information
             logger.info(

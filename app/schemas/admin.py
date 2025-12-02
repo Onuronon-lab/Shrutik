@@ -115,6 +115,7 @@ class QualityReviewUpdateRequest(BaseModel):
     comment: Optional[str] = None
 
 
+# Admin Consensus API Schemas
 class AdminConsensusCalculateRequest(BaseModel):
     """Request to trigger consensus calculation for specific chunks."""
 
@@ -126,23 +127,10 @@ class AdminConsensusCalculateRequest(BaseModel):
 class AdminConsensusCalculateResponse(BaseModel):
     """Response for consensus calculation trigger."""
 
-    task_ids: List[str]
-    chunk_count: int
     message: str
-
-
-class AdminConsensusStatsResponse(BaseModel):
-    """Response for consensus statistics."""
-
-    total_chunks: int
-    chunks_with_transcriptions: int
-    chunks_ready_for_export: int
-    chunks_pending_consensus: int
-    chunks_failed_consensus: int
-    average_consensus_quality: float
-    average_transcript_count: float
-    consensus_success_rate: float
-    chunks_by_transcript_count: Dict[str, int]
+    chunks_processed: int
+    chunks_validated: int
+    chunks_flagged: int
 
 
 class AdminConsensusReviewQueueItem(BaseModel):
@@ -151,11 +139,9 @@ class AdminConsensusReviewQueueItem(BaseModel):
     chunk_id: int
     recording_id: int
     transcript_count: int
-    consensus_failed_count: int
-    consensus_quality: float
-    ready_for_export: bool
+    consensus_quality: Optional[float] = None
+    flagged_reasons: List[str]
     created_at: datetime
-    file_path: str
 
     model_config = {"from_attributes": True}
 
@@ -169,31 +155,35 @@ class AdminConsensusReviewQueueResponse(BaseModel):
     page_size: int
 
 
-class AdminR2UsageResponse(BaseModel):
-    """Response for R2 usage statistics."""
+class AdminConsensusStatsResponse(BaseModel):
+    """Statistics about consensus system."""
 
-    class_a_operations_this_month: int
-    class_a_operations_limit: int
-    class_a_usage_percentage: float
-    class_b_operations_this_month: int
-    class_b_operations_limit: int
-    class_b_usage_percentage: float
+    total_chunks: int
+    chunks_with_consensus: int
+    chunks_validated: int
+    chunks_pending_review: int
+    chunks_ready_for_export: int
+    avg_consensus_quality: Optional[float] = None
+    avg_transcripts_per_chunk: Optional[float] = None
+
+
+class AdminR2UsageResponse(BaseModel):
+    """R2 storage usage statistics."""
+
+    class_a_operations: int
+    class_b_operations: int
     storage_used_gb: float
-    storage_limit_gb: int
-    storage_usage_percentage: float
-    month_start: datetime
-    month_end: datetime
+    class_a_limit: int
+    class_b_limit: int
+    storage_limit_gb: float
+    class_a_usage_pct: float
+    class_b_usage_pct: float
+    storage_usage_pct: float
 
 
 class AdminR2LimitsResponse(BaseModel):
-    """Response for R2 free tier limits."""
+    """R2 free tier limits check."""
 
-    free_tier_enabled: bool
-    class_a_limit: int
-    class_b_limit: int
-    storage_limit_gb: int
-    class_a_remaining: int
-    class_b_remaining: int
-    storage_remaining_gb: float
-    approaching_limits: bool
-    limit_warnings: List[str]
+    within_limits: bool
+    warnings: List[str]
+    usage: AdminR2UsageResponse

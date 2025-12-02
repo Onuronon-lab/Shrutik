@@ -39,26 +39,26 @@ class AudioChunkingService:
         ):
             # Validate file exists and is readable
             if not os.path.exists(file_path):
-                raise AudioProcessingError(f"Audio file not found: {file_path}")
+                raise AudioProcessingError("Audio file not found: {file_path}")
 
             if not os.access(file_path, os.R_OK):
-                raise AudioProcessingError(f"Audio file not readable: {file_path}")
+                raise AudioProcessingError("Audio file not readable: {file_path}")
 
             file_size = os.path.getsize(file_path)
             if file_size == 0:
-                raise AudioProcessingError(f"Audio file is empty: {file_path}")
+                raise AudioProcessingError("Audio file is empty: {file_path}")
 
-            logger.info(f"Loading audio file: {file_path} ({file_size} bytes)")
+            logger.info("Loading audio file: {file_path} ({file_size} bytes)")
 
             # Try loading with librosa first (handles most formats)
             try:
                 audio_data, sr = librosa.load(file_path, sr=self.sample_rate)
                 logger.info(
-                    f"Successfully loaded with librosa: duration={len(audio_data)/sr:.2f}s, sr={sr}"
+                    "Successfully loaded with librosa: duration={len(audio_data)/sr:.2f}s, sr={sr}"
                 )
                 return audio_data, sr
             except Exception as e:
-                logger.warning(f"librosa failed to load {file_path}, trying pydub: {e}")
+                logger.warning("librosa failed to load {file_path}, trying pydub: {e}")
 
                 # Fallback to pydub for more format support
                 try:
@@ -78,7 +78,7 @@ class AudioChunkingService:
                     # Resample if needed
                     if audio_segment.frame_rate != self.sample_rate:
                         logger.info(
-                            f"Resampling from {audio_segment.frame_rate}Hz to {self.sample_rate}Hz"
+                            "Resampling from {audio_segment.frame_rate}Hz to {self.sample_rate}Hz"
                         )
                         audio_data = librosa.resample(
                             audio_data,
@@ -87,13 +87,13 @@ class AudioChunkingService:
                         )
 
                     logger.info(
-                        f"Successfully loaded with pydub: duration={len(audio_data)/self.sample_rate:.2f}s"
+                        "Successfully loaded with pydub: duration={len(audio_data)/self.sample_rate:.2f}s"
                     )
                     return audio_data, self.sample_rate
 
                 except Exception as fallback_error:
                     raise AudioProcessingError(
-                        f"Failed to load audio file with both librosa and pydub",
+                        "Failed to load audio file with both librosa and pydub",
                         details={
                             "file_path": file_path,
                             "file_size": file_size,
@@ -118,7 +118,7 @@ class AudioChunkingService:
             hop_length = int(0.010 * sr)  # 10ms hop
 
             logger.debug(
-                f"VAD parameters: frame_length={frame_length}, hop_length={hop_length}"
+                "VAD parameters: frame_length={frame_length}, hop_length={hop_length}"
             )
 
             # Calculate RMS energy for each frame
@@ -133,7 +133,7 @@ class AudioChunkingService:
             energy_threshold = np.percentile(
                 rms_energy, 30
             )  # 30th percentile as threshold
-            logger.debug(f"VAD energy threshold: {energy_threshold}")
+            logger.debug("VAD energy threshold: {energy_threshold}")
 
             # Voice activity detection
             voice_activity = rms_energy > energy_threshold
@@ -149,7 +149,7 @@ class AudioChunkingService:
                 logger.warning("scipy not available, skipping VAD smoothing")
 
             logger.debug(
-                f"VAD detected {np.sum(voice_activity)} voice frames out of {len(voice_activity)}"
+                "VAD detected {np.sum(voice_activity)} voice frames out of {len(voice_activity)}"
             )
             return voice_activity
 
@@ -361,8 +361,8 @@ class AudioChunkingService:
 
             return metadata
 
-        except Exception as e:
-            raise AudioProcessingError(f"Failed to save chunk {output_path}: {e}")
+        except Exception:
+            raise AudioProcessingError("Failed to save chunk {output_path}: {e}")
 
     def process_recording(
         self, recording_id: int, file_path: str, db: Session
@@ -372,7 +372,7 @@ class AudioChunkingService:
         Returns list of created AudioChunk objects.
         """
         try:
-            logger.info(f"Starting audio processing for recording {recording_id}")
+            logger.info("Starting audio processing for recording {recording_id}")
 
             # Update recording status
             recording = (
@@ -382,7 +382,7 @@ class AudioChunkingService:
             )
 
             if not recording:
-                raise AudioProcessingError(f"Recording {recording_id} not found")
+                raise AudioProcessingError("Recording {recording_id} not found")
 
             recording.status = RecordingStatus.PROCESSING
             db.commit()
@@ -391,41 +391,41 @@ class AudioChunkingService:
             audio_data, sr = self.load_audio(file_path)
             audio_duration = len(audio_data) / sr
 
-            logger.info(f"Loaded audio: duration={audio_duration:.2f}s, sr={sr}")
+            logger.info("Loaded audio: duration={audio_duration:.2f}s, sr={sr}")
 
             # Find sentence boundaries using intelligent detection
             try:
                 sentence_boundaries = self.find_sentence_boundaries(audio_data, sr)
-                logger.info(f"Found {len(sentence_boundaries)} sentence boundaries")
+                logger.info("Found {len(sentence_boundaries)} sentence boundaries")
 
                 # Create chunks based on boundaries
                 chunk_intervals = self.create_chunks_intelligent(
                     audio_data, sr, sentence_boundaries
                 )
 
-            except Exception as e:
+            except Exception:
                 logger.warning(
-                    f"Intelligent chunking failed: {e}, falling back to time-based"
+                    "Intelligent chunking failed: {e}, falling back to time-based"
                 )
                 chunk_intervals = self.create_chunks_time_based(audio_duration)
 
-            logger.info(f"Created {len(chunk_intervals)} chunks")
+            logger.info("Created {len(chunk_intervals)} chunks")
 
             # Create chunk directory
             chunks_dir = Path(settings.UPLOAD_DIR) / "chunks" / str(recording_id)
             chunks_dir.mkdir(parents=True, exist_ok=True)
 
-            # Process each chunk and prepare for bulk insert
+            # Process each chunk
             audio_chunks = []
             for i, (start_time, end_time) in enumerate(chunk_intervals):
                 # Skip empty or invalid chunks
                 if start_time >= end_time or (end_time - start_time) < 0.1:
                     logger.warning(
-                        f"Skipping invalid chunk {i}: {start_time}s - {end_time}s"
+                        "Skipping invalid chunk {i}: {start_time}s - {end_time}s"
                     )
                     continue
 
-                chunk_filename = f"chunk_{i:03d}.wav"
+                chunk_filename = "chunk_{i:03d}.wav"
                 chunk_path = chunks_dir / chunk_filename
 
                 try:
@@ -434,7 +434,7 @@ class AudioChunkingService:
                         audio_data, sr, start_time, end_time, str(chunk_path)
                     )
 
-                    # Create database record with export optimization fields initialized
+                    # Create database record
                     audio_chunk = AudioChunk(
                         recording_id=recording_id,
                         chunk_index=i,
@@ -443,43 +443,33 @@ class AudioChunkingService:
                         end_time=float(end_time),
                         duration=float(end_time - start_time),
                         meta_data=chunk_metadata,
-                        transcript_count=0,
-                        ready_for_export=False,
-                        consensus_quality=0.0,
-                        consensus_failed_count=0,
                     )
 
+                    db.add(audio_chunk)
                     audio_chunks.append(audio_chunk)
 
-                except AudioProcessingError as e:
-                    logger.warning(f"Failed to save chunk {i}: {e}")
+                except AudioProcessingError:
+                    logger.warning("Failed to save chunk {i}: {e}")
                     continue
-
-            # Bulk insert all chunks in a single transaction
-            if audio_chunks:
-                db.bulk_save_objects(audio_chunks)
-                logger.info(
-                    f"Bulk inserted {len(audio_chunks)} chunks for recording {recording_id}"
-                )
 
             # Update recording status
             recording.status = RecordingStatus.CHUNKED
             db.commit()
 
             logger.info(
-                f"Successfully processed recording {recording_id} into {len(audio_chunks)} chunks"
+                "Successfully processed recording {recording_id} into {len(audio_chunks)} chunks"
             )
             return audio_chunks
 
-        except Exception as e:
-            logger.error(f"Failed to process recording {recording_id}: {e}")
+        except Exception:
+            logger.error("Failed to process recording {recording_id}: {e}")
 
             # Update recording status to failed
             if recording:
                 recording.status = RecordingStatus.FAILED
                 db.commit()
 
-            raise AudioProcessingError(f"Audio processing failed: {e}")
+            raise AudioProcessingError("Audio processing failed: {e}")
 
 
 # Global service instance

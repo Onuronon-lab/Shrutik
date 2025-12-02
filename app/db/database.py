@@ -97,6 +97,7 @@ def get_connection_pool_status():
             "checked_in": pool.checkedin(),
             "checked_out": pool.checkedout(),
             "overflow": pool.overflow(),
+            "invalid": pool.invalid(),
             "total_connections": pool.size() + pool.overflow(),
             "available_connections": pool.checkedin(),
             "pool_status": "healthy" if pool.checkedin() > 0 else "warning",

@@ -76,7 +76,7 @@ class VoiceRecordingService:
         if not language:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Language with ID {language_id} not found",
+                detail="Language with ID {language_id} not found",
             )
 
         # Generate unique session ID
@@ -162,14 +162,14 @@ class VoiceRecordingService:
 
             file_extension = os.path.splitext(audio_file.filename)[1].lower()
             logger.info(
-                f"Processing upload: filename={audio_file.filename}, extension={file_extension}"
+                "Processing upload: filename={audio_file.filename}, extension={file_extension}"
             )
 
             if file_extension not in settings.ALLOWED_AUDIO_FORMATS:
                 log_and_raise_error(
                     logger,
                     ValidationError,
-                    f"Unsupported audio format: {file_extension}",
+                    "Unsupported audio format: {file_extension}",
                     error_code="UNSUPPORTED_FORMAT",
                     details={
                         "provided_format": file_extension,
@@ -183,7 +183,7 @@ class VoiceRecordingService:
                 log_and_raise_error(
                     logger,
                     ValidationError,
-                    f"File size exceeds maximum limit",
+                    "File size exceeds maximum limit",
                     error_code="FILE_TOO_LARGE",
                     details={
                         "file_size": upload_data.file_size,
@@ -196,9 +196,9 @@ class VoiceRecordingService:
         try:
             # Generate unique filename
             file_hash = hashlib.md5(
-                f"{session.session_id}_{user_id}_{datetime.now(timezone.utc).isoformat()}".encode()
+                "{session.session_id}_{user_id}_{datetime.now(timezone.utc).isoformat()}".encode()
             ).hexdigest()
-            filename = f"{file_hash}{file_extension}"
+            filename = "{file_hash}{file_extension}"
 
             # Create upload directory structure
             upload_dir = os.path.join(settings.UPLOAD_DIR, "recordings", str(user_id))
@@ -266,7 +266,7 @@ class VoiceRecordingService:
 
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to process recording: {str(e)}",
+                detail="Failed to process recording: {str(e)}",
             )
 
     def _validate_and_extract_audio_metadata(
@@ -314,10 +314,10 @@ class VoiceRecordingService:
                 ),
             }
 
-        except Exception as e:
+        except Exception:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Invalid audio file: {str(e)}",
+                detail="Invalid audio file: {str(e)}",
             )
 
     def _calculate_quality_score(self, rms_energy, silence_percentage: float) -> float:
@@ -516,16 +516,16 @@ class VoiceRecordingService:
         if chunks_count > 0:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Cannot delete recording: {chunks_count} audio chunks exist. Delete chunks first.",
+                detail="Cannot delete recording: {chunks_count} audio chunks exist. Delete chunks first.",
             )
 
         # Delete file from filesystem
         if os.path.exists(recording.file_path):
             try:
                 os.remove(recording.file_path)
-            except OSError as e:
+            except OSError:
                 # Log error but don't fail the deletion
-                print(f"Warning: Could not delete file {recording.file_path}: {e}")
+                print("Warning: Could not delete file {recording.file_path}: {e}")
 
         # Delete database record
         self.db.delete(recording)
@@ -541,14 +541,14 @@ class VoiceRecordingService:
             else:
                 # Fall back to synchronous processing
                 print(
-                    f"Celery not available, processing recording {recording_id} synchronously..."
+                    "Celery not available, processing recording {recording_id} synchronously..."
                 )
                 self._process_audio_synchronously(recording_id)
 
-        except Exception as e:
+        except Exception:
             # Log error but don't fail the upload
             print(
-                f"Warning: Failed to trigger audio processing for recording {recording_id}: {e}"
+                "Warning: Failed to trigger audio processing for recording {recording_id}: {e}"
             )
 
     def _is_celery_available(self) -> bool:
@@ -586,7 +586,7 @@ class VoiceRecordingService:
             recording.meta_data["processing_mode"] = "celery"
             self.db.commit()
 
-        print(f"Queued audio processing task {task.id} for recording {recording_id}")
+        print("Queued audio processing task {task.id} for recording {recording_id}")
 
     def _process_audio_synchronously(self, recording_id: int) -> None:
         """Process audio synchronously when Celery is not available."""
@@ -597,7 +597,7 @@ class VoiceRecordingService:
             # Get recording
             recording = self.get_recording_by_id(recording_id)
             if not recording:
-                raise Exception(f"Recording {recording_id} not found")
+                raise Exception("Recording {recording_id} not found")
 
             if recording.status != RecordingStatus.UPLOADED:
                 print(
@@ -615,7 +615,7 @@ class VoiceRecordingService:
             ).isoformat()
             self.db.commit()
 
-            print(f"Starting synchronous audio processing for recording {recording_id}")
+            print("Starting synchronous audio processing for recording {recording_id}")
 
             # Process the recording
             audio_chunks = audio_chunking_service.process_recording(
@@ -647,7 +647,7 @@ class VoiceRecordingService:
                 ).isoformat()
                 self.db.commit()
 
-            print(f"Failed to process recording {recording_id}: {e}")
+            print("Failed to process recording {recording_id}: {e}")
             raise
 
     def get_processing_task_status(self, recording_id: int) -> Optional[Dict[str, Any]]:
@@ -674,6 +674,6 @@ class VoiceRecordingService:
                 "info": result.info if hasattr(result, "info") else None,
             }
 
-        except Exception as e:
-            print(f"Error getting task status for recording {recording_id}: {e}")
+        except Exception:
+            print("Error getting task status for recording {recording_id}: {e}")
             return None

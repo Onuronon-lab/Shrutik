@@ -43,6 +43,7 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
     if (currentChunk) {
       loadAudioForChunk(currentChunk.id);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentChunk]);
 
   const loadChunks = async () => {

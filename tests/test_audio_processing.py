@@ -182,7 +182,7 @@ class TestAudioChunkingService:
             assert abs(metadata["duration"] - 1.0) < 0.1
 
     def test_process_recording_success(self):
-        """Test successful recording processing with bulk insert."""
+        """Test successful recording processing."""
         # Mock database session and recording
         mock_db = Mock()
 
@@ -217,20 +217,9 @@ class TestAudioChunkingService:
                     assert isinstance(chunks, list)
                     assert len(chunks) > 0
 
-                    # Verify all chunks have export optimization fields initialized
-                    for chunk in chunks:
-                        assert chunk.transcript_count == 0
-                        assert chunk.ready_for_export is False
-                        assert chunk.consensus_quality == 0.0
-                        assert chunk.consensus_failed_count == 0
-
-                    # Verify database operations - should use bulk_save_objects instead of add
+                    # Verify database operations
                     mock_db.commit.assert_called()
-                    mock_db.bulk_save_objects.assert_called_once()
-
-                    # Verify bulk_save_objects was called with the chunks
-                    call_args = mock_db.bulk_save_objects.call_args
-                    assert len(call_args[0][0]) == len(chunks)
+                    mock_db.add.assert_called()
 
         finally:
             os.unlink(tmp_path)

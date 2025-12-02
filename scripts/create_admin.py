@@ -33,7 +33,7 @@ def create_admin_user(
         existing_user = db.query(User).filter(User.email == email).first()
         if existing_user:
             print(
-                f"❌ User with email '{email}' already exists (id={existing_user.id}, role={existing_user.role.value})"
+                "❌ User with email '{email}' already exists (id={existing_user.id}, role={existing_user.role.value})"
             )
             return False
 
@@ -45,15 +45,15 @@ def create_admin_user(
         db.commit()
         db.refresh(user)
 
-        print(f"✅ User created successfully!")
-        print(f"   ID: {user.id}")
-        print(f"   Name: {user.name}")
-        print(f"   Email: {user.email}")
-        print(f"   Role: {user.role.value}")
+        print("✅ User created successfully!")
+        print("   ID: {user.id}")
+        print("   Name: {user.name}")
+        print("   Email: {user.email}")
+        print("   Role: {user.role.value}")
         return True
 
-    except Exception as e:
-        print(f"❌ Error creating user: {e}")
+    except Exception:
+        print("❌ Error creating user: {e}")
         db.rollback()
         return False
     finally:
@@ -124,10 +124,10 @@ Examples:
     }
     role = role_map[args.role]
 
-    print(f"\nCreating user:")
-    print(f"  Name: {args.name}")
-    print(f"  Email: {args.email}")
-    print(f"  Role: {args.role}")
+    print("\nCreating user:")
+    print("  Name: {args.name}")
+    print("  Email: {args.email}")
+    print("  Role: {args.role}")
     print()
 
     success = create_admin_user(args.name, args.email, password, role)

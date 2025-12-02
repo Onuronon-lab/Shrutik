@@ -262,7 +262,7 @@ class ExportAlerting:
             # Count chunks ready for export
             ready_chunks_count = (
                 self.db.query(func.count(AudioChunk.id))
-                .filter(AudioChunk.ready_for_export == True)
+                .filter(AudioChunk.ready_for_export.is_(True))
                 .scalar()
                 or 0
             )

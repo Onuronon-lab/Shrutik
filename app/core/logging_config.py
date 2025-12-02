@@ -86,24 +86,6 @@ def get_logging_config() -> Dict[str, Any]:
                 "backupCount": 10,
                 "encoding": "utf8",
             },
-            "export_operations": {
-                "class": "logging.handlers.RotatingFileHandler",
-                "level": "INFO",
-                "formatter": "json",
-                "filename": str(log_dir / "export_operations.log"),
-                "maxBytes": 10485760,  # 10MB
-                "backupCount": 10,
-                "encoding": "utf8",
-            },
-            "consensus_operations": {
-                "class": "logging.handlers.RotatingFileHandler",
-                "level": "INFO",
-                "formatter": "json",
-                "filename": str(log_dir / "consensus_operations.log"),
-                "maxBytes": 10485760,  # 10MB
-                "backupCount": 5,
-                "encoding": "utf8",
-            },
         },
         "loggers": {
             # Root logger
@@ -138,23 +120,6 @@ def get_logging_config() -> Dict[str, Any]:
             "app.core.middleware": {
                 "level": "WARNING",
                 "handlers": ["console", "security", "error_file"],
-                "propagate": False,
-            },
-            # Export operations logger
-            "app.services.export_batch_service": {
-                "level": "INFO",
-                "handlers": ["console", "export_operations", "error_file"],
-                "propagate": False,
-            },
-            "app.tasks.export_optimization": {
-                "level": "INFO",
-                "handlers": ["console", "export_operations", "error_file"],
-                "propagate": False,
-            },
-            # Consensus operations logger
-            "app.services.consensus_service": {
-                "level": "INFO",
-                "handlers": ["console", "consensus_operations", "error_file"],
                 "propagate": False,
             },
             # Database logger
@@ -236,36 +201,6 @@ class JSONFormatter(logging.Formatter):
             log_entry["ip_address"] = record.ip_address
         if hasattr(record, "user_agent"):
             log_entry["user_agent"] = record.user_agent
-
-        # Export operation specific fields
-        if hasattr(record, "batch_id"):
-            log_entry["batch_id"] = record.batch_id
-        if hasattr(record, "chunk_count"):
-            log_entry["chunk_count"] = record.chunk_count
-        if hasattr(record, "chunk_ids"):
-            log_entry["chunk_ids"] = record.chunk_ids
-        if hasattr(record, "operation_type"):
-            log_entry["operation_type"] = record.operation_type
-        if hasattr(record, "storage_type"):
-            log_entry["storage_type"] = record.storage_type
-        if hasattr(record, "file_size_bytes"):
-            log_entry["file_size_bytes"] = record.file_size_bytes
-        if hasattr(record, "duration_seconds"):
-            log_entry["duration_seconds"] = record.duration_seconds
-
-        # R2 operation specific fields
-        if hasattr(record, "r2_operation_class"):
-            log_entry["r2_operation_class"] = record.r2_operation_class
-        if hasattr(record, "r2_object_key"):
-            log_entry["r2_object_key"] = record.r2_object_key
-
-        # Consensus operation specific fields
-        if hasattr(record, "consensus_quality"):
-            log_entry["consensus_quality"] = record.consensus_quality
-        if hasattr(record, "transcript_count"):
-            log_entry["transcript_count"] = record.transcript_count
-        if hasattr(record, "ready_for_export"):
-            log_entry["ready_for_export"] = record.ready_for_export
 
         return json.dumps(log_entry, ensure_ascii=False)
 

@@ -60,7 +60,7 @@ class AdminService:
         total_transcriptions = self.db.query(func.count(Transcription.id)).scalar() or 0
         total_validated = (
             self.db.query(func.count(Transcription.id))
-            .filter(Transcription.is_validated == True)
+            .filter(Transcription.is_validated.is_(True))
             .scalar()
             or 0
         )
@@ -68,7 +68,7 @@ class AdminService:
         # Transcription validation breakdown
         validated_count = (
             self.db.query(func.count(Transcription.id))
-            .filter(Transcription.is_validated == True)
+            .filter(Transcription.is_validated.is_(True))
             .scalar()
             or 0
         )

@@ -114,31 +114,30 @@ class Settings(BaseSettings):
     DB_POOL_TIMEOUT: int = 30
     DB_POOL_RECYCLE: int = 3600
 
-    # Export storage configuration
+    # Export Storage Configuration
     EXPORT_STORAGE_TYPE: Literal["local", "r2"] = "local"
     EXPORT_LOCAL_DIR: str = "exports"
 
-    # R2 configuration (LOAD FROM ENVIRONMENT VARIABLES)
-    # Set these in .env file or environment, NEVER commit credentials
+    # R2 Configuration (Cloudflare R2 for production)
     R2_ACCOUNT_ID: Optional[str] = None
     R2_ACCESS_KEY_ID: Optional[str] = None
-    R2_SECRET_ACCESS_KEY: Optional[str] = None  # SENSITIVE - from env only
+    R2_SECRET_ACCESS_KEY: Optional[str] = None
     R2_BUCKET_NAME: Optional[str] = None
     R2_ENDPOINT_URL: Optional[str] = None
 
-    # R2 free-tier limits (Cloudflare R2 free tier)
-    R2_FREE_TIER_CLASS_A_MONTHLY: int = 1_000_000  # 1M Class A operations/month
-    R2_FREE_TIER_CLASS_B_MONTHLY: int = 10_000_000  # 10M Class B operations/month
-    R2_FREE_TIER_STORAGE_GB: int = 10  # 10 GB storage
-    R2_ENABLE_FREE_TIER_GUARD: bool = True  # Prevent exceeding free tier
+    # R2 Free Tier Protection
+    R2_ENABLE_FREE_TIER_GUARD: bool = True
+    R2_FREE_TIER_CLASS_A_MONTHLY: int = 1000000
+    R2_FREE_TIER_CLASS_B_MONTHLY: int = 10000000
+    R2_FREE_TIER_STORAGE_GB: float = 10.0
 
-    # Export batch configuration
-    EXPORT_BATCH_SIZE: int = 200  # Max chunks per batch
-    EXPORT_SCHEDULE_CRON: str = "0 2 * * *"  # Daily at 2 AM
-    EXPORT_MIN_CHUNKS_THRESHOLD: int = 200  # Minimum chunks to trigger export
-    EXPORT_COMPRESSION_LEVEL: int = 3  # Zstandard level (1-22, 3 is balanced)
-    EXPORT_MAX_CHUNK_SIZE_MB: int = 50  # Skip chunks larger than this
-    EXPORT_DAILY_DOWNLOAD_LIMIT: int = 2  # Max downloads per developer per day
+    # Export Batch Configuration
+    EXPORT_BATCH_SIZE: int = 200
+    EXPORT_SCHEDULE_CRON: str = "0 2 * * *"
+    EXPORT_MIN_CHUNKS_THRESHOLD: int = 200
+    EXPORT_COMPRESSION_LEVEL: int = 3
+    EXPORT_MAX_CHUNK_SIZE_MB: int = 50
+    EXPORT_DAILY_DOWNLOAD_LIMIT: int = 2
 
 
 settings = Settings()

@@ -34,7 +34,7 @@ class CDNConfig:
 
     # File type configurations
     AUDIO_EXTENSIONS = {".wav", ".mp3", ".m4a", ".flac", ".webm", ".ogg"}
-    STATIC_EXTENSIONS = {".js", ".css", ".png", ".jpg", ".jpeg", ".gif", ".svg", ".ico"}
+    STATIC_EXTENSIONS = {".js", ".css", ".png", ".jpg", ".jpeg", ".gi", ".svg", ".ico"}
 
     # Compression settings
     COMPRESS_AUDIO = True

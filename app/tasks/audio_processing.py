@@ -331,6 +331,8 @@ def cleanup_orphaned_chunks() -> dict:
     """
     from pathlib import Path
 
+    from app.core.config import settings
+
     db = get_db()
 
     try:
@@ -500,16 +502,16 @@ def recalculate_all_consensus() -> dict:
     Returns:
         dict: Recalculation results
     """
+    from sqlalchemy import func
+
+    from app.models.audio_chunk import AudioChunk
+    from app.models.transcription import Transcription
     from app.services.consensus_service import ConsensusService
 
     db = get_db()
 
     try:
         # Find chunks with multiple transcriptions
-        from app.models.audio_chunk import AudioChunk
-        from app.models.transcription import Transcription
-        from app.services.consensus_service import ConsensusService
-
         chunks_with_multiple_transcriptions = (
             db.query(AudioChunk.id)
             .join(Transcription)

@@ -1,6 +1,5 @@
 import logging
 import uuid
-from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -38,47 +37,10 @@ from app.db.database import get_connection_pool_status, optimize_database_settin
 setup_logging()
 logger = logging.getLogger(__name__)
 
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Application lifespan event handler."""
-    # Startup
-    logger.info("Shrutik (শ্রুতিক) - Voice Data Collection Platform starting up...")
-    logger.info("Empowering communities through voice technology")
-    logger.info(f"Environment: {'Development' if settings.DEBUG else 'Production'}")
-    logger.info(
-        f"Database URL: {settings.DATABASE_URL.split('@')[1] if '@' in settings.DATABASE_URL else 'Not configured'}"
-    )
-    logger.info(f"Redis URL: {settings.REDIS_URL}")
-    logger.info(f"Celery enabled: {settings.USE_CELERY}")
-
-    # Initialize performance optimizations
-    try:
-        # Optimize database settings
-        optimize_database_settings()
-        logger.info("Database optimizations applied")
-
-        # Test cache connection
-        if cache_manager.redis.ping():
-            logger.info("Cache system initialized successfully")
-        else:
-            logger.warning("Cache system connection failed")
-
-    except Exception as e:
-        logger.warning(f"Performance optimization initialization failed: {e}")
-
-    yield
-
-    # Shutdown
-    logger.info("Shrutik (শ্রুতিক) shutting down...")
-    # Perform cleanup tasks here if needed
-
-
 app = FastAPI(
     title="Shrutik (শ্রুতিক) - Voice Data Collection Platform",
     description="Empowering communities through voice technology - A crowdsourcing platform for inclusive voice data collection",
     version="1.0.0",
-    lifespan=lifespan,
 )
 
 
@@ -196,3 +158,38 @@ async def get_performance_metrics():
     except Exception as e:
         logger.error(f"Error getting performance metrics: {e}")
         return {"error": str(e)}
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Application startup event handler."""
+    logger.info("Shrutik (শ্রুতিক) - Voice Data Collection Platform starting up...")
+    logger.info("Empowering communities through voice technology")
+    logger.info(f"Environment: {'Development' if settings.DEBUG else 'Production'}")
+    logger.info(
+        f"Database URL: {settings.DATABASE_URL.split('@')[1] if '@' in settings.DATABASE_URL else 'Not configured'}"
+    )
+    logger.info(f"Redis URL: {settings.REDIS_URL}")
+    logger.info(f"Celery enabled: {settings.USE_CELERY}")
+
+    # Initialize performance optimizations
+    try:
+        # Optimize database settings
+        optimize_database_settings()
+        logger.info("Database optimizations applied")
+
+        # Test cache connection
+        if cache_manager.redis.ping():
+            logger.info("Cache system initialized successfully")
+        else:
+            logger.warning("Cache system connection failed")
+
+    except Exception as e:
+        logger.warning(f"Performance optimization initialization failed: {e}")
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Application shutdown event handler."""
+    logger.info("Shrutik (শ্রুতিক) shutting down...")
+    # Perform cleanup tasks here if needed

@@ -150,10 +150,10 @@ def get_auth_headers(
         "/api/auth/login", json={"email": user_email, "password": password}
     )
     if login_response.status_code != 200:
-        raise Exception(f"Login failed: {login_response.json()}")
+        raise Exception("Login failed: {login_response.json()}")
 
-    token = login_response.json()["access_token"]
-    return {"Authorization": f"Bearer {token}"}
+    login_response.json()["access_token"]
+    return {"Authorization": "Bearer {token}"}
 
 
 class TestVoiceRecordingWorkflow:
@@ -168,10 +168,10 @@ class TestVoiceRecordingWorkflow:
 
         # Step 1: Get random script for recording
         response = client.get(
-            f"/api/scripts/random?duration_category=2_minutes", headers=headers
+            "/api/scripts/random?duration_category=2_minutes", headers=headers
         )
         if response.status_code != 200:
-            print(f"Error response: {response.json()}")
+            print("Error response: {response.json()}")
         assert response.status_code == 200
         script_data = response.json()
         assert script_data["duration_category"] == "2_minutes"
@@ -205,7 +205,7 @@ class TestVoiceRecordingWorkflow:
 
         # Step 4: Check recording status
         recording_id = recording_data["recording_id"]
-        response = client.get(f"/api/recordings/{recording_id}", headers=headers)
+        response = client.get("/api/recordings/{recording_id}", headers=headers)
         assert response.status_code == 200
         recording = response.json()
         assert recording["id"] == recording_id
@@ -213,7 +213,7 @@ class TestVoiceRecordingWorkflow:
 
         # Step 5: Check recording progress
         response = client.get(
-            f"/api/recordings/{recording_id}/progress", headers=headers
+            "/api/recordings/{recording_id}/progress", headers=headers
         )
         assert response.status_code == 200
         progress = response.json()
@@ -279,11 +279,11 @@ class TestTranscriptionWorkflow:
             chunk = AudioChunk(
                 recording_id=recording.id,
                 chunk_index=i,
-                file_path=f"/test/chunk_{i}.wav",
+                file_path="/test/chunk_{i}.wav",
                 start_time=i * 10.0,
                 end_time=(i + 1) * 10.0,
                 duration=10.0,
-                sentence_hint=f"Test sentence {i + 1}",
+                sentence_hint="Test sentence {i + 1}",
             )
             db_session.add(chunk)
             chunks.append(chunk)
@@ -317,7 +317,7 @@ class TestTranscriptionWorkflow:
             transcriptions.append(
                 {
                     "chunk_id": chunk["id"],
-                    "text": f"Transcribed text for chunk {chunk['id']}",
+                    "text": "Transcribed text for chunk {chunk['id']}",
                     "language_id": test_language.id,
                     "confidence": 0.9,
                 }
@@ -331,7 +331,7 @@ class TestTranscriptionWorkflow:
             "/api/transcriptions/submit", json=submission_data, headers=headers
         )
         if response.status_code != 201:
-            print(f"Transcription submission error: {response.json()}")
+            print("Transcription submission error: {response.json()}")
         assert response.status_code == 201
         submission_result = response.json()
         assert submission_result["submitted_count"] == 2
@@ -347,7 +347,7 @@ class TestTranscriptionWorkflow:
         admin_headers = get_auth_headers(client, test_users["admin"].email)
 
         # Test that consensus endpoint exists and is accessible
-        response = client.get(f"/api/consensus/statistics", headers=admin_headers)
+        response = client.get("/api/consensus/statistics", headers=admin_headers)
         # This endpoint may or may not exist, so we just check it doesn't crash
         assert response.status_code in [200, 404, 405]  # Any of these are acceptable
 
@@ -425,10 +425,10 @@ class TestAdminWorkflow:
         assert len(users_data) == 3  # contributor, admin, sworik_dev
 
         # Step 2: Update user role
-        contributor = test_users["contributor"]
+        test_users["contributor"]
         role_update = {"role": "admin"}
         response = client.put(
-            f"/api/admin/users/{contributor.id}/role",
+            "/api/admin/users/{contributor.id}/role",
             json=role_update,
             headers=admin_headers,
         )
@@ -495,7 +495,7 @@ class TestAdminWorkflow:
             "comment": "Good transcription after review",
         }
         response = client.post(
-            f"/api/admin/quality-reviews/{transcription.id}",
+            "/api/admin/quality-reviews/{transcription.id}",
             json=review_data,
             headers=admin_headers,
         )
@@ -776,7 +776,7 @@ class TestWorkflowIntegration:
             transcriptions.append(
                 {
                     "chunk_id": chunk_data["id"],
-                    "text": f"Full workflow transcription for chunk {chunk_data['id']}",
+                    "text": "Full workflow transcription for chunk {chunk_data['id']}",
                     "language_id": test_language.id,
                     "confidence": 0.9,
                 }
@@ -792,7 +792,7 @@ class TestWorkflowIntegration:
             headers=contributor_headers,
         )
         if response.status_code != 201:
-            print(f"Full workflow transcription error: {response.json()}")
+            print("Full workflow transcription error: {response.json()}")
         assert response.status_code == 201
 
         # Step 4: Admin checks platform stats (skip quality reviews due to SQL issue)
