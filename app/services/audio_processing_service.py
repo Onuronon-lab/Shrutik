@@ -39,16 +39,16 @@ class AudioChunkingService:
         ):
             # Validate file exists and is readable
             if not os.path.exists(file_path):
-                raise AudioProcessingError("Audio file not found: {file_path}")
+                raise AudioProcessingError(f"Audio file not found: {file_path}")
 
             if not os.access(file_path, os.R_OK):
-                raise AudioProcessingError("Audio file not readable: {file_path}")
+                raise AudioProcessingError(f"Audio file not readable: {file_path}")
 
             file_size = os.path.getsize(file_path)
             if file_size == 0:
-                raise AudioProcessingError("Audio file is empty: {file_path}")
+                raise AudioProcessingError(f"Audio file is empty: {file_path}")
 
-            logger.info("Loading audio file: {file_path} ({file_size} bytes)")
+            logger.info(f"Loading audio file: {file_path} ({file_size} bytes)")
 
             # Try loading with librosa first (handles most formats)
             try:
@@ -361,8 +361,8 @@ class AudioChunkingService:
 
             return metadata
 
-        except Exception:
-            raise AudioProcessingError("Failed to save chunk {output_path}: {e}")
+        except Exception as e:
+            raise AudioProcessingError(f"Failed to save chunk {output_path}: {e}")
 
     def process_recording(
         self, recording_id: int, file_path: str, db: Session
@@ -372,7 +372,7 @@ class AudioChunkingService:
         Returns list of created AudioChunk objects.
         """
         try:
-            logger.info("Starting audio processing for recording {recording_id}")
+            logger.info(f"Starting audio processing for recording {recording_id}")
 
             # Update recording status
             recording = (
@@ -382,7 +382,7 @@ class AudioChunkingService:
             )
 
             if not recording:
-                raise AudioProcessingError("Recording {recording_id} not found")
+                raise AudioProcessingError(f"Recording {recording_id} not found")
 
             recording.status = RecordingStatus.PROCESSING
             db.commit()
@@ -462,14 +462,14 @@ class AudioChunkingService:
             return audio_chunks
 
         except Exception:
-            logger.error("Failed to process recording {recording_id}: {e}")
+            logger.error(f"Failed to process recording {recording_id}: {e}")
 
             # Update recording status to failed
             if recording:
                 recording.status = RecordingStatus.FAILED
                 db.commit()
 
-            raise AudioProcessingError("Audio processing failed: {e}")
+            raise AudioProcessingError(f"Audio processing failed: {e}")
 
 
 # Global service instance
