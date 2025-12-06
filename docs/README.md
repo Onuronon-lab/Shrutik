@@ -91,14 +91,16 @@ This documentation is built with [mdBook](https://rust-lang.github.io/mdBook/) a
 - **[API Design](architecture.md#api-design)** - RESTful API principles
 - **[Database Design](architecture.md#data-architecture)** - Schema and patterns
 
+
 ## Deployment Options
 
 | Option | Complexity | Use Case | Documentation |
 |--------|------------|----------|---------------|
-| **Docker Compose** | Low | Development, Small Teams | [Docker Deployment](docker-deployment.md) |
-| **Kubernetes** | High | Production, Enterprise | [Deployment Guide](deployment-guide.md#kubernetes-deployment) |
-| **Cloud Platforms** | Medium | Managed Services | [Deployment Guide](deployment-guide.md#cloud-platform-deployments) |
-| **Bare Metal** | Medium | On-Premises | [Deployment Guide](deployment-guide.md#bare-metal-deployment) |
+| **Docker Compose** | Low | Development, Small Teams | [Coming Soon](coming-soon.md) |
+| **Kubernetes** | High | Production, Enterprise | [Coming Soon](coming-soon.md) |
+| **Cloud Platforms** | Medium | Managed Services | [Coming Soon](coming-soon.md) |
+| **Bare Metal** | Medium | On-Premises | [Coming Soon](coming-soon.md) |
+
 
 ## Community & Support
 
@@ -115,8 +117,8 @@ This documentation is built with [mdBook](https://rust-lang.github.io/mdBook/) a
 
 ### Stay Updated
 - **[GitHub Repository](https://github.com/Onuronon-lab/Shrutik)** - Source code and releases
-- **[Twitter](https://twitter.com/ShrutikVoice)** - Latest updates and announcements
-- **[Blog](https://blog.shrutik.org)** - Technical articles and case studies
+- **[Twitter](https://x.com/OnurononAI)** - Latest updates and announcements
+
 
 ## Additional Resources
 
@@ -127,9 +129,9 @@ This documentation is built with [mdBook](https://rust-lang.github.io/mdBook/) a
 - **[Redis Documentation](https://redis.io/documentation)** - Caching and queues
 
 ### Research Papers
-- **[Voice Data Collection Best Practices](https://example.com/paper1)** - Academic research
-- **[Crowdsourcing for Language Technology](https://example.com/paper2)** - Methodology
-- **[Quality Control in Voice Datasets](https://example.com/paper3)** - Quality assurance
+- **[Voice Data Collection Best Practices][Coming Soon](coming-soon.md)** - Academic research
+- **[Crowdsourcing for Language Technology][Coming Soon](coming-soon.md)** - Methodology
+- **[Quality Control in Voice Datasets][Coming Soon](coming-soon.md)** - Quality assurance
 
 ## What's New
 
@@ -149,7 +151,6 @@ This documentation is built with [mdBook](https://rust-lang.github.io/mdBook/) a
 
 - **[CC BY-NC-SA 4.0 License](../LICENSE)** - Creative Commons license for non-commercial use
 - **[Privacy Policy](privacy-policy.md)** - Data privacy and protection
-- **[Terms of Service](terms-of-service.md)** - Platform usage terms
 - **[Code of Conduct](../CODE_OF_CONDUCT.md)** - Community guidelines
 
 ---
