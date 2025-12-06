@@ -96,10 +96,10 @@ This documentation is built with [mdBook](https://rust-lang.github.io/mdBook/) a
 
 | Option | Complexity | Use Case | Documentation |
 |--------|------------|----------|---------------|
-| **Docker Compose** | Low | Development, Small Teams | [Coming Soon](coming-soon.md) |
-| **Kubernetes** | High | Production, Enterprise | [Coming Soon](coming-soon.md) |
-| **Cloud Platforms** | Medium | Managed Services | [Coming Soon](coming-soon.md) |
-| **Bare Metal** | Medium | On-Premises | [Coming Soon](coming-soon.md) |
+| **Docker Compose** | Low | Development, Small Teams | [Docker Deployment](coming-soon.md) |
+| **Kubernetes** | High | Production, Enterprise | [Deployment Guide](coming-soon.md) |
+| **Cloud Platforms** | Medium | Managed Services | [Deployment Guide](coming-soon.md) |
+| **Bare Metal** | Medium | On-Premises | [Deployment Guide](coming-soon.md) |
 
 
 ## Community & Support
@@ -129,9 +129,9 @@ This documentation is built with [mdBook](https://rust-lang.github.io/mdBook/) a
 - **[Redis Documentation](https://redis.io/documentation)** - Caching and queues
 
 ### Research Papers
-- **[Voice Data Collection Best Practices][Coming Soon](coming-soon.md)** - Academic research
-- **[Crowdsourcing for Language Technology][Coming Soon](coming-soon.md)** - Methodology
-- **[Quality Control in Voice Datasets][Coming Soon](coming-soon.md)** - Quality assurance
+- **[Voice Data Collection Best Practices](coming-soon.md)** - Academic research
+- **[Crowdsourcing for Language Technology](coming-soon.md)** - Methodology
+- **[Quality Control in Voice Datasets](coming-soon.md)** - Quality assurance
 
 ## What's New
 
