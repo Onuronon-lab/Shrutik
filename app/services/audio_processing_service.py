@@ -58,7 +58,7 @@ class AudioChunkingService:
                 )
                 return audio_data, sr
             except Exception as e:
-                logger.warning("librosa failed to load {file_path}, trying pydub: {e}")
+                logger.warning(f"librosa failed to load {file_path}, trying pydub: {e}")
 
                 # Fallback to pydub for more format support
                 try:
@@ -391,12 +391,12 @@ class AudioChunkingService:
             audio_data, sr = self.load_audio(file_path)
             audio_duration = len(audio_data) / sr
 
-            logger.info("Loaded audio: duration={audio_duration:.2f}s, sr={sr}")
+            logger.info(f"Loaded audio: duration={audio_duration:.2f}s, sr={sr}")
 
             # Find sentence boundaries using intelligent detection
             try:
                 sentence_boundaries = self.find_sentence_boundaries(audio_data, sr)
-                logger.info("Found {len(sentence_boundaries)} sentence boundaries")
+                logger.info(f"Found {len(sentence_boundaries)} sentence boundaries")
 
                 # Create chunks based on boundaries
                 chunk_intervals = self.create_chunks_intelligent(
@@ -409,7 +409,7 @@ class AudioChunkingService:
                 )
                 chunk_intervals = self.create_chunks_time_based(audio_duration)
 
-            logger.info("Created {len(chunk_intervals)} chunks")
+            logger.info(f"Created {len(chunk_intervals)} chunks")
 
             # Create chunk directory
             chunks_dir = Path(settings.UPLOAD_DIR) / "chunks" / str(recording_id)
@@ -421,11 +421,11 @@ class AudioChunkingService:
                 # Skip empty or invalid chunks
                 if start_time >= end_time or (end_time - start_time) < 0.1:
                     logger.warning(
-                        "Skipping invalid chunk {i}: {start_time}s - {end_time}s"
+                        f"Skipping invalid chunk {i}: {start_time}s - {end_time}s"
                     )
                     continue
 
-                chunk_filename = "chunk_{i:03d}.wav"
+                chunk_filename = f"chunk_{i:03d}.wav"
                 chunk_path = chunks_dir / chunk_filename
 
                 try:
@@ -448,8 +448,8 @@ class AudioChunkingService:
                     db.add(audio_chunk)
                     audio_chunks.append(audio_chunk)
 
-                except AudioProcessingError:
-                    logger.warning("Failed to save chunk {i}: {e}")
+                except AudioProcessingError as e:
+                    logger.warning(f"Failed to save chunk {i}: {e}")
                     continue
 
             # Update recording status
