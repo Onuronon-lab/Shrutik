@@ -82,11 +82,16 @@ NEW_FILES=$(comm -13 \
     <(git ls-tree -r --name-only deployment-dev | sort))
 
 # Get list of files that were modified
-MODIFIED_FILES=$(echo "$COMMON_FILES" | while read file; do
+MODIFIED_FILES=""
+while IFS= read -r file; do
+    [[ -z "$file" ]] && continue
     if ! git diff --quiet master deployment-dev -- "$file" 2>/dev/null; then
-        echo "$file"
+        MODIFIED_FILES="${MODIFIED_FILES}${file}"$'\n'
     fi
-done)
+done <<< "$COMMON_FILES"
+
+# Remove trailing newline
+MODIFIED_FILES="${MODIFIED_FILES%$'\n'}"
 
 MODIFIED_COUNT=$(echo "$MODIFIED_FILES" | grep -c . || echo "0")
 NEW_COUNT=$(echo "$NEW_FILES" | grep -c . || echo "0")
@@ -123,6 +128,10 @@ if [ "$MODIFIED_COUNT" -gt 0 ]; then
 
     # Convert to array to avoid subshell issues
     mapfile -t MODIFIED_ARRAY <<< "$MODIFIED_FILES"
+
+    # Debug: show array size
+    echo -e "${BLUE}Processing ${#MODIFIED_ARRAY[@]} files...${NC}"
+    echo ""
 
     for file in "${MODIFIED_ARRAY[@]}"; do
         # Skip empty lines
