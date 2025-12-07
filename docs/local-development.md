@@ -112,26 +112,8 @@ cp .env.example .env
 
 ### 4. Start Development Services
 
-#### Option A: Using Scripts (Recommended)
 
-```bash
-# Start all services
-./scripts/local-dev.sh start
-```
-
-This script will start:
-- PostgreSQL and Redis (if not running)
-- Backend API server
-- Celery worker
-- Frontend development server
-
-#### Stop All The Services
-```bash
-# Start all services
-./scripts/local-dev.sh stop
-```
-
-#### Option B: Manual Start
+#### Start Services
 
 **Terminal 1 - Backend:**
 ```bash
