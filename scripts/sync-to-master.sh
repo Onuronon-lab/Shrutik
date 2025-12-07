@@ -86,12 +86,13 @@ MODIFIED_FILES=""
 while IFS= read -r file; do
     [[ -z "$file" ]] && continue
     if ! git diff --quiet master deployment-dev -- "$file" 2>/dev/null; then
-        MODIFIED_FILES="${MODIFIED_FILES}${file}"$'\n'
+        if [ -z "$MODIFIED_FILES" ]; then
+            MODIFIED_FILES="$file"
+        else
+            MODIFIED_FILES="$MODIFIED_FILES"$'\n'"$file"
+        fi
     fi
 done <<< "$COMMON_FILES"
-
-# Remove trailing newline
-MODIFIED_FILES="${MODIFIED_FILES%$'\n'}"
 
 MODIFIED_COUNT=$(echo "$MODIFIED_FILES" | grep -c . || echo "0")
 NEW_COUNT=$(echo "$NEW_FILES" | grep -c . || echo "0")
@@ -126,6 +127,9 @@ if [ "$MODIFIED_COUNT" -gt 0 ]; then
     SYNCED_COUNT=0
     SKIPPED_COUNT=0
 
+    # Temporarily disable exit on error for interactive section
+    set +e
+
     # Convert to array to avoid subshell issues
     mapfile -t MODIFIED_ARRAY <<< "$MODIFIED_FILES"
 
@@ -140,21 +144,23 @@ if [ "$MODIFIED_COUNT" -gt 0 ]; then
         echo -e "${YELLOW}Modified: $file${NC}"
 
         # Show diff summary
-        DIFF_STATS=$(git diff --stat master deployment-dev -- "$file" 2>/dev/null || echo "Unable to get diff stats")
-        echo -e "${BLUE}$DIFF_STATS${NC}"
+        DIFF_STATS=$(git diff --stat master deployment-dev -- "$file" 2>/dev/null)
+        if [ -n "$DIFF_STATS" ]; then
+            echo -e "${BLUE}$DIFF_STATS${NC}"
+        fi
 
         read -p "$(echo -e ${GREEN}Sync this file? \(y/n/d=show diff\) ${NC})" -n 1 -r </dev/tty
         echo
 
         if [[ $REPLY =~ ^[Dd]$ ]]; then
-            git diff master deployment-dev -- "$file" 2>/dev/null | head -50 || echo "Unable to show diff"
+            git diff master deployment-dev -- "$file" 2>/dev/null | head -50
             echo ""
             read -p "$(echo -e ${GREEN}Sync this file? \(y/n\) ${NC})" -n 1 -r </dev/tty
             echo
         fi
 
         if [[ $REPLY =~ ^[Yy]$ ]]; then
-            git checkout deployment-dev -- "$file" 2>/dev/null || true
+            git checkout deployment-dev -- "$file" 2>/dev/null
             echo -e "${GREEN}✓ Synced${NC}"
             ((SYNCED_COUNT++))
         else
@@ -163,6 +169,9 @@ if [ "$MODIFIED_COUNT" -gt 0 ]; then
         fi
         echo ""
     done
+
+    # Re-enable exit on error
+    set -e
 
     echo -e "${GREEN}✓ Synced $SYNCED_COUNT files, skipped $SKIPPED_COUNT files${NC}"
     echo ""
@@ -178,6 +187,9 @@ if [ "$NEW_COUNT" -gt 0 ]; then
     ADDED_COUNT=0
     SKIPPED_COUNT=0
 
+    # Temporarily disable exit on error for interactive section
+    set +e
+
     # Convert to array to avoid subshell issues
     mapfile -t NEW_ARRAY <<< "$NEW_FILES"
 
@@ -188,26 +200,28 @@ if [ "$NEW_COUNT" -gt 0 ]; then
         echo -e "${YELLOW}New file: $file${NC}"
 
         # Show file info
-        FILE_SIZE=$(git cat-file -s deployment-dev:"$file" 2>/dev/null || echo "unknown")
-        echo -e "${BLUE}Size: $FILE_SIZE bytes${NC}"
+        FILE_SIZE=$(git cat-file -s deployment-dev:"$file" 2>/dev/null)
+        if [ -n "$FILE_SIZE" ]; then
+            echo -e "${BLUE}Size: $FILE_SIZE bytes${NC}"
+        fi
 
         # Show first few lines if it's a text file
         if git cat-file -p deployment-dev:"$file" 2>/dev/null | head -5 | grep -q '^'; then
             echo -e "${BLUE}Preview:${NC}"
-            git cat-file -p deployment-dev:"$file" 2>/dev/null | head -5 || echo "Unable to preview"
+            git cat-file -p deployment-dev:"$file" 2>/dev/null | head -5
         fi
 
         read -p "$(echo -e ${GREEN}Add this file to master? \(y/n/v=view full\) ${NC})" -n 1 -r </dev/tty
         echo
 
         if [[ $REPLY =~ ^[Vv]$ ]]; then
-            git cat-file -p deployment-dev:"$file" 2>/dev/null | less || echo "Unable to view file"
+            git cat-file -p deployment-dev:"$file" 2>/dev/null | less
             read -p "$(echo -e ${GREEN}Add this file to master? \(y/n\) ${NC})" -n 1 -r </dev/tty
             echo
         fi
 
         if [[ $REPLY =~ ^[Yy]$ ]]; then
-            git checkout deployment-dev -- "$file" 2>/dev/null || true
+            git checkout deployment-dev -- "$file" 2>/dev/null
             echo -e "${GREEN}✓ Added${NC}"
             ((ADDED_COUNT++))
         else
@@ -216,6 +230,9 @@ if [ "$NEW_COUNT" -gt 0 ]; then
         fi
         echo ""
     done
+
+    # Re-enable exit on error
+    set -e
 
     echo -e "${GREEN}✓ Added $ADDED_COUNT files, skipped $SKIPPED_COUNT files${NC}"
     echo ""
