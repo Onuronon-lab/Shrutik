@@ -5,6 +5,7 @@
 # and prompts for new files/folders
 
 set -e
+set -o pipefail
 
 # Colors for output
 RED='\033[0;31m'
@@ -121,22 +122,23 @@ if [ "$MODIFIED_COUNT" -gt 0 ]; then
     SKIPPED_COUNT=0
 
     # Convert to array to avoid subshell issues
-    IFS=$'\n' read -d '' -r -a MODIFIED_ARRAY <<< "$MODIFIED_FILES" || true
+    mapfile -t MODIFIED_ARRAY <<< "$MODIFIED_FILES"
 
     for file in "${MODIFIED_ARRAY[@]}"; do
-        [ -z "$file" ] && continue
+        # Skip empty lines
+        [[ -z "$file" ]] && continue
 
         echo -e "${YELLOW}Modified: $file${NC}"
 
         # Show diff summary
-        DIFF_STATS=$(git diff --stat master deployment-dev -- "$file" 2>/dev/null)
+        DIFF_STATS=$(git diff --stat master deployment-dev -- "$file" 2>/dev/null || echo "Unable to get diff stats")
         echo -e "${BLUE}$DIFF_STATS${NC}"
 
         read -p "$(echo -e ${GREEN}Sync this file? \(y/n/d=show diff\) ${NC})" -n 1 -r </dev/tty
         echo
 
         if [[ $REPLY =~ ^[Dd]$ ]]; then
-            git diff master deployment-dev -- "$file" 2>/dev/null | head -50
+            git diff master deployment-dev -- "$file" 2>/dev/null | head -50 || echo "Unable to show diff"
             echo ""
             read -p "$(echo -e ${GREEN}Sync this file? \(y/n\) ${NC})" -n 1 -r </dev/tty
             echo
@@ -168,10 +170,11 @@ if [ "$NEW_COUNT" -gt 0 ]; then
     SKIPPED_COUNT=0
 
     # Convert to array to avoid subshell issues
-    IFS=$'\n' read -d '' -r -a NEW_ARRAY <<< "$NEW_FILES" || true
+    mapfile -t NEW_ARRAY <<< "$NEW_FILES"
 
     for file in "${NEW_ARRAY[@]}"; do
-        [ -z "$file" ] && continue
+        # Skip empty lines
+        [[ -z "$file" ]] && continue
 
         echo -e "${YELLOW}New file: $file${NC}"
 
@@ -182,14 +185,14 @@ if [ "$NEW_COUNT" -gt 0 ]; then
         # Show first few lines if it's a text file
         if git cat-file -p deployment-dev:"$file" 2>/dev/null | head -5 | grep -q '^'; then
             echo -e "${BLUE}Preview:${NC}"
-            git cat-file -p deployment-dev:"$file" 2>/dev/null | head -5
+            git cat-file -p deployment-dev:"$file" 2>/dev/null | head -5 || echo "Unable to preview"
         fi
 
         read -p "$(echo -e ${GREEN}Add this file to master? \(y/n/v=view full\) ${NC})" -n 1 -r </dev/tty
         echo
 
         if [[ $REPLY =~ ^[Vv]$ ]]; then
-            git cat-file -p deployment-dev:"$file" 2>/dev/null | less
+            git cat-file -p deployment-dev:"$file" 2>/dev/null | less || echo "Unable to view file"
             read -p "$(echo -e ${GREEN}Add this file to master? \(y/n\) ${NC})" -n 1 -r </dev/tty
             echo
         fi
