@@ -3,7 +3,7 @@
 This guide explains how to run Shrutik completely with Docker on your local machine, including all the configuration changes needed to switch from local development to Docker.
 
 
-# **Quick Docker Setup (Manual Only)**
+# **Quick Docker Setup**
 
 ### **Prerequisites**
 
@@ -30,19 +30,48 @@ Use the Docker-specific environment file:
 cp .env.docker .env
 
 ```
-
-Or manually ensure `.env` contains:
-
-```env
-DATABASE_URL=postgresql://postgres:password@postgres:5432/voice_collection
-REDIS_URL=redis://redis:6379/0
-
-```
-
 **Available Environment Files:**
 - `.env.example` - Template with all available options
 - `.env.development` - Local development (localhost)
 - `.env.docker` - Docker development (service names)
+
+
+
+
+Or manually edit the `.env` file with Docker-specific settings:
+
+```env
+# Application
+APP_NAME=Voice Data Collection Platform
+DEBUG=true
+VERSION=1.0.0
+
+# Database (Docker service names)
+DATABASE_URL=postgresql://postgres:password@postgres:5432/voice_collection
+
+# Redis (Docker service name)
+REDIS_URL=redis://redis:6379/0
+
+# Security
+SECRET_KEY=your-secret-key-change-in-production
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+ALGORITHM=HS256
+
+# CORS (for local development)
+ALLOWED_HOSTS=["http://localhost:3000", "http://localhost:8000"]
+
+# File Storage
+UPLOAD_DIR=/app/uploads
+MAX_FILE_SIZE=104857600
+
+# Performance
+ENABLE_CACHING=true
+ENABLE_RATE_LIMITING=true
+USE_CELERY=true
+
+# Development settings
+LOG_LEVEL=DEBUG
+```
 
 
 ## **3. Configure Frontend**
@@ -54,7 +83,7 @@ cp .env.example .env
 
 ## **4. Start All Containers**
 
-Use this when running it for the first time or after changing Dockerfiles, `requirements.txt`, or `package.json`:
+Use this when running the app for the first time or after changing Dockerfiles, `requirements.txt`, or `package.json`:
 
 ```bash
 docker compose up -d --build
@@ -254,3 +283,4 @@ docker compose up -d frontend
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 ```
+
