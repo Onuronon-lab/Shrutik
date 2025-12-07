@@ -110,72 +110,93 @@ if [ "$MODIFIED_COUNT" -gt 0 ]; then
     echo ""
 fi
 
-# Prompt for confirmation to sync modified files
+# Handle modified files interactively
 if [ "$MODIFIED_COUNT" -gt 0 ]; then
-    read -p "$(echo -e ${GREEN}Sync all modified files to master? \(y/n\) ${NC})" -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        echo -e "${BLUE}→ Syncing modified files...${NC}"
-        echo "$MODIFIED_FILES" | while read file; do
+    echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
+    echo -e "${BLUE}  Modified files in deployment-dev${NC}"
+    echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
+    echo ""
+
+    SYNCED_COUNT=0
+    SKIPPED_COUNT=0
+
+    echo "$MODIFIED_FILES" | while read file; do
+        echo -e "${YELLOW}Modified: $file${NC}"
+
+        # Show diff summary
+        DIFF_STATS=$(git diff --stat master deployment-dev -- "$file" 2>/dev/null)
+        echo -e "${BLUE}$DIFF_STATS${NC}"
+
+        read -p "$(echo -e ${GREEN}Sync this file? \(y/n/d=show diff\) ${NC})" -n 1 -r
+        echo
+
+        if [[ $REPLY =~ ^[Dd]$ ]]; then
+            git diff master deployment-dev -- "$file" 2>/dev/null | head -50
+            echo ""
+            read -p "$(echo -e ${GREEN}Sync this file? \(y/n\) ${NC})" -n 1 -r
+            echo
+        fi
+
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
             git checkout deployment-dev -- "$file" 2>/dev/null || true
-        done
-        echo -e "${GREEN}✓ Modified files synced${NC}"
-    else
-        echo -e "${YELLOW}⊘ Skipped modified files${NC}"
-    fi
+            echo -e "${GREEN}✓ Synced${NC}"
+            ((SYNCED_COUNT++))
+        else
+            echo -e "${YELLOW}⊘ Skipped${NC}"
+            ((SKIPPED_COUNT++))
+        fi
+        echo ""
+    done
+
+    echo -e "${GREEN}✓ Synced $SYNCED_COUNT files, skipped $SKIPPED_COUNT files${NC}"
     echo ""
 fi
 
-# Handle new files interactively
+# Handle new files interactively (file by file)
 if [ "$NEW_COUNT" -gt 0 ]; then
     echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
     echo -e "${BLUE}  New files in deployment-dev${NC}"
     echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
     echo ""
 
-    # Group files by directory
-    declare -A DIR_FILES
-    while IFS= read -r file; do
-        dir=$(dirname "$file")
-        if [ -z "${DIR_FILES[$dir]}" ]; then
-            DIR_FILES[$dir]="$file"
-        else
-            DIR_FILES[$dir]="${DIR_FILES[$dir]}"$'\n'"$file"
+    ADDED_COUNT=0
+    SKIPPED_COUNT=0
+
+    echo "$NEW_FILES" | while read file; do
+        echo -e "${YELLOW}New file: $file${NC}"
+
+        # Show file info
+        FILE_SIZE=$(git cat-file -s deployment-dev:"$file" 2>/dev/null || echo "unknown")
+        echo -e "${BLUE}Size: $FILE_SIZE bytes${NC}"
+
+        # Show first few lines if it's a text file
+        if git cat-file -p deployment-dev:"$file" 2>/dev/null | head -5 | grep -q '^'; then
+            echo -e "${BLUE}Preview:${NC}"
+            git cat-file -p deployment-dev:"$file" 2>/dev/null | head -5
         fi
-    done <<< "$NEW_FILES"
 
-    # Ask about each directory
-    for dir in "${!DIR_FILES[@]}"; do
-        files="${DIR_FILES[$dir]}"
-        file_count=$(echo "$files" | wc -l)
-
-        echo -e "${YELLOW}Directory: $dir/ ($file_count files)${NC}"
-        echo "$files" | head -5
-        if [ "$file_count" -gt 5 ]; then
-            echo -e "${YELLOW}... and $((file_count - 5)) more${NC}"
-        fi
-        echo ""
-
-        read -p "$(echo -e ${GREEN}Add these files to master? \(y/n/s=show all\) ${NC})" -n 1 -r
+        read -p "$(echo -e ${GREEN}Add this file to master? \(y/n/v=view full\) ${NC})" -n 1 -r
         echo
 
-        if [[ $REPLY =~ ^[Ss]$ ]]; then
-            echo "$files"
-            echo ""
-            read -p "$(echo -e ${GREEN}Add these files to master? \(y/n\) ${NC})" -n 1 -r
+        if [[ $REPLY =~ ^[Vv]$ ]]; then
+            git cat-file -p deployment-dev:"$file" 2>/dev/null | less
+            read -p "$(echo -e ${GREEN}Add this file to master? \(y/n\) ${NC})" -n 1 -r
             echo
         fi
 
         if [[ $REPLY =~ ^[Yy]$ ]]; then
-            echo "$files" | while read file; do
-                git checkout deployment-dev -- "$file" 2>/dev/null || true
-            done
-            echo -e "${GREEN}✓ Added files from $dir/${NC}"
+            git checkout deployment-dev -- "$file" 2>/dev/null || true
+            echo -e "${GREEN}✓ Added${NC}"
+            ((ADDED_COUNT++))
         else
-            echo -e "${YELLOW}⊘ Skipped files from $dir/${NC}"
+            echo -e "${YELLOW}⊘ Skipped${NC}"
+            ((SKIPPED_COUNT++))
         fi
         echo ""
     done
+
+    echo -e "${GREEN}✓ Added $ADDED_COUNT files, skipped $SKIPPED_COUNT files${NC}"
+    echo ""
 fi
 
 # Check if there are any changes staged
