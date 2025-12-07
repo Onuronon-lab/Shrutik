@@ -120,20 +120,25 @@ if [ "$MODIFIED_COUNT" -gt 0 ]; then
     SYNCED_COUNT=0
     SKIPPED_COUNT=0
 
-    echo "$MODIFIED_FILES" | while read file; do
+    # Convert to array to avoid subshell issues
+    IFS=$'\n' read -d '' -r -a MODIFIED_ARRAY <<< "$MODIFIED_FILES" || true
+
+    for file in "${MODIFIED_ARRAY[@]}"; do
+        [ -z "$file" ] && continue
+
         echo -e "${YELLOW}Modified: $file${NC}"
 
         # Show diff summary
         DIFF_STATS=$(git diff --stat master deployment-dev -- "$file" 2>/dev/null)
         echo -e "${BLUE}$DIFF_STATS${NC}"
 
-        read -p "$(echo -e ${GREEN}Sync this file? \(y/n/d=show diff\) ${NC})" -n 1 -r
+        read -p "$(echo -e ${GREEN}Sync this file? \(y/n/d=show diff\) ${NC})" -n 1 -r </dev/tty
         echo
 
         if [[ $REPLY =~ ^[Dd]$ ]]; then
             git diff master deployment-dev -- "$file" 2>/dev/null | head -50
             echo ""
-            read -p "$(echo -e ${GREEN}Sync this file? \(y/n\) ${NC})" -n 1 -r
+            read -p "$(echo -e ${GREEN}Sync this file? \(y/n\) ${NC})" -n 1 -r </dev/tty
             echo
         fi
 
@@ -162,7 +167,12 @@ if [ "$NEW_COUNT" -gt 0 ]; then
     ADDED_COUNT=0
     SKIPPED_COUNT=0
 
-    echo "$NEW_FILES" | while read file; do
+    # Convert to array to avoid subshell issues
+    IFS=$'\n' read -d '' -r -a NEW_ARRAY <<< "$NEW_FILES" || true
+
+    for file in "${NEW_ARRAY[@]}"; do
+        [ -z "$file" ] && continue
+
         echo -e "${YELLOW}New file: $file${NC}"
 
         # Show file info
@@ -175,12 +185,12 @@ if [ "$NEW_COUNT" -gt 0 ]; then
             git cat-file -p deployment-dev:"$file" 2>/dev/null | head -5
         fi
 
-        read -p "$(echo -e ${GREEN}Add this file to master? \(y/n/v=view full\) ${NC})" -n 1 -r
+        read -p "$(echo -e ${GREEN}Add this file to master? \(y/n/v=view full\) ${NC})" -n 1 -r </dev/tty
         echo
 
         if [[ $REPLY =~ ^[Vv]$ ]]; then
             git cat-file -p deployment-dev:"$file" 2>/dev/null | less
-            read -p "$(echo -e ${GREEN}Add this file to master? \(y/n\) ${NC})" -n 1 -r
+            read -p "$(echo -e ${GREEN}Add this file to master? \(y/n\) ${NC})" -n 1 -r </dev/tty
             echo
         fi
 
