@@ -54,10 +54,17 @@ cp .env.example .env
 
 ## **4. Start All Containers**
 
-Start everything:
+Use this when running it for the first time or after changing Dockerfiles, `requirements.txt`, or `package.json`:
 
 ```bash
 docker compose up -d --build
+
+```
+### **Regular use (no changes)**
+
+For normal daily use, when the images are already built:
+```
+docker compose up -d
 
 ```
 
@@ -67,7 +74,6 @@ Check service status:
 docker compose ps
 
 ```
-
 
 ## **5. Initialize the Database**
 
