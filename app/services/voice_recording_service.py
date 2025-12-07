@@ -523,9 +523,9 @@ class VoiceRecordingService:
         if os.path.exists(recording.file_path):
             try:
                 os.remove(recording.file_path)
-            except OSError:
+            except OSError as e:
                 # Log error but don't fail the deletion
-                print("Warning: Could not delete file {recording.file_path}: {e}")
+                print(f"Warning: Could not delete file {recording.file_path}: {e}")
 
         # Delete database record
         self.db.delete(recording)
@@ -586,7 +586,7 @@ class VoiceRecordingService:
             recording.meta_data["processing_mode"] = "celery"
             self.db.commit()
 
-        print("Queued audio processing task {task.id} for recording {recording_id}")
+        print(f"Queued audio processing task {task.id} for recording {recording_id}")
 
     def _process_audio_synchronously(self, recording_id: int) -> None:
         """Process audio synchronously when Celery is not available."""
@@ -615,7 +615,7 @@ class VoiceRecordingService:
             ).isoformat()
             self.db.commit()
 
-            print("Starting synchronous audio processing for recording {recording_id}")
+            print(f"Starting synchronous audio processing for recording {recording_id}")
 
             # Process the recording
             audio_chunks = audio_chunking_service.process_recording(
@@ -647,7 +647,7 @@ class VoiceRecordingService:
                 ).isoformat()
                 self.db.commit()
 
-            print("Failed to process recording {recording_id}: {e}")
+            print(f"Failed to process recording {recording_id}: {e}")
             raise
 
     def get_processing_task_status(self, recording_id: int) -> Optional[Dict[str, Any]]:
@@ -674,6 +674,6 @@ class VoiceRecordingService:
                 "info": result.info if hasattr(result, "info") else None,
             }
 
-        except Exception:
-            print("Error getting task status for recording {recording_id}: {e}")
+        except Exception as e:
+            print(f"Error getting task status for recording {recording_id}: {e}")
             return None

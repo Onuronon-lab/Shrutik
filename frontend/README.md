@@ -29,16 +29,19 @@ This is the React frontend for the Voice Data Collection Platform, built to crow
 ### Installation
 
 1. Install dependencies:
+
 ```bash
 npm install
 ```
 
 2. Copy environment file:
+
 ```bash
 cp .env.example .env
 ```
 
 3. Update the API URL in `.env` if needed:
+
 ```
 REACT_APP_API_URL=http://localhost:8000/api
 ```
@@ -46,6 +49,7 @@ REACT_APP_API_URL=http://localhost:8000/api
 ### Development
 
 Start the development server:
+
 ```bash
 npm start
 ```
@@ -55,6 +59,7 @@ The app will be available at http://localhost:3000
 ### Building
 
 Create a production build:
+
 ```bash
 npm run build
 ```
@@ -83,21 +88,25 @@ src/
 ## Components
 
 ### Authentication
+
 - `AuthProvider`: Context provider for authentication state
 - `ProtectedRoute`: Route wrapper for authenticated access
 - `LoginForm`: User login interface
 
 ### Audio
+
 - `AudioPlayer`: Playback controls with waveform visualization
 - `AudioRecorder`: Voice recording with real-time feedback
 
 ### Layout
+
 - `Layout`: Main application layout with navigation
 - `Navbar`: Responsive navigation with user menu
 
 ## API Integration
 
 The frontend communicates with the FastAPI backend through:
+
 - JWT token authentication
 - Automatic token refresh
 - Error handling and user feedback
@@ -106,6 +115,7 @@ The frontend communicates with the FastAPI backend through:
 ## Next Steps
 
 This foundation supports the implementation of:
+
 - Voice recording interface (Task 12)
 - Transcription interface (Task 13)
 - Admin dashboard (Task 14)
