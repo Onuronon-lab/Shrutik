@@ -152,7 +152,7 @@ The `alembic/env.py` file is configured to read from `settings.DATABASE_URL`, so
 
 ```yaml
 services:
-  postgres:          # PostgreSQL database
+  postgres:    # PostgreSQL database
   redis:       # Redis cache and queue
   backend:     # FastAPI application
   worker:      # Celery background worker
