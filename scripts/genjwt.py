@@ -1,4 +1,4 @@
-## Generate a JWT access token for manual API testing (HTTP Bearer) by user ID and email.
+#!/usr/bin/env python3
 
 from __future__ import annotations
 
