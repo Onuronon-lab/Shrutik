@@ -80,7 +80,7 @@ CDN_BASE_URL=
 docker-compose exec backend python create_admin.py
 
 # Local development
-python create_admin.py
+python scripts/create_admin.py --name "AdminUser" --email admin@example.com
 ```
 
 Follow the prompts to create your first admin user.

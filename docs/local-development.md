@@ -48,9 +48,6 @@ venv\Scripts\activate
 ```bash
 # Install Python dependencies
 pip install -r requirements.txt
-
-# Install development dependencies
-pip install -r requirements-dev.txt
 ```
 
 #### Database Setup
@@ -95,7 +92,7 @@ SECRET_KEY=dev-secret-key-change-in-production
 alembic upgrade head
 
 # Create admin user
-python create_admin.py
+python scripts/create_admin.py --name "AdminUser" --email admin@example.com
 ```
 
 Follow the prompts to create your first admin user.
@@ -115,20 +112,8 @@ cp .env.example .env
 
 ### 4. Start Development Services
 
-#### Option A: Using Scripts (Recommended)
 
-```bash
-# Start all services
-./scripts/start-dev.sh
-```
-
-This script will start:
-- PostgreSQL and Redis (if not running)
-- Backend API server
-- Celery worker
-- Frontend development server
-
-#### Option B: Manual Start
+#### Start Services
 
 **Terminal 1 - Backend:**
 ```bash
@@ -139,7 +124,7 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 **Terminal 2 - Celery Worker:**
 ```bash
 source venv/bin/activate
-celery -A app.tasks.celery_app worker --loglevel=info
+celery -A  app.core.celery_app  worker  --loglevel=info
 ```
 
 **Terminal 3 - Frontend:**
