@@ -1,16 +1,19 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Layout from './components/layout/Layout';
 import LoginForm from './components/auth/LoginForm';
-import HomePage from './pages/HomePage';
-import RecordPage from './pages/RecordPage';
-import TranscribePage from './pages/TranscribePage';
-import AdminPage from './pages/AdminPage';
-import ExportPage from './pages/ExportPage';
-import UnauthorizedPage from './pages/UnauthorizedPage';
 import RegisterForm from './components/auth/RegisterForm';
+import LoadingSpinner from './components/common/LoadingSpinner';
+
+// Lazy load pages for better performance
+const HomePage = lazy(() => import('./pages/HomePage'));
+const RecordPage = lazy(() => import('./pages/RecordPage'));
+const TranscribePage = lazy(() => import('./pages/TranscribePage'));
+const AdminPage = lazy(() => import('./pages/AdminPage'));
+const ExportPage = lazy(() => import('./pages/ExportPage'));
+const UnauthorizedPage = lazy(() => import('./pages/UnauthorizedPage'));
 
 function App() {
   return (
@@ -19,13 +22,22 @@ function App() {
         <Routes>
           <Route path="/login" element={<LoginForm />} />
           <Route path="/register" element={<RegisterForm />} />
-          <Route path="/unauthorized" element={<UnauthorizedPage />} />
+          <Route
+            path="/unauthorized"
+            element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <UnauthorizedPage />
+              </Suspense>
+            }
+          />
           <Route path="/" element={<Layout />}>
             <Route
               index
               element={
                 <ProtectedRoute>
-                  <HomePage />
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <HomePage />
+                  </Suspense>
                 </ProtectedRoute>
               }
             />
@@ -33,7 +45,9 @@ function App() {
               path="/record"
               element={
                 <ProtectedRoute>
-                  <RecordPage />
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <RecordPage />
+                  </Suspense>
                 </ProtectedRoute>
               }
             />
@@ -41,7 +55,9 @@ function App() {
               path="/transcribe"
               element={
                 <ProtectedRoute>
-                  <TranscribePage />
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <TranscribePage />
+                  </Suspense>
                 </ProtectedRoute>
               }
             />
@@ -49,7 +65,9 @@ function App() {
               path="/admin"
               element={
                 <ProtectedRoute requiredRole="admin">
-                  <AdminPage />
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <AdminPage />
+                  </Suspense>
                 </ProtectedRoute>
               }
             />
@@ -57,7 +75,9 @@ function App() {
               path="/export"
               element={
                 <ProtectedRoute requiredRole={['admin', 'sworik_developer']}>
-                  <ExportPage />
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <ExportPage />
+                  </Suspense>
                 </ProtectedRoute>
               }
             />

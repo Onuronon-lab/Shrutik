@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import {
   ArrowDownTrayIcon,
   PlusIcon,
@@ -11,9 +11,12 @@ import {
   ArrowPathIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../contexts/AuthContext';
-import { apiService } from '../../services/api';
-import LoadingSpinner from '../common/LoadingSpinner';
+import { exportService } from '../../services/export.service';
+import { Modal, Button } from '../ui';
 import { useTranslation } from 'react-i18next';
+import { useModal } from '../../hooks/useModal';
+import { useErrorHandler } from '../../hooks/useErrorHandler';
+import LoadingSpinner from '../common/LoadingSpinner';
 
 interface ExportBatch {
   batch_id: string;
@@ -39,12 +42,12 @@ const ExportBatchManager: React.FC = () => {
 
   const [batches, setBatches] = useState<ExportBatch[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [quota, setQuota] = useState<DownloadQuota | null>(null);
 
   // Create batch state
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const createModal = useModal();
+  const { error, setError, handleError } = useErrorHandler();
   const [createFilters, setCreateFilters] = useState({
     date_from: '',
     date_to: '',
@@ -72,7 +75,7 @@ const ExportBatchManager: React.FC = () => {
         params.status_filter = statusFilter;
       }
 
-      const response = await apiService.listExportBatches(params);
+      const response = await exportService.listExportBatches(params);
       setBatches(response.batches || []);
       setTotalBatches(response.total_count || 0);
       // Clear any previous errors on successful load
@@ -107,11 +110,11 @@ const ExportBatchManager: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, statusFilter, t]);
+  }, [page, statusFilter, t, setError]);
 
   const loadQuota = async () => {
     try {
-      const quotaData = await apiService.getDownloadQuota();
+      const quotaData = await exportService.getDownloadQuota();
       setQuota(quotaData);
     } catch (err) {
       console.error('Failed to load quota:', err);
@@ -140,10 +143,10 @@ const ExportBatchManager: React.FC = () => {
       if (createFilters.min_duration) filters.min_duration = parseFloat(createFilters.min_duration);
       if (createFilters.max_duration) filters.max_duration = parseFloat(createFilters.max_duration);
 
-      const response = await apiService.createExportBatch(filters);
+      const response = await exportService.createExportBatch(filters);
 
       setSuccess(t('export.success.batch_created', { count: response.chunk_count }));
-      setShowCreateModal(false);
+      createModal.close();
       setCreateFilters({
         date_from: '',
         date_to: '',
@@ -155,7 +158,7 @@ const ExportBatchManager: React.FC = () => {
       // Reload batches
       loadBatches();
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to create export batch');
+      handleError(err);
       console.error('Create batch error:', err);
     } finally {
       setLoading(false);
@@ -164,8 +167,6 @@ const ExportBatchManager: React.FC = () => {
 
   const handleDownload = async (batchId: string) => {
     try {
-      setError(null);
-
       // Check quota first
       if (quota && quota.downloads_remaining <= 0) {
         setError(
@@ -177,7 +178,7 @@ const ExportBatchManager: React.FC = () => {
         return;
       }
 
-      const response = await apiService.downloadExportBatch(batchId);
+      const response = await exportService.downloadExportBatch(batchId);
 
       // If R2 storage, response contains download_url
       if (response.download_url) {
@@ -199,7 +200,7 @@ const ExportBatchManager: React.FC = () => {
       loadQuota();
       setSuccess(t('export.success.download_started'));
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to download export batch');
+      handleError(err);
       console.error('Download error:', err);
     }
   };
@@ -262,13 +263,18 @@ const ExportBatchManager: React.FC = () => {
             <h1 className="text-3xl font-bold text-foreground mb-2">{t('export.title')}</h1>
             <p className="text-secondary-foreground">{t('export.subtitle')}</p>
           </div>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary-hover flex items-center space-x-2"
+          <Button
+            onClick={createModal.open}
+            variant="primary"
+            className="relative group overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-r from-primary to-violet-500 px-6 py-3 text-white shadow-[0_20px_45px_rgba(124,58,237,0.35)] transition-all hover:shadow-[0_30px_60px_rgba(124,58,237,0.45)] hover:-translate-y-0.5"
           >
-            <PlusIcon className="h-5 w-5" />
-            <span>{t('export.create_batch')}</span>
-          </button>
+            <span className="flex items-center gap-3 text-base font-semibold">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/20 text-white backdrop-blur">
+                <PlusIcon className="h-4 w-4" />
+              </span>
+              <span>{t('export.create_batch')}</span>
+            </span>
+          </Button>
         </div>
       </div>
 
@@ -365,12 +371,9 @@ const ExportBatchManager: React.FC = () => {
           <div className="text-center py-12">
             <InformationCircleIcon className="mx-auto h-12 w-12 text-secondary-foreground mb-4" />
             <p className="text-secondary-foreground">{t('export.empty.title')}</p>
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="mt-4 text-primary hover:underline"
-            >
+            <Button onClick={createModal.open} variant="outline" className="mt-4">
               {t('export.empty.create_first')}
-            </button>
+            </Button>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -474,113 +477,108 @@ const ExportBatchManager: React.FC = () => {
       </div>
 
       {/* Create Batch Modal */}
-      {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-card rounded-lg shadow-xl p-6 max-w-md w-full mx-4 border border-border">
-            <h3 className="text-lg font-semibold text-foreground mb-4">
-              {t('export.modal.title')}
-            </h3>
-
-            <div className="space-y-4">
-              {/* Date Range */}
-              <div>
-                <label className="block text-sm font-medium text-secondary-foreground mb-2">
-                  {t('export.modal.date_range')}
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <input
-                    type="date"
-                    value={createFilters.date_from}
-                    onChange={e =>
-                      setCreateFilters(prev => ({ ...prev, date_from: e.target.value }))
-                    }
-                    className="px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring"
-                    placeholder={t('export.modal.date_from')}
-                  />
-                  <input
-                    type="date"
-                    value={createFilters.date_to}
-                    onChange={e => setCreateFilters(prev => ({ ...prev, date_to: e.target.value }))}
-                    className="px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring"
-                    placeholder={t('export.modal.date_to')}
-                  />
-                </div>
-              </div>
-
-              {/* Duration Range */}
-              <div>
-                <label className="block text-sm font-medium text-secondary-foreground mb-2">
-                  {t('export.modal.duration_range')}
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={createFilters.min_duration}
-                    onChange={e =>
-                      setCreateFilters(prev => ({ ...prev, min_duration: e.target.value }))
-                    }
-                    className="px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring"
-                    placeholder={t('export.modal.duration_min')}
-                  />
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={createFilters.max_duration}
-                    onChange={e =>
-                      setCreateFilters(prev => ({ ...prev, max_duration: e.target.value }))
-                    }
-                    className="px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring"
-                    placeholder={t('export.modal.duration_max')}
-                  />
-                </div>
-              </div>
-
-              {/* Force Create */}
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="force_create"
-                  checked={createFilters.force_create}
-                  onChange={e =>
-                    setCreateFilters(prev => ({ ...prev, force_create: e.target.checked }))
-                  }
-                  className="h-4 w-4 text-primary focus:ring-ring border-border rounded"
-                />
-                <label htmlFor="force_create" className="ml-2 text-sm text-secondary-foreground">
-                  {t('export.modal.force_create')}
-                </label>
-              </div>
-
-              {/* Info */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <div className="flex">
-                  <InformationCircleIcon className="h-5 w-5 text-blue-600 mr-2 flex-shrink-0" />
-                  <p className="text-xs text-blue-800">{t('export.modal.info')}</p>
-                </div>
-              </div>
+      <Modal
+        isOpen={createModal.isOpen}
+        onClose={createModal.close}
+        title={t('export.modal.title')}
+        size="md"
+      >
+        <div className="space-y-4">
+          {/* Date Range */}
+          <div>
+            <label className="block text-sm font-medium text-secondary-foreground mb-2">
+              {t('export.modal.date_range')}
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                type="date"
+                value={createFilters.date_from}
+                onChange={e => setCreateFilters(prev => ({ ...prev, date_from: e.target.value }))}
+                className="px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring"
+                placeholder={t('export.modal.date_from')}
+              />
+              <input
+                type="date"
+                value={createFilters.date_to}
+                onChange={e => setCreateFilters(prev => ({ ...prev, date_to: e.target.value }))}
+                className="px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring"
+                placeholder={t('export.modal.date_to')}
+              />
             </div>
+          </div>
 
-            <div className="mt-6 flex space-x-3">
-              <button
-                onClick={() => setShowCreateModal(false)}
-                className="flex-1 px-4 py-2 border border-border rounded-lg hover:bg-accent"
-              >
-                {t('export.modal.cancel')}
-              </button>
-              <button
-                onClick={handleCreateBatch}
-                disabled={loading}
-                className="flex-1 bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary-hover disabled:opacity-50"
-              >
-                {loading ? <LoadingSpinner /> : t('export.modal.create')}
-              </button>
+          {/* Duration Range */}
+          <div>
+            <label className="block text-sm font-medium text-secondary-foreground mb-2">
+              {t('export.modal.duration_range')}
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                type="number"
+                step="0.1"
+                value={createFilters.min_duration}
+                onChange={e =>
+                  setCreateFilters(prev => ({ ...prev, min_duration: e.target.value }))
+                }
+                className="px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring"
+                placeholder={t('export.modal.duration_min')}
+              />
+              <input
+                type="number"
+                step="0.1"
+                value={createFilters.max_duration}
+                onChange={e =>
+                  setCreateFilters(prev => ({ ...prev, max_duration: e.target.value }))
+                }
+                className="px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring"
+                placeholder={t('export.modal.duration_max')}
+              />
+            </div>
+          </div>
+
+          {/* Force Create */}
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="force_create"
+              checked={createFilters.force_create}
+              onChange={e =>
+                setCreateFilters(prev => ({ ...prev, force_create: e.target.checked }))
+              }
+              className="h-4 w-4 text-primary focus:ring-ring border-border rounded"
+            />
+            <label htmlFor="force_create" className="ml-2 text-sm text-secondary-foreground">
+              {t('export.modal.force_create')}
+            </label>
+          </div>
+
+          {/* Info */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <div className="flex">
+              <InformationCircleIcon className="h-5 w-5 text-blue-600 mr-2 flex-shrink-0" />
+              <p className="text-xs text-blue-800">{t('export.modal.info')}</p>
             </div>
           </div>
         </div>
-      )}
+
+        <div className="mt-6 flex space-x-3">
+          <Button onClick={createModal.close} variant="outline" fullWidth>
+            {t('export.modal.cancel')}
+          </Button>
+          <Button
+            onClick={handleCreateBatch}
+            disabled={loading}
+            variant="primary"
+            fullWidth
+            isLoading={loading}
+          >
+            {t('export.modal.create')}
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 };
 
-export default ExportBatchManager;
+export default memo(ExportBatchManager);
+export { ExportBatchManager };

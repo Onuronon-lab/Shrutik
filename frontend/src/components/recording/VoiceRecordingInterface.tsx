@@ -9,7 +9,7 @@ import {
   ExclamationTriangleIcon,
 } from '@heroicons/react/24/solid';
 import { ClockIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
-import { apiService } from '../../services/api';
+import { recordingService } from '../../services/recording.service';
 import { Script, RecordingSession, VoiceRecording } from '../../types/api';
 import LoadingSpinner from '../common/LoadingSpinner';
 import AudioVisualizer from './AudioVisualizer';
@@ -116,7 +116,7 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
         return;
       }
 
-      const script = await apiService.getRandomScript(duration.value);
+      const script = await recordingService.getRandomScript(duration.value);
       if (!script || typeof script !== 'object') {
         setError('Invalid script data received');
         return;
@@ -125,7 +125,7 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
       setCurrentScript(script);
 
       // Create recording session
-      const session = await apiService.createRecordingSession(script.id);
+      const session = await recordingService.createRecordingSession(script.id);
       if (!session || typeof session !== 'object') {
         setError('Failed to create recording session');
         return;
@@ -325,7 +325,7 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
       console.log('Audio file:', audioFile);
 
       try {
-        const recording = await apiService.uploadRecording(audioFile, uploadData);
+        const recording = await recordingService.uploadRecording(audioFile, uploadData);
 
         setUploadStatus('success');
         setUploadProgress(100);
@@ -344,7 +344,7 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
           console.log('Session expired, creating new session...');
 
           // Create new session
-          const newSession = await apiService.createRecordingSession(currentScript.id);
+          const newSession = await recordingService.createRecordingSession(currentScript.id);
           setRecordingSession(newSession);
 
           // Small delay to ensure session is stored
@@ -354,7 +354,7 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
           uploadData.session_id = newSession.session_id;
 
           // Retry upload with new session
-          const recording = await apiService.uploadRecording(audioFile, uploadData);
+          const recording = await recordingService.uploadRecording(audioFile, uploadData);
 
           setUploadStatus('success');
           setUploadProgress(100);
