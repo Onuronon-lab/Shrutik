@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import {
   UsersIcon,
   PencilIcon,
@@ -7,33 +7,38 @@ import {
   UserCircleIcon,
   XCircleIcon,
 } from '@heroicons/react/24/outline';
-import { apiService } from '../../services/api';
+import { adminService } from '../../services/admin.service';
 import { UserManagement as UserManagementType } from '../../types/api';
+import { Modal, Button } from '../ui';
+import { useModal } from '../../hooks/useModal';
+import { useErrorHandler } from '../../hooks/useErrorHandler';
 import LoadingSpinner from '../common/LoadingSpinner';
 
 const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<UserManagementType[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('');
   const [editingUser, setEditingUser] = useState<UserManagementType | null>(null);
   const [newRole, setNewRole] = useState<string>('');
   const [updating, setUpdating] = useState(false);
 
+  const editModal = useModal();
+  const { error, setError, handleError } = useErrorHandler();
+
   const loadUsers = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await apiService.getUsersForManagement(roleFilter || undefined);
+      const data = await adminService.getUsersForManagement(roleFilter || undefined);
       setUsers(data);
     } catch (err) {
       console.error('Failed to load users:', err);
-      setError('Failed to load users. Please try again.');
+      handleError(err);
     } finally {
       setLoading(false);
     }
-  }, [roleFilter]);
+  }, [roleFilter, handleError, setError]);
 
   useEffect(() => {
     loadUsers();
@@ -44,7 +49,7 @@ const UserManagement: React.FC = () => {
 
     try {
       setUpdating(true);
-      await apiService.updateUserRole(editingUser.id, newRole);
+      await adminService.updateUserRole(editingUser.id, newRole);
 
       // Update local state
       setUsers(
@@ -55,7 +60,7 @@ const UserManagement: React.FC = () => {
       setNewRole('');
     } catch (err) {
       console.error('Failed to update user role:', err);
-      setError('Failed to update user role. Please try again.');
+      handleError(err);
     } finally {
       setUpdating(false);
     }
@@ -69,11 +74,11 @@ const UserManagement: React.FC = () => {
     }
 
     try {
-      await apiService.deleteUser(userId);
+      await adminService.deleteUser(userId);
       setUsers(users.filter(user => user.id !== userId));
     } catch (err) {
       console.error('Failed to delete user:', err);
-      setError('Failed to delete user. Please try again.');
+      handleError(err);
     }
   };
 
@@ -116,12 +121,9 @@ const UserManagement: React.FC = () => {
           <UsersIcon className="h-8 w-8 text-primary" />
           <h2 className="text-2xl font-bold text-foreground">User Management</h2>
         </div>
-        <button
-          onClick={loadUsers}
-          className="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary-hover transition-colors"
-        >
+        <Button onClick={loadUsers} variant="primary">
           Refresh
-        </button>
+        </Button>
       </div>
 
       {error && (
@@ -213,21 +215,26 @@ const UserManagement: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
-                      <button
+                      <Button
                         onClick={() => {
                           setEditingUser(user);
                           setNewRole(user.role);
+                          editModal.open();
                         }}
-                        className="text-primary hover:text-primary-hover"
+                        variant="outline"
+                        size="sm"
+                        className="text-primary hover:text-primary-hover border-0"
                       >
                         <PencilIcon className="h-5 w-5" />
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         onClick={() => handleDeleteUser(user.id)}
-                        className="text-destructive hover:text-destructive-hover"
+                        variant="outline"
+                        size="sm"
+                        className="text-destructive hover:text-destructive-hover border-0"
                       >
                         <TrashIcon className="h-5 w-5" />
-                      </button>
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -248,53 +255,54 @@ const UserManagement: React.FC = () => {
       </div>
 
       {/* Edit Role Modal */}
-      {editingUser && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-card">
-            <div className="mt-3">
-              <h3 className="text-lg font-medium text-foreground mb-4">Edit User Role</h3>
-              <div className="mb-4">
-                <p className="text-sm text-secondary-foreground mb-2">User: {editingUser.name}</p>
-                <p className="text-sm text-secondary-foreground mb-4">Email: {editingUser.email}</p>
-                <label className="block text-sm font-medium text-secondary-foreground mb-2">
-                  Role
-                </label>
-                <select
-                  value={newRole}
-                  onChange={e => setNewRole(e.target.value)}
-                  className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
-                >
-                  <option value="contributor">Contributor</option>
-                  <option value="admin">Admin</option>
-                  <option value="sworik_developer">Sworik Developer</option>
-                </select>
-              </div>
-              <div className="flex justify-end space-x-3">
-                <button
-                  onClick={() => {
-                    setEditingUser(null);
-                    setNewRole('');
-                  }}
-                  className="px-4 py-2 text-secondary-foreground border border-border rounded-lg hover:bg-background"
-                  disabled={updating}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleRoleUpdate}
-                  disabled={updating || newRole === editingUser.role}
-                  className="px-4 py-2 bg-primary text-primary-foreground border border-primary rounded-lg hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-                >
-                  {updating && <LoadingSpinner size="sm" className="mr-2" />}
-                  Update Role
-                </button>
-              </div>
-            </div>
-          </div>
+      <Modal
+        isOpen={editModal.isOpen && !!editingUser}
+        onClose={() => {
+          setEditingUser(null);
+          setNewRole('');
+          editModal.close();
+        }}
+        title="Edit User Role"
+        size="sm"
+      >
+        <div className="mb-4">
+          <p className="text-sm text-secondary-foreground mb-2">User: {editingUser?.name}</p>
+          <p className="text-sm text-secondary-foreground mb-4">Email: {editingUser?.email}</p>
+          <label className="block text-sm font-medium text-secondary-foreground mb-2">Role</label>
+          <select
+            value={newRole}
+            onChange={e => setNewRole(e.target.value)}
+            className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
+          >
+            <option value="contributor">Contributor</option>
+            <option value="admin">Admin</option>
+            <option value="sworik_developer">Sworik Developer</option>
+          </select>
         </div>
-      )}
+        <div className="flex justify-end space-x-3">
+          <Button
+            onClick={() => {
+              setEditingUser(null);
+              setNewRole('');
+              editModal.close();
+            }}
+            variant="outline"
+            disabled={updating}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleRoleUpdate}
+            disabled={updating || newRole === editingUser?.role}
+            variant="primary"
+            isLoading={updating}
+          >
+            Update Role
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 };
 
-export default UserManagement;
+export default memo(UserManagement);

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { cn } from '../../frontend_lib/utils';
+import { cn } from '../../utils/cn';
 
 const LanguageSwitch: React.FC<{ className?: string }> = ({ className }) => {
   const { i18n } = useTranslation();

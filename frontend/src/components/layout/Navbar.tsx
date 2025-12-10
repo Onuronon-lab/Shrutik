@@ -1,28 +1,20 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   MicrophoneIcon,
   DocumentTextIcon,
   Cog6ToothIcon,
   ArrowDownTrayIcon,
-  ArrowRightOnRectangleIcon,
   Bars3Icon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
-import { ThemeToggle } from './ThemeSwitcher';
-import LanguageSwitch from './LanguageSwitch';
+import { SettingsMenu } from './SettingsMenu';
 // import logo from '../../assets/shrutik_logo.png';
 
 const Navbar: React.FC = () => {
-  const { user, logout, isAuthenticated } = useAuth();
-  const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
 
   const navigationItems = [
     {
@@ -104,23 +96,15 @@ const Navbar: React.FC = () => {
 
           {/* User Menu */}
           <div className="hidden md:flex items-center space-x-4">
-            <ThemeToggle />
             <div className="text-sm text-secondary-foreground">
               <span className="font-medium">{user?.name}</span>
             </div>
-            <LanguageSwitch />
-            <button
-              onClick={handleLogout}
-              className="flex items-center space-x-1 text-destructive hover:text-destructive-hover px-3 py-2 rounded-md text-sm font-medium transition-colors border border-destructive hover:border-destructive-hover"
-            >
-              <ArrowRightOnRectangleIcon className="h-4 w-4" />
-              <span>Logout</span>
-            </button>
+            <SettingsMenu />
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
-            <ThemeToggle className="mr-1 h-8 w-16 px-1" />
+          <div className="md:hidden flex items-center gap-2">
+            <SettingsMenu buttonClassName="h-9 w-9 rounded-full" />
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="text-foreground hover:text-foreground p-2"
@@ -160,13 +144,6 @@ const Navbar: React.FC = () => {
                     {user?.role}
                   </span>
                 </div>
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center space-x-2 text-destructive hover:text-destructive-hover px-3 py-2 rounded-md text-base font-medium transition-colors w-full text-left"
-                >
-                  <ArrowRightOnRectangleIcon className="h-5 w-5" />
-                  <span>Logout</span>
-                </button>
               </div>
             </div>
           </div>

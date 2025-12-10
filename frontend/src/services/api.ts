@@ -1,261 +1,113 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
-import { AuthResponse, LoginCredentials } from '../types/auth';
-import { TranscriptionSubmission } from '../types/api';
-import { DatasetExportRequest, MetadataExportRequest } from '../types/export';
+/**
+ * @deprecated This file is kept for backward compatibility.
+ * Please use the new service files:
+ * - authService from './auth.service'
+ * - transcriptionService from './transcription.service'
+ * - recordingService from './recording.service'
+ * - adminService from './admin.service'
+ * - scriptService from './script.service'
+ * - exportService from './export.service'
+ */
 
+import { authService } from './auth.service';
+import { transcriptionService } from './transcription.service';
+import { recordingService } from './recording.service';
+import { adminService } from './admin.service';
+import { scriptService } from './script.service';
+import { exportService } from './export.service';
+
+/**
+ * Legacy API service class for backward compatibility
+ * @deprecated Use individual service modules instead
+ */
 class ApiService {
-  private api: AxiosInstance;
-
-  constructor() {
-    const baseURL = 'http://localhost:8000/api';
-    console.log('API Base URL:', baseURL);
-    this.api = axios.create({
-      baseURL: baseURL,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    // Request interceptor to add auth token
-    this.api.interceptors.request.use(config => {
-      const token = localStorage.getItem('auth_token');
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-      return config;
-    });
-
-    // Response interceptor for error handling
-    this.api.interceptors.response.use(
-      (response: AxiosResponse) => response,
-      error => {
-        if (error.response?.status === 401) {
-          // Only redirect to login if we're not already on the login page
-          // and if there's a token (meaning it expired)
-          const hasToken = localStorage.getItem('auth_token');
-          const isLoginPage = window.location.pathname === '/login';
-
-          if (hasToken && !isLoginPage) {
-            // Token expired or invalid - redirect to login
-            localStorage.removeItem('auth_token');
-            localStorage.removeItem('user');
-            window.location.href = '/login';
-          }
-        }
-        return Promise.reject(error);
-      }
-    );
-  }
-
   // Auth endpoints
-  async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    // Login returns token directly, not wrapped in ApiResponse
-    const loginResponse = await this.api.post<{ access_token: string; token_type: string }>(
-      '/auth/login',
-      credentials
-    );
-
-    // Get user info using the token
-    const token = loginResponse.data.access_token;
-
-    // Set token temporarily to make the /me request
-    const originalAuth = this.api.defaults.headers.Authorization;
-    this.api.defaults.headers.Authorization = `Bearer ${token}`;
-
-    try {
-      const userResponse = await this.api.get<any>('/auth/me');
-
-      return {
-        user: userResponse.data,
-        token: token,
-      };
-    } finally {
-      // Restore original auth header
-      this.api.defaults.headers.Authorization = originalAuth;
-    }
+  async login(credentials: any) {
+    return authService.login(credentials);
   }
 
-  async register(userData: any): Promise<AuthResponse> {
-    try {
-      await this.api.post('/auth/register', userData);
-
-      return await this.login({
-        email: userData.email,
-        password: userData.password,
-      });
-    } catch (error: any) {
-      console.error('Register API Error:', error);
-
-      const backendError = error.response?.data || { message: 'Unknown server error' };
-
-      // eslint-disable-next-line no-throw-literal
-      throw {
-        ...error,
-        backend: backendError,
-      };
-    }
+  async register(userData: any) {
+    return authService.register(userData);
   }
 
-  async validateToken(): Promise<any> {
-    const response = await this.api.get<any>('/auth/me');
-    return response.data;
+  async validateToken() {
+    return authService.validateToken();
   }
 
-  async getCurrentUserStats(): Promise<any> {
-    return this.get('/auth/me/stats');
-  }
-
-  // Generic request methods
-  async get<T>(url: string): Promise<T> {
-    const response = await this.api.get<T>(url);
-    return response.data;
-  }
-
-  async post<T>(url: string, data?: any): Promise<T> {
-    const response = await this.api.post<T>(url, data);
-    return response.data;
-  }
-
-  async put<T>(url: string, data?: any): Promise<T> {
-    const response = await this.api.put<T>(url, data);
-    return response.data;
-  }
-
-  async delete<T>(url: string): Promise<T> {
-    const response = await this.api.delete<T>(url);
-    return response.data;
+  async getCurrentUserStats() {
+    return authService.getCurrentUserStats();
   }
 
   // Script endpoints
-  async getRandomScript(
-    duration_category: '2_minutes' | '5_minutes' | '10_minutes',
-    language_id?: number
-  ): Promise<any> {
-    const params = new URLSearchParams({ duration_category });
-    if (language_id) {
-      params.append('language_id', language_id.toString());
-    }
-    return this.get(`/scripts/random?${params.toString()}`);
+  async getRandomScript(duration_category: any, language_id?: number) {
+    return recordingService.getRandomScript(duration_category, language_id);
   }
 
   // Recording endpoints
-  async createRecordingSession(script_id: number, language_id?: number): Promise<any> {
-    return this.post('/recordings/sessions', { script_id, language_id });
+  async createRecordingSession(script_id: number, language_id?: number) {
+    return recordingService.createRecordingSession(script_id, language_id);
   }
 
-  async uploadRecording(audioFile: File, uploadData: any): Promise<any> {
-    const formData = new FormData();
-    formData.append('audio_file', audioFile);
-    formData.append('session_id', uploadData.session_id);
-    formData.append('duration', uploadData.duration.toString());
-    formData.append('audio_format', uploadData.audio_format);
-    formData.append('file_size', uploadData.file_size.toString());
-
-    if (uploadData.sample_rate) {
-      formData.append('sample_rate', uploadData.sample_rate.toString());
-    }
-    if (uploadData.channels) {
-      formData.append('channels', uploadData.channels.toString());
-    }
-    if (uploadData.bit_depth) {
-      formData.append('bit_depth', uploadData.bit_depth.toString());
-    }
-
-    const response = await this.api.post('/recordings/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data;
+  async uploadRecording(audioFile: File, uploadData: any) {
+    return recordingService.uploadRecording(audioFile, uploadData);
   }
 
-  async getRecordingProgress(recording_id: number): Promise<any> {
-    return this.get(`/recordings/${recording_id}/progress`);
+  async getRecordingProgress(recording_id: number) {
+    return recordingService.getRecordingProgress(recording_id);
   }
 
-  async getUserRecordings(skip = 0, limit = 100, status?: string): Promise<any> {
-    const params = new URLSearchParams({
-      skip: skip.toString(),
-      limit: limit.toString(),
-    });
-    if (status) {
-      params.append('status', status);
-    }
-    return this.get(`/recordings?${params.toString()}`);
+  async getUserRecordings(skip = 0, limit = 100, status?: string) {
+    return recordingService.getUserRecordings(skip, limit, status);
   }
 
   // Transcription endpoints
-  async getRandomChunks(count: number, language_id?: number): Promise<any> {
-    const taskRequest = {
-      quantity: count,
-      language_id: language_id || null,
-      skip_chunk_ids: [],
-    };
-    return this.post('/transcriptions/tasks', taskRequest);
+  async getRandomChunks(count: number, language_id?: number) {
+    return transcriptionService.getRandomChunks(count, language_id);
   }
 
-  async submitTranscription(transcription: TranscriptionSubmission): Promise<any> {
-    return this.post('/transcriptions/submit', transcription);
+  async submitTranscription(transcription: any) {
+    return transcriptionService.submitTranscription(transcription);
   }
 
-  async skipChunk(chunk_id: number): Promise<any> {
-    return this.post(`/chunks/${chunk_id}/skip`);
+  async skipChunk(chunk_id: number) {
+    return transcriptionService.skipChunk(chunk_id);
   }
 
-  async getUserTranscriptions(skip = 0, limit = 100): Promise<any> {
-    const params = new URLSearchParams({
-      skip: skip.toString(),
-      limit: limit.toString(),
-    });
-    return this.get(`/transcriptions?${params.toString()}`);
+  async getUserTranscriptions(skip = 0, limit = 100) {
+    return transcriptionService.getUserTranscriptions(skip, limit);
   }
 
-  async getChunkAudio(chunk_id: number): Promise<string> {
-    // Fetch the audio file as a blob and return an object URL
-    try {
-      const response = await this.api.get(`/chunks/${chunk_id}/audio`, {
-        responseType: 'blob',
-      });
-
-      // Create an object URL from the blob
-      const audioBlob = new Blob([response.data], { type: 'audio/wav' });
-      const audioUrl = URL.createObjectURL(audioBlob);
-
-      return audioUrl;
-    } catch (error) {
-      console.error('Failed to fetch audio chunk:', error);
-      throw error;
-    }
+  async getChunkAudio(chunk_id: number) {
+    return transcriptionService.getChunkAudio(chunk_id);
   }
 
   // Admin endpoints
-  async getPlatformStats(): Promise<any> {
-    return this.get('/admin/stats/platform');
+  async getPlatformStats() {
+    return adminService.getPlatformStats();
   }
 
-  async getUserStats(limit = 50): Promise<any> {
-    return this.get(`/admin/stats/users?limit=${limit}`);
+  async getUserStats(limit = 50) {
+    return adminService.getUserStats(limit);
   }
 
-  async getUsersForManagement(role?: string): Promise<any> {
-    const params = role ? `?role=${role}` : '';
-    return this.get(`/admin/users${params}`);
+  async getUsersForManagement(role?: string) {
+    return adminService.getUsersForManagement(role);
   }
 
-  async updateUserRole(userId: number, role: string): Promise<any> {
-    return this.put(`/admin/users/${userId}/role`, { role });
+  async updateUserRole(userId: number, role: string) {
+    return adminService.updateUserRole(userId, role);
   }
 
-  async deleteUser(userId: number): Promise<any> {
-    return this.delete(`/admin/users/${userId}`);
+  async deleteUser(userId: number) {
+    return adminService.deleteUser(userId);
   }
 
-  async getQualityReviews(limit = 50): Promise<any> {
-    return this.get(`/admin/quality-reviews?limit=${limit}`);
+  async getQualityReviews(limit = 50) {
+    return adminService.getQualityReviews(limit);
   }
 
-  async getFlaggedTranscriptions(limit = 50): Promise<any> {
-    return this.get(`/admin/quality-reviews/flagged?limit=${limit}`);
+  async getFlaggedTranscriptions(limit = 50) {
+    return adminService.getFlaggedTranscriptions(limit);
   }
 
   async createQualityReview(
@@ -263,165 +115,90 @@ class ApiService {
     decision: string,
     rating?: number,
     comment?: string
-  ): Promise<any> {
-    return this.post(`/admin/quality-reviews/${transcriptionId}`, {
-      decision,
-      rating,
-      comment,
-    });
+  ) {
+    return adminService.createQualityReview(transcriptionId, decision, rating, comment);
   }
 
-  async getSystemHealth(): Promise<any> {
-    return this.get('/admin/system/health');
+  async getSystemHealth() {
+    return adminService.getSystemHealth();
   }
 
-  async getUsageAnalytics(days = 30): Promise<any> {
-    return this.get(`/admin/analytics/usage?days=${days}`);
+  async getUsageAnalytics(days = 30) {
+    return adminService.getUsageAnalytics(days);
   }
 
   // Script management endpoints
-  async getScripts(
-    skip = 0,
-    limit = 100,
-    durationCategory?: string,
-    languageId?: number
-  ): Promise<any> {
-    const params = new URLSearchParams({
-      skip: skip.toString(),
-      limit: limit.toString(),
-    });
-    if (durationCategory) {
-      params.append('duration_category', durationCategory);
-    }
-    if (languageId) {
-      params.append('language_id', languageId.toString());
-    }
-    return this.get(`/scripts?${params.toString()}`);
+  async getScripts(skip = 0, limit = 100, durationCategory?: string, languageId?: number) {
+    return scriptService.getScripts(skip, limit, durationCategory, languageId);
   }
 
-  async getScript(scriptId: number): Promise<any> {
-    return this.get(`/scripts/${scriptId}`);
+  async getScript(scriptId: number) {
+    return scriptService.getScript(scriptId);
   }
 
-  async createScript(scriptData: any): Promise<any> {
-    return this.post('/scripts', scriptData);
+  async createScript(scriptData: any) {
+    return scriptService.createScript(scriptData);
   }
 
-  async updateScript(scriptId: number, scriptData: any): Promise<any> {
-    return this.put(`/scripts/${scriptId}`, scriptData);
+  async updateScript(scriptId: number, scriptData: any) {
+    return scriptService.updateScript(scriptId, scriptData);
   }
 
-  async deleteScript(scriptId: number): Promise<any> {
-    return this.delete(`/scripts/${scriptId}`);
+  async deleteScript(scriptId: number) {
+    return scriptService.deleteScript(scriptId);
   }
 
-  async validateScript(text: string, durationCategory: string): Promise<any> {
-    const params = new URLSearchParams({
-      text,
-      duration_category: durationCategory,
-    });
-    return this.post(`/scripts/validate?${params.toString()}`);
+  async validateScript(text: string, durationCategory: string) {
+    return scriptService.validateScript(text, durationCategory);
   }
 
-  async getScriptStatistics(): Promise<any> {
-    return this.get('/scripts/statistics');
+  async getScriptStatistics() {
+    return scriptService.getScriptStatistics();
   }
 
-  // Export endpoints (Sworik developers only)
-  async exportDataset(request: DatasetExportRequest): Promise<any> {
-    return this.post('/export/dataset', request);
+  // Export endpoints
+  async exportDataset(request: any) {
+    return exportService.exportDataset(request);
   }
 
-  async exportMetadata(request: MetadataExportRequest): Promise<any> {
-    return this.post('/export/metadata', request);
+  async exportMetadata(request: any) {
+    return exportService.exportMetadata(request);
   }
 
-  async getExportHistory(params?: {
-    user_id?: number;
-    export_type?: string;
-    date_from?: string;
-    date_to?: string;
-    page?: number;
-    page_size?: number;
-  }): Promise<any> {
-    const searchParams = new URLSearchParams();
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined) {
-          searchParams.append(key, value.toString());
-        }
-      });
-    }
-    const queryString = searchParams.toString();
-    return this.get(`/export/history${queryString ? `?${queryString}` : ''}`);
+  async getExportHistory(params?: any) {
+    return exportService.getExportHistory(params);
   }
 
-  async getSupportedExportFormats(): Promise<any> {
-    return this.get('/export/formats');
+  async getSupportedExportFormats() {
+    return exportService.getSupportedExportFormats();
   }
 
-  async getExportStatistics(): Promise<any> {
-    return this.get('/export/stats');
+  async getExportStatistics() {
+    return exportService.getExportStatistics();
   }
 
-  // New Export Optimization endpoints
-  async createExportBatch(filters?: {
-    date_from?: string;
-    date_to?: string;
-    min_duration?: number;
-    max_duration?: number;
-    force_create?: boolean;
-  }): Promise<any> {
-    const requestBody: any = {
-      force_create: filters?.force_create ?? true,
-    };
-
-    if (filters) {
-      if (filters.date_from) requestBody.date_from = filters.date_from;
-      if (filters.date_to) requestBody.date_to = filters.date_to;
-      if (filters.min_duration !== undefined) requestBody.min_duration = filters.min_duration;
-      if (filters.max_duration !== undefined) requestBody.max_duration = filters.max_duration;
-    }
-
-    return this.post('/export/batch/create', requestBody);
+  async createExportBatch(filters?: any) {
+    return exportService.createExportBatch(filters);
   }
 
-  async getExportBatch(batchId: string): Promise<any> {
-    return this.get(`/export/batch/${batchId}`);
+  async getExportBatch(batchId: string) {
+    return exportService.getExportBatch(batchId);
   }
 
-  async listExportBatches(params?: {
-    page?: number;
-    page_size?: number;
-    status_filter?: string;
-    date_from?: string;
-    date_to?: string;
-  }): Promise<any> {
-    const searchParams = new URLSearchParams();
-    if (params) {
-      if (params.page !== undefined) searchParams.append('page', params.page.toString());
-      if (params.page_size !== undefined)
-        searchParams.append('page_size', params.page_size.toString());
-      if (params.status_filter) searchParams.append('status_filter', params.status_filter);
-      if (params.date_from) searchParams.append('date_from', params.date_from);
-      if (params.date_to) searchParams.append('date_to', params.date_to);
-    }
-    return this.get(`/export/batch/list?${searchParams.toString()}`);
+  async listExportBatches(params?: any) {
+    return exportService.listExportBatches(params);
   }
 
-  async downloadExportBatch(batchId: string): Promise<any> {
-    const response = await this.api.get(`/export/batch/${batchId}/download`, {
-      responseType: 'blob',
-    });
-    return response.data;
+  async downloadExportBatch(batchId: string) {
+    return exportService.downloadExportBatch(batchId);
   }
 
-  async getDownloadQuota(): Promise<any> {
-    return this.get('/export/batch/download/quota');
+  async getDownloadQuota() {
+    return exportService.getDownloadQuota();
   }
 
-  async retryExportBatch(batchId: string): Promise<any> {
-    return this.post(`/export/batch/${batchId}/retry`);
+  async retryExportBatch(batchId: string) {
+    return exportService.retryExportBatch(batchId);
   }
 }
 

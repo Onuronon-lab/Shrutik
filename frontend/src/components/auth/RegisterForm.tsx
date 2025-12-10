@@ -1,33 +1,36 @@
-import React, { useState, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { EyeIcon, EyeSlashIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { ThemeToggle } from '../layout/ThemeSwitcher';
 import { useTranslation } from 'react-i18next';
-import LanguageSwitch from '../layout/LanguageSwitch';
+import { SettingsMenu } from '../layout/SettingsMenu';
+import { registerSchema, type RegisterFormData } from '../../schemas/auth.schema';
+import { FormInput, FormError } from '../ui/form';
+import { cn } from '../../utils/cn';
 
 const RegisterForm: React.FC = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [passwordTouched, setPasswordTouched] = useState(false);
-  const [confirmPasswordTouched, setConfirmPasswordTouched] = useState(false);
-  const [nameTouched, setNameTouched] = useState(false);
-  const [emailTouched, setEmailTouched] = useState(false);
 
   const { t } = useTranslation();
-
-  const { register } = useAuth();
+  const { register: registerUser } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const from = location.state?.from?.pathname || '/';
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+    setError: setFormError,
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    mode: 'onBlur',
+  });
+
+  const password = watch('password', '');
 
   // Password validation rules
   const passwordValidation = {
@@ -36,14 +39,6 @@ const RegisterForm: React.FC = () => {
     hasLowercase: /[a-z]/.test(password),
     hasNumber: /[0-9]/.test(password),
     hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/.test(password),
-  };
-
-  const allValidationsPassed = Object.values(passwordValidation).every(Boolean);
-
-  // Email validation
-  const isValidEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
   };
 
   // Calculate password strength
@@ -66,104 +61,6 @@ const RegisterForm: React.FC = () => {
 
   const passwordStrength = password.length > 0 ? getPasswordStrength() : null;
 
-  // Password mismatch errors
-  const passwordErrors: string[] = [];
-  if (passwordTouched && password.length > 0 && !allValidationsPassed) {
-    if (!passwordValidation.hasUppercase) {
-      passwordErrors.push(t('signupPage-missing-uppercase'));
-    }
-    if (!passwordValidation.hasSpecialChar) {
-      passwordErrors.push(t('signupPage-missing-special'));
-    }
-  }
-
-  // Clear all messages reliably
-  const clearAllMessages = useCallback(() => {
-    setError('');
-    setSuccessMessage('');
-  }, []);
-
-  // Clear error when any field changes
-  const handleFieldChange = (
-    setter: React.Dispatch<React.SetStateAction<string>>,
-    value: string
-  ) => {
-    setter(value);
-    if (error) {
-      setError('');
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Set all fields as touched to show validation errors
-    setNameTouched(true);
-    setEmailTouched(true);
-    setPasswordTouched(true);
-    setConfirmPasswordTouched(true);
-
-    // Clear messages using functional updates
-    clearAllMessages();
-
-    // Client-side validation
-    if (!name.trim()) {
-      setError(t('signupPage-enter-name'));
-      return;
-    }
-
-    if (!email.trim()) {
-      setError(t('signupPage-enter-email'));
-      return;
-    }
-
-    if (!isValidEmail(email)) {
-      setError(t('signupPage-enter-valid-email'));
-      return;
-    }
-
-    if (!allValidationsPassed) {
-      setError(t('signupPage-password-requirements-note'));
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError(t('signupPage-passwords-mismatch'));
-      return;
-    }
-
-    // If all validations pass, proceed with registration
-    await handleRegistration();
-  };
-
-  const handleRegistration = async () => {
-    try {
-      setIsLoading(true);
-      const success = await register(name, email, password);
-      if (success.user) {
-        setIsLoading(false);
-        navigate('/login', {
-          state: {
-            message: t('registration_success'),
-          },
-        });
-      }
-    } catch (error: any) {
-      setIsLoading(false);
-
-      // Clear any previous messages before setting new error
-      clearAllMessages();
-
-      if (error.response) {
-        setError(error.response.data?.error.message || 'Server returned an error');
-      } else if (error.request) {
-        setError('No response from server. It might be offline.');
-      } else {
-        setError(error.message || 'Network Error');
-      }
-    }
-  };
-
   const ValidationItem = ({ isValid, text }: { isValid: boolean; text: string }) => (
     <div className="flex items-center gap-1.5 text-xs">
       {isValid ? (
@@ -175,12 +72,38 @@ const RegisterForm: React.FC = () => {
     </div>
   );
 
+  const onSubmit = async (data: RegisterFormData) => {
+    try {
+      setIsLoading(true);
+      const success = await registerUser(data.name, data.email, data.password);
+      if (success.user) {
+        setIsLoading(false);
+        navigate('/login', {
+          state: {
+            message: t('registration_success'),
+          },
+        });
+      }
+    } catch (error: any) {
+      setIsLoading(false);
+
+      if (error.response) {
+        setFormError('root', {
+          message: error.response.data?.error.message || 'Server returned an error',
+        });
+      } else if (error.request) {
+        setFormError('root', { message: 'No response from server. It might be offline.' });
+      } else {
+        setFormError('root', { message: error.message || 'Network Error' });
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8 relative">
       <div className="max-w-md w-full space-y-8">
-        <div className="absolute top-4 right-4 flex items-center space-x-2">
-          <ThemeToggle className="h-8 w-16 px-1 lg:h-10 lg:w-20 lg:px-2" />
-          <LanguageSwitch />
+        <div className="absolute top-4 right-4">
+          <SettingsMenu />
         </div>
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-foreground">
@@ -191,94 +114,50 @@ const RegisterForm: React.FC = () => {
           </p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit} noValidate>
-          {' '}
-          {/* Add noValidate to disable browser validation */}
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)} noValidate>
           <div className="rounded-md shadow-sm space-y-2">
             {/* Name */}
-            <div>
-              <label htmlFor="name" className="sr-only">
-                {t('signupPage-name-label')}
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                required
-                className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${
-                  nameTouched && !name.trim() ? 'border-red-500' : 'border-border'
-                } placeholder-nutral text-nutral-foreground rounded-t-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm`}
-                placeholder={t('signupPage-name-label')}
-                value={name}
-                onChange={e => handleFieldChange(setName, e.target.value)}
-                onBlur={() => setNameTouched(true)}
-              />
-              {nameTouched && !name.trim() && (
-                <div className="px-3 text-red-600 text-xs mt-1">{t('signupPage-enter-name')}</div>
-              )}
-            </div>
+            <FormInput
+              register={register}
+              errors={errors}
+              name="name"
+              type="text"
+              placeholder={t('signupPage-name-label')}
+              label={t('signupPage-name-label')}
+              className={cn('rounded-t-md')}
+            />
 
             {/* Email */}
-            <div>
-              <label htmlFor="email" className="sr-only">
-                {t('signupPage-email-label')}
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${
-                  emailTouched && (!email.trim() || !isValidEmail(email))
-                    ? 'border-red-500'
-                    : 'border-border'
-                } placeholder-nutral text-nutral-foreground focus:outline-none focus:ring-primary focus:border-primary sm:text-sm`}
-                placeholder={t('signupPage-email-label')}
-                value={email}
-                onChange={e => handleFieldChange(setEmail, e.target.value)}
-                onBlur={() => setEmailTouched(true)}
-                // Add autocomplete to prevent browser password management
-                autoComplete="email"
-              />
-              {emailTouched && !email.trim() && (
-                <div className="px-3 text-red-600 text-xs mt-1">{t('signupPage-enter-email')}</div>
-              )}
-              {emailTouched && email.trim() && !isValidEmail(email) && (
-                <div className="px-3 text-red-600 text-xs mt-1">
-                  {t('signupPage-enter-valid-email')}
-                </div>
-              )}
-            </div>
+            <FormInput
+              register={register}
+              errors={errors}
+              name="email"
+              type="email"
+              autoComplete="email"
+              placeholder={t('signupPage-email-label')}
+              label={t('signupPage-email-label')}
+            />
 
             {/* Password */}
             <div className="relative">
-              <label htmlFor="password" className="sr-only">
-                {t('signupPage-password-label')}
-              </label>
-              <input
-                id="password"
+              <FormInput
+                register={register}
+                errors={errors}
                 name="password"
                 type={showPassword ? 'text' : 'password'}
-                required
-                className={`appearance-none rounded-none relative block w-full px-3 py-2 pr-10 border ${
-                  passwordTouched && !allValidationsPassed ? 'border-red-500' : 'border-border'
-                } placeholder-nutral text-nutral-foreground focus:outline-none focus:ring-primary focus:border-primary sm:text-sm`}
-                placeholder={t('signupPage-password-label')}
-                value={password}
-                onChange={e => handleFieldChange(setPassword, e.target.value)}
-                onBlur={() => setPasswordTouched(true)}
-                // Prevent browser password management
                 autoComplete="new-password"
+                placeholder={t('signupPage-password-label')}
+                label={t('signupPage-password-label')}
               />
               <button
                 type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                className="absolute inset-y-0 right-0 flex items-center px-3 bg-input border-l border-border rounded-r-md text-secondary-foreground hover:text-foreground hover:bg-input/90 transition-colors"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? (
-                  <EyeSlashIcon className="h-5 w-5 text-muted-foreground" />
+                  <EyeSlashIcon className="h-5 w-5" />
                 ) : (
-                  <EyeIcon className="h-5 w-5 text-muted-foreground" />
+                  <EyeIcon className="h-5 w-5" />
                 )}
               </button>
             </div>
@@ -332,66 +211,37 @@ const RegisterForm: React.FC = () => {
                     text={t('signupPage-one-special')}
                   />
                 </div>
-
-                {/* Error messages for missing requirements */}
-                {passwordErrors.length > 0 && passwordTouched && (
-                  <div className="mt-2 space-y-1">
-                    {passwordErrors.map((err, idx) => (
-                      <div key={idx} className="text-red-600 text-xs flex items-start gap-1">
-                        <span>•</span>
-                        <span>{err}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
             )}
 
             {/* Confirm Password */}
             <div className="relative mt-2">
-              <label htmlFor="confirmPassword" className="sr-only">
-                {t('signupPage-confirm-password-label')}
-              </label>
-              <input
-                id="confirmPassword"
+              <FormInput
+                register={register}
+                errors={errors}
                 name="confirmPassword"
                 type={showConfirmPassword ? 'text' : 'password'}
-                required
-                className={`appearance-none rounded-none relative block w-full px-3 py-2 pr-10 border ${
-                  confirmPasswordTouched && confirmPassword && password !== confirmPassword
-                    ? 'border-red-500'
-                    : 'border-border'
-                } placeholder-nutral text-nutral-foreground rounded-b-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm`}
-                placeholder={t('signupPage-confirm-password-label')}
-                value={confirmPassword}
-                onChange={e => handleFieldChange(setConfirmPassword, e.target.value)}
-                onBlur={() => setConfirmPasswordTouched(true)}
-                // Prevent browser password management
                 autoComplete="new-password"
+                placeholder={t('signupPage-confirm-password-label')}
+                label={t('signupPage-confirm-password-label')}
+                className={cn('rounded-b-md pr-10')}
               />
               <button
                 type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                className="absolute inset-y-0 right-0 flex items-center px-3 bg-input border-l border-border rounded-r-md text-secondary-foreground hover:text-foreground hover:bg-input/90 transition-colors"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               >
                 {showConfirmPassword ? (
-                  <EyeSlashIcon className="h-5 w-5 text-muted-foreground" />
+                  <EyeSlashIcon className="h-5 w-5" />
                 ) : (
-                  <EyeIcon className="h-5 w-5 text-muted-foreground" />
+                  <EyeIcon className="h-5 w-5" />
                 )}
               </button>
             </div>
-
-            {/* Confirm Password Mismatch Error */}
-            {confirmPasswordTouched && confirmPassword && password !== confirmPassword && (
-              <div className="px-3 text-red-600 text-xs">{t('signupPage-passwords-mismatch')}</div>
-            )}
           </div>
-          {/* Error & Success */}
-          {error && <div className="text-red-600 text-sm text-center">{error}</div>}
-          {successMessage && (
-            <div className="text-green-600 text-sm text-center">{successMessage}</div>
-          )}
+
+          <FormError error={errors.root?.message} />
+
           <div>
             <button
               type="submit"

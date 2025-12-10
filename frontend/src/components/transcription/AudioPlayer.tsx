@@ -50,12 +50,13 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioUrl, onLoadError, classN
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('error', handleError);
 
+    const currentAnimation = animationRef.current;
+
     return () => {
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('error', handleError);
-      const currentAnimation = animationRef.current;
       if (currentAnimation) {
         cancelAnimationFrame(currentAnimation);
       }

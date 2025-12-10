@@ -7,7 +7,7 @@ import {
   TrophyIcon,
   CalendarIcon,
 } from '@heroicons/react/24/outline';
-import { apiService } from '../../services/api';
+import { adminService } from '../../services/admin.service';
 import { PlatformStats, UsageAnalytics, UserStats } from '../../types/api';
 import LoadingSpinner from '../common/LoadingSpinner';
 
@@ -25,9 +25,9 @@ const StatsDashboard: React.FC = () => {
       setError(null);
 
       const [statsData, analyticsData, usersData] = await Promise.all([
-        apiService.getPlatformStats(),
-        apiService.getUsageAnalytics(analyticsRange),
-        apiService.getUserStats(20),
+        adminService.getPlatformStats(),
+        adminService.getUsageAnalytics(analyticsRange),
+        adminService.getUserStats(20),
       ]);
 
       setPlatformStats(statsData);

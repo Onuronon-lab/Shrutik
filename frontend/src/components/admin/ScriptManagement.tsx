@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   DocumentTextIcon,
   PlusIcon,
@@ -9,27 +11,45 @@ import {
   XCircleIcon,
   ClockIcon,
 } from '@heroicons/react/24/outline';
-import { apiService } from '../../services/api';
+import { scriptService } from '../../services/script.service';
 import { Script, ScriptListResponse, ScriptValidation } from '../../types/api';
 import LoadingSpinner from '../common/LoadingSpinner';
+import { scriptSchema, type ScriptFormData } from '../../schemas/script.schema';
+import { FormTextarea, FormSelect, Modal, Button } from '../ui';
+import { useModal } from '../../hooks/useModal';
+import { useErrorHandler } from '../../hooks/useErrorHandler';
 
 const ScriptManagement: React.FC = () => {
   const [scripts, setScripts] = useState<Script[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [durationFilter, setDurationFilter] = useState<string>('');
-  const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingScript, setEditingScript] = useState<Script | null>(null);
-  const [formData, setFormData] = useState({
-    text: '',
-    duration_category: '2_minutes',
-    language_id: 1,
-    meta_data: {},
-  });
   const [validation, setValidation] = useState<ScriptValidation | null>(null);
   const [validating, setValidating] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  const createModal = useModal();
+  const { error, setError } = useErrorHandler();
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    formState: { errors },
+  } = useForm<ScriptFormData>({
+    resolver: zodResolver(scriptSchema) as any,
+    defaultValues: {
+      text: '',
+      duration_category: '2_minutes',
+      language_id: 1,
+      meta_data: {},
+    },
+  });
+
+  const formText = watch('text');
+  const formDurationCategory = watch('duration_category');
   const [pagination, setPagination] = useState({
     page: 1,
     per_page: 20,
@@ -42,7 +62,7 @@ const ScriptManagement: React.FC = () => {
       setLoading(true);
       setError(null);
       const skip = (pagination.page - 1) * pagination.per_page;
-      const data: ScriptListResponse = await apiService.getScripts(
+      const data: ScriptListResponse = await scriptService.getScripts(
         skip,
         pagination.per_page,
         durationFilter || undefined
@@ -60,18 +80,18 @@ const ScriptManagement: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [durationFilter, pagination.page, pagination.per_page]);
+  }, [durationFilter, pagination.page, pagination.per_page, setError]);
 
   useEffect(() => {
     loadScripts();
   }, [loadScripts]);
 
   const validateScript = async () => {
-    if (!formData.text.trim()) return;
+    if (!formText.trim()) return;
 
     try {
       setValidating(true);
-      const result = await apiService.validateScript(formData.text, formData.duration_category);
+      const result = await scriptService.validateScript(formText, formDurationCategory);
       setValidation(result);
     } catch (err) {
       console.error('Failed to validate script:', err);
@@ -81,28 +101,26 @@ const ScriptManagement: React.FC = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const onSubmit = async (data: ScriptFormData) => {
     try {
       setSubmitting(true);
       setError(null);
 
       if (editingScript) {
-        await apiService.updateScript(editingScript.id, formData);
+        await scriptService.updateScript(editingScript.id, data);
       } else {
-        await apiService.createScript(formData);
+        await scriptService.createScript(data);
       }
 
       // Reset form and close modal
-      setFormData({
+      reset({
         text: '',
         duration_category: '2_minutes',
         language_id: 1,
         meta_data: {},
       });
       setValidation(null);
-      setShowCreateModal(false);
+      createModal.close();
       setEditingScript(null);
 
       // Reload scripts
@@ -123,7 +141,7 @@ const ScriptManagement: React.FC = () => {
     }
 
     try {
-      await apiService.deleteScript(scriptId);
+      await scriptService.deleteScript(scriptId);
       await loadScripts();
     } catch (err) {
       console.error('Failed to delete script:', err);
@@ -133,20 +151,20 @@ const ScriptManagement: React.FC = () => {
 
   const openEditModal = (script: Script) => {
     setEditingScript(script);
-    setFormData({
+    reset({
       text: script.text,
       duration_category: script.duration_category,
       language_id: script.language_id,
       meta_data: script.meta_data || {},
     });
     setValidation(null);
-    setShowCreateModal(true);
+    createModal.open();
   };
 
   const closeModal = () => {
-    setShowCreateModal(false);
+    createModal.close();
     setEditingScript(null);
-    setFormData({
+    reset({
       text: '',
       duration_category: '2_minutes',
       language_id: 1,
@@ -205,13 +223,10 @@ const ScriptManagement: React.FC = () => {
           <DocumentTextIcon className="h-8 w-8 text-success" />
           <h2 className="text-2xl font-bold text-foreground">Script Management</h2>
         </div>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="bg-success text-success-foreground px-4 py-2 rounded-lg hover:bg-success-hover transition-colors flex items-center space-x-2"
-        >
-          <PlusIcon className="h-5 w-5" />
-          <span>Add Script</span>
-        </button>
+        <Button onClick={createModal.open} variant="success">
+          <PlusIcon className="h-5 w-5 mr-2" />
+          Add Script
+        </Button>
       </div>
 
       {error && (
@@ -350,135 +365,114 @@ const ScriptManagement: React.FC = () => {
       )}
 
       {/* Create/Edit Script Modal */}
-      {showCreateModal && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-10 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-card">
-            <div className="mt-3">
-              <h3 className="text-lg font-medium text-foreground mb-4">
-                {editingScript ? 'Edit Script' : 'Add New Script'}
-              </h3>
+      <Modal
+        isOpen={createModal.isOpen}
+        onClose={closeModal}
+        title={editingScript ? 'Edit Script' : 'Add New Script'}
+        size="2xl"
+      >
+        <div className="mt-3">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <FormSelect
+              register={register}
+              errors={errors}
+              name="duration_category"
+              label="Duration Category"
+            >
+              <option value="2_minutes">2 Minutes</option>
+              <option value="5_minutes">5 Minutes</option>
+              <option value="10_minutes">10 Minutes</option>
+            </FormSelect>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-secondary-foreground mb-2">
-                    Duration Category
-                  </label>
-                  <select
-                    value={formData.duration_category}
-                    onChange={e =>
-                      setFormData({ ...formData, duration_category: e.target.value as any })
-                    }
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
+            <FormTextarea
+              register={register}
+              errors={errors}
+              name="text"
+              label="Script Text (Bangla)"
+              placeholder="Enter the Bangla script text here..."
+              rows={8}
+            />
+
+            <div className="flex space-x-3">
+              <Button
+                type="button"
+                onClick={validateScript}
+                disabled={!formText.trim() || validating}
+                isLoading={validating}
+                variant="primary"
+              >
+                <ClockIcon className="h-4 w-4 mr-2" />
+                Validate Script
+              </Button>
+            </div>
+
+            {validation && (
+              <div
+                className={`p-4 rounded-lg ${validation.is_valid ? 'bg-success border border-success-border' : 'bg-destructive border border-destructive-border'}`}
+              >
+                <div className="flex items-center mb-2">
+                  {validation.is_valid ? (
+                    <CheckCircleIcon className="h-5 w-5 text-success-foreground mr-2" />
+                  ) : (
+                    <XCircleIcon className="h-5 w-5 text-destructive-foreground mr-2" />
+                  )}
+                  <span
+                    className={`font-medium ${validation.is_valid ? 'text-success-foreground' : 'text-destructive-foreground'}`}
                   >
-                    <option value="2_minutes">2 Minutes</option>
-                    <option value="5_minutes">5 Minutes</option>
-                    <option value="10_minutes">10 Minutes</option>
-                  </select>
+                    {validation.is_valid ? 'Script is valid' : 'Script has issues'}
+                  </span>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-secondary-foreground mb-2">
-                    Script Text (Bangla)
-                  </label>
-                  <textarea
-                    value={formData.text}
-                    onChange={e => setFormData({ ...formData, text: e.target.value })}
-                    rows={8}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
-                    placeholder="Enter the Bangla script text here..."
-                    required
-                  />
+                <div className="text-sm space-y-1">
+                  <p>Word count: {validation.word_count}</p>
+                  <p>Character count: {validation.character_count}</p>
+                  {validation.estimated_duration && (
+                    <p>Estimated duration: {validation.estimated_duration.toFixed(1)} minutes</p>
+                  )}
                 </div>
 
-                <div className="flex space-x-3">
-                  <button
-                    type="button"
-                    onClick={validateScript}
-                    disabled={!formData.text.trim() || validating}
-                    className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-                  >
-                    {validating && <LoadingSpinner size="sm" className="mr-2" />}
-                    <ClockIcon className="h-4 w-4 mr-2" />
-                    Validate Script
-                  </button>
-                </div>
-
-                {validation && (
-                  <div
-                    className={`p-4 rounded-lg ${validation.is_valid ? 'bg-success border border-success-border' : 'bg-destructive border border-destructive-border'}`}
-                  >
-                    <div className="flex items-center mb-2">
-                      {validation.is_valid ? (
-                        <CheckCircleIcon className="h-5 w-5 text-success-foreground mr-2" />
-                      ) : (
-                        <XCircleIcon className="h-5 w-5 text-destructive-foreground mr-2" />
-                      )}
-                      <span
-                        className={`font-medium ${validation.is_valid ? 'text-success-foreground' : 'text-destructive-foreground'}`}
-                      >
-                        {validation.is_valid ? 'Script is valid' : 'Script has issues'}
-                      </span>
-                    </div>
-
-                    <div className="text-sm space-y-1">
-                      <p>Word count: {validation.word_count}</p>
-                      <p>Character count: {validation.character_count}</p>
-                      {validation.estimated_duration && (
-                        <p>
-                          Estimated duration: {validation.estimated_duration.toFixed(1)} minutes
-                        </p>
-                      )}
-                    </div>
-
-                    {validation.errors.length > 0 && (
-                      <div className="mt-2">
-                        <p className="text-destructive-foreground font-medium">Errors:</p>
-                        <ul className="list-disc list-inside text-destructive-foreground text-sm">
-                          {validation.errors.map((error, index) => (
-                            <li key={index}>{error}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {validation.warnings.length > 0 && (
-                      <div className="mt-2">
-                        <p className="text-warning-foreground font-medium">Warnings:</p>
-                        <ul className="list-disc list-inside text-warning-foreground text-sm">
-                          {validation.warnings.map((warning, index) => (
-                            <li key={index}>{warning}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
+                {validation.errors.length > 0 && (
+                  <div className="mt-2">
+                    <p className="text-destructive-foreground font-medium">Errors:</p>
+                    <ul className="list-disc list-inside text-destructive-foreground text-sm">
+                      {validation.errors.map((error, index) => (
+                        <li key={index}>{error}</li>
+                      ))}
+                    </ul>
                   </div>
                 )}
 
-                <div className="flex justify-end space-x-3 pt-4">
-                  <button
-                    type="button"
-                    onClick={closeModal}
-                    className="px-4 py-2 text-secondary-foreground border border-border rounded-lg hover:bg-background"
-                    disabled={submitting}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={submitting || !formData.text.trim()}
-                    className="px-4 py-2 bg-success text-success-foreground rounded-lg hover:bg-success-hover disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-                  >
-                    {submitting && <LoadingSpinner size="sm" className="mr-2" />}
-                    {editingScript ? 'Update Script' : 'Create Script'}
-                  </button>
-                </div>
-              </form>
+                {validation.warnings.length > 0 && (
+                  <div className="mt-2">
+                    <p className="text-warning-foreground font-medium">Warnings:</p>
+                    <ul className="list-disc list-inside text-warning-foreground text-sm">
+                      {validation.warnings.map((warning, index) => (
+                        <li key={index}>{warning}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="flex justify-end space-x-3 pt-4">
+              <Button variant="outline" onClick={closeModal} disabled={submitting}>
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="success"
+                disabled={submitting || !formText.trim()}
+                isLoading={submitting}
+              >
+                {editingScript ? 'Update Script' : 'Create Script'}
+              </Button>
             </div>
-          </div>
+          </form>
         </div>
-      )}
+      </Modal>
     </div>
   );
 };
 
-export default ScriptManagement;
+export default memo(ScriptManagement);

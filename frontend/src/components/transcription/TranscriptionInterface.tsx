@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { apiService } from '../../services/api';
+import { transcriptionService } from '../../services/transcription.service';
 import { AudioChunk, TranscriptionSubmission } from '../../types/api';
 import AudioPlayer from './AudioPlayer';
 import TranscriptionForm from './TranscriptionForm';
@@ -51,7 +51,7 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
       setIsLoading(true);
       setError(null);
 
-      const response = await apiService.getRandomChunks(selectedQuantity);
+      const response = await transcriptionService.getRandomChunks(selectedQuantity);
 
       if (response.chunks && response.chunks.length > 0) {
         setChunks(response.chunks);
@@ -73,7 +73,7 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
 
   const loadAudioForChunk = async (chunkId: number) => {
     try {
-      const audioUrl = await apiService.getChunkAudio(chunkId);
+      const audioUrl = await transcriptionService.getChunkAudio(chunkId);
       setAudioUrl(audioUrl);
     } catch (err: any) {
       console.error('Error loading audio:', err);
@@ -100,7 +100,7 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
         skipped_chunk_ids: [],
       };
 
-      await apiService.submitTranscription(submission);
+      await transcriptionService.submitTranscription(submission);
 
       setCompletedCount(prev => prev + 1);
       moveToNext();
@@ -125,7 +125,7 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
 
     try {
       setIsSubmitting(true);
-      await apiService.skipChunk(currentChunk.id);
+      await transcriptionService.skipChunk(currentChunk.id);
 
       setSkippedCount(prev => prev + 1);
       moveToNext();

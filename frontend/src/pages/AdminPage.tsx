@@ -9,7 +9,7 @@ import {
   XCircleIcon,
   ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline';
-import { apiService } from '../services/api';
+import { adminService } from '../services/admin.service';
 import { PlatformStats, SystemHealth } from '../types/api';
 import { useAuth } from '../contexts/AuthContext';
 import {
@@ -40,8 +40,8 @@ const AdminPage: React.FC = () => {
       setLoading(true);
       setError(null);
       const [statsData, healthData] = await Promise.all([
-        apiService.getPlatformStats(),
-        apiService.getSystemHealth(),
+        adminService.getPlatformStats(),
+        adminService.getSystemHealth(),
       ]);
       setPlatformStats(statsData);
       setSystemHealth(healthData);

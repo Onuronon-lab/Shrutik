@@ -7,7 +7,7 @@ import {
   ChartBarIcon,
   ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline';
-import { apiService } from '../services/api';
+import { authService } from '../services/auth.service';
 import { CurrentUserStats } from '../types/api';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { useTranslation } from 'react-i18next';
@@ -28,7 +28,7 @@ const HomePage: React.FC = () => {
   const loadUserStats = async () => {
     try {
       setStatsLoading(true);
-      const stats = await apiService.getCurrentUserStats();
+      const stats = await authService.getCurrentUserStats();
       setUserStats(stats);
     } catch (error) {
       console.error('Failed to load user stats:', error);
