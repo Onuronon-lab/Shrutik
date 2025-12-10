@@ -9,7 +9,7 @@ import {
   ChartBarIcon,
   DocumentTextIcon,
 } from '@heroicons/react/24/outline';
-import { apiService } from '../../services/api';
+import { exportService } from '../../services/export.service';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   DatasetExportRequest,
@@ -65,7 +65,7 @@ const DataExport: React.FC = () => {
 
   const loadInitialData = async () => {
     try {
-      const statsData = await apiService.getExportStatistics();
+      const statsData = await exportService.getExportStatistics();
       setPlatformStats(statsData);
     } catch (err) {
       console.error('Failed to load initial data:', err);
@@ -82,7 +82,7 @@ const DataExport: React.FC = () => {
         ...(historyFilters.date_from && { date_from: historyFilters.date_from }),
         ...(historyFilters.date_to && { date_to: historyFilters.date_to }),
       };
-      const historyData = await apiService.getExportHistory(params);
+      const historyData = await exportService.getExportHistory(params);
       setExportHistory(historyData);
     } catch (err) {
       setError('Failed to load export history');
@@ -110,7 +110,7 @@ const DataExport: React.FC = () => {
       setError(null);
       setSuccess(null);
 
-      const response: DatasetExportResponse = await apiService.exportDataset(datasetRequest);
+      const response: DatasetExportResponse = await exportService.exportDataset(datasetRequest);
 
       // Create and download file
       const blob = new Blob([JSON.stringify(response.data, null, 2)], {
@@ -145,7 +145,7 @@ const DataExport: React.FC = () => {
       setError(null);
       setSuccess(null);
 
-      const response: MetadataExportResponse = await apiService.exportMetadata(metadataRequest);
+      const response: MetadataExportResponse = await exportService.exportMetadata(metadataRequest);
 
       // Create and download file
       const exportData = {

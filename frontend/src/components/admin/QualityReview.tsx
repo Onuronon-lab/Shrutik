@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import {
   ExclamationTriangleIcon,
   PlayIcon,
@@ -9,8 +9,12 @@ import {
   ChatBubbleLeftIcon,
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
-import { apiService } from '../../services/api';
+import { adminService } from '../../services/admin.service';
+import { transcriptionService } from '../../services/transcription.service';
 import { QualityReviewItem, FlaggedTranscription } from '../../types/api';
+import { Modal, Button } from '../ui';
+import { useModal } from '../../hooks/useModal';
+import { useErrorHandler } from '../../hooks/useErrorHandler';
 import LoadingSpinner from '../common/LoadingSpinner';
 
 const QualityReview: React.FC = () => {
@@ -18,7 +22,6 @@ const QualityReview: React.FC = () => {
   const [flaggedTranscriptions, setFlaggedTranscriptions] = useState<FlaggedTranscription[]>([]);
   const [qualityReviews, setQualityReviews] = useState<QualityReviewItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [playingAudio, setPlayingAudio] = useState<number | null>(null);
   const [audioElements, setAudioElements] = useState<{ [key: number]: HTMLAudioElement }>({});
   const [reviewingItem, setReviewingItem] = useState<FlaggedTranscription | null>(null);
@@ -29,25 +32,28 @@ const QualityReview: React.FC = () => {
   });
   const [submittingReview, setSubmittingReview] = useState(false);
 
+  const reviewModal = useModal();
+  const { error, setError, handleError } = useErrorHandler();
+
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
       if (activeTab === 'flagged') {
-        const data = await apiService.getFlaggedTranscriptions(50);
+        const data = await adminService.getFlaggedTranscriptions(50);
         setFlaggedTranscriptions(data);
       } else {
-        const data = await apiService.getQualityReviews(50);
+        const data = await adminService.getQualityReviews(50);
         setQualityReviews(data);
       }
     } catch (err) {
       console.error('Failed to load quality review data:', err);
-      setError('Failed to load data. Please try again.');
+      handleError(err);
     } finally {
       setLoading(false);
     }
-  }, [activeTab]);
+  }, [activeTab, handleError, setError]);
 
   useEffect(() => {
     loadData();
@@ -69,7 +75,7 @@ const QualityReview: React.FC = () => {
       // Get or create audio element
       let audio = audioElements[chunkId];
       if (!audio) {
-        const audioUrl = await apiService.getChunkAudio(chunkId);
+        const audioUrl = await transcriptionService.getChunkAudio(chunkId);
         audio = new Audio(audioUrl);
         audio.addEventListener('ended', () => setPlayingAudio(null));
         setAudioElements(prev => ({ ...prev, [chunkId]: audio }));
@@ -79,7 +85,7 @@ const QualityReview: React.FC = () => {
       setPlayingAudio(chunkId);
     } catch (err) {
       console.error('Failed to play audio:', err);
-      setError('Failed to play audio. Please try again.');
+      handleError(err);
     }
   };
 
@@ -88,9 +94,8 @@ const QualityReview: React.FC = () => {
 
     try {
       setSubmittingReview(true);
-      setError(null);
 
-      await apiService.createQualityReview(
+      await adminService.createQualityReview(
         reviewingItem.transcription_id,
         reviewForm.decision,
         reviewForm.rating,
@@ -104,6 +109,7 @@ const QualityReview: React.FC = () => {
 
       // Reset form and close modal
       setReviewingItem(null);
+      reviewModal.close();
       setReviewForm({
         decision: 'APPROVED',
         rating: 5,
@@ -267,7 +273,10 @@ const QualityReview: React.FC = () => {
                       )}
                     </button>
                     <button
-                      onClick={() => setReviewingItem(item)}
+                      onClick={() => {
+                        setReviewingItem(item);
+                        reviewModal.open();
+                      }}
                       className="px-4 py-2 bg-warning text-warning-foreground rounded-lg hover:bg-warning-hover transition-colors"
                     >
                       Review
@@ -358,101 +367,103 @@ const QualityReview: React.FC = () => {
       )}
 
       {/* Review Modal */}
-      {reviewingItem && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-10 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-card">
-            <div className="mt-3">
-              <h3 className="text-lg font-medium text-foreground mb-4">
-                Review Transcription #{reviewingItem.transcription_id}
-              </h3>
-
-              <div className="space-y-4">
-                <div className="bg-background rounded-lg p-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <p className="text-sm text-secondary-foreground">
-                      By: {reviewingItem.contributor_name} • {formatDate(reviewingItem.created_at)}
-                    </p>
-                    <button
-                      onClick={() =>
-                        playAudio(reviewingItem.chunk_id, reviewingItem.chunk_file_path)
-                      }
-                      className="p-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors"
-                    >
-                      {playingAudio === reviewingItem.chunk_id ? (
-                        <PauseIcon className="h-5 w-5" />
-                      ) : (
-                        <PlayIcon className="h-5 w-5" />
-                      )}
-                    </button>
-                  </div>
-                  <p className="text-foreground font-medium mb-1">Transcription:</p>
-                  <p className="text-secondary-foreground">{reviewingItem.text}</p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-secondary-foreground mb-2">
-                    Decision
-                  </label>
-                  <select
-                    value={reviewForm.decision}
-                    onChange={e => setReviewForm({ ...reviewForm, decision: e.target.value })}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
-                  >
-                    <option value="APPROVED">Approved</option>
-                    <option value="REJECTED">Rejected</option>
-                    <option value="NEEDS_REVISION">Needs Revision</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-secondary-foreground mb-2">
-                    Rating
-                  </label>
-                  {renderStarRating(reviewForm.rating, true, rating =>
-                    setReviewForm({ ...reviewForm, rating })
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-secondary-foreground mb-2">
-                    Comment (Optional)
-                  </label>
-                  <textarea
-                    value={reviewForm.comment}
-                    onChange={e => setReviewForm({ ...reviewForm, comment: e.target.value })}
-                    rows={3}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
-                    placeholder="Add any additional comments..."
-                  />
-                </div>
-
-                <div className="flex justify-end space-x-3 pt-4">
-                  <button
-                    onClick={() => {
-                      setReviewingItem(null);
-                      setReviewForm({ decision: 'APPROVED', rating: 5, comment: '' });
-                    }}
-                    className="px-4 py-2 text-secondary border border-border rounded-lg hover:bg-secondary-hover transition-colors"
-                    disabled={submittingReview}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={submitReview}
-                    disabled={submittingReview}
-                    className="px-4 py-2 bg-warning text-warning-foreground rounded-lg hover:bg-warning-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-                  >
-                    {submittingReview && <LoadingSpinner size="sm" className="mr-2" />}
-                    Submit Review
-                  </button>
-                </div>
-              </div>
+      <Modal
+        isOpen={reviewModal.isOpen && !!reviewingItem}
+        onClose={() => {
+          setReviewingItem(null);
+          setReviewForm({ decision: 'APPROVED', rating: 5, comment: '' });
+          reviewModal.close();
+        }}
+        title={`Review Transcription #${reviewingItem?.transcription_id}`}
+        size="2xl"
+      >
+        <div className="space-y-4">
+          <div className="bg-background rounded-lg p-4">
+            <div className="flex justify-between items-center mb-2">
+              <p className="text-sm text-secondary-foreground">
+                By: {reviewingItem?.contributor_name} •{' '}
+                {reviewingItem && formatDate(reviewingItem.created_at)}
+              </p>
+              <Button
+                onClick={() =>
+                  reviewingItem && playAudio(reviewingItem.chunk_id, reviewingItem.chunk_file_path)
+                }
+                variant="primary"
+                size="sm"
+              >
+                {playingAudio === reviewingItem?.chunk_id ? (
+                  <PauseIcon className="h-5 w-5" />
+                ) : (
+                  <PlayIcon className="h-5 w-5" />
+                )}
+              </Button>
             </div>
+            <p className="text-foreground font-medium mb-1">Transcription:</p>
+            <p className="text-secondary-foreground">{reviewingItem?.text}</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-secondary-foreground mb-2">
+              Decision
+            </label>
+            <select
+              value={reviewForm.decision}
+              onChange={e => setReviewForm({ ...reviewForm, decision: e.target.value })}
+              className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
+            >
+              <option value="APPROVED">Approved</option>
+              <option value="REJECTED">Rejected</option>
+              <option value="NEEDS_REVISION">Needs Revision</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-secondary-foreground mb-2">
+              Rating
+            </label>
+            {renderStarRating(reviewForm.rating, true, rating =>
+              setReviewForm({ ...reviewForm, rating })
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-secondary-foreground mb-2">
+              Comment (Optional)
+            </label>
+            <textarea
+              value={reviewForm.comment}
+              onChange={e => setReviewForm({ ...reviewForm, comment: e.target.value })}
+              rows={3}
+              className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
+              placeholder="Add any additional comments..."
+            />
+          </div>
+
+          <div className="flex justify-end space-x-3 pt-4">
+            <Button
+              onClick={() => {
+                setReviewingItem(null);
+                setReviewForm({ decision: 'APPROVED', rating: 5, comment: '' });
+                reviewModal.close();
+              }}
+              variant="outline"
+              disabled={submittingReview}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={submitReview}
+              disabled={submittingReview}
+              variant="success"
+              isLoading={submittingReview}
+            >
+              Submit Review
+            </Button>
           </div>
         </div>
-      )}
+      </Modal>
     </div>
   );
 };
 
-export default QualityReview;
+export default memo(QualityReview);

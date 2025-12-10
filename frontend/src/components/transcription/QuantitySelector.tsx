@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { ClockIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from 'react-i18next';
+import { QUANTITY_OPTIONS } from '../../utils/constants';
 
 interface QuantitySelectorProps {
   selectedQuantity: number;
@@ -15,39 +16,33 @@ const QuantitySelector: React.FC<QuantitySelectorProps> = ({
   disabled = false,
   className = '',
 }) => {
-  const { t } = useTranslation();
-  const quantities = [
-    {
-      value: 2,
-      label: t('transcriptionPage-2-sentences'),
-      time: t('transcriptionPage-approx-5-min'),
-      color: 'bg-success text-success-foreground border-success-border',
-    },
-    {
-      value: 5,
-      label: t('transcriptionPage-5-sentences'),
-      time: t('transcriptionPage-approx-10-min'),
-      color: 'bg-primary text-primary-foreground border-primary-border',
-    },
-    {
-      value: 10,
-      label: t('transcriptionPage-10-sentences'),
-      time: t('transcriptionPage-approx-20-min'),
-      color: 'bg-info text-info-foreground border-info-border',
-    },
-    {
-      value: 15,
-      label: t('transcriptionPage-15-sentences'),
-      time: t('transcriptionPage-approx-30-min'),
-      color: 'bg-warning text-warning-foreground border-warning-border',
-    },
-    {
-      value: 20,
-      label: t('transcriptionPage-20-sentences'),
-      time: t('transcriptionPage-approx-40-min'),
-      color: 'bg-destructive text-destructive-foreground border-destructive-border',
-    },
-  ];
+  const { t, i18n } = useTranslation();
+  const isBangla = i18n.language?.startsWith('bn');
+
+  const toBanglaDigits = (value: number | string) => {
+    const digits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+    return value.toString().replace(/\d/g, digit => digits[Number(digit)]);
+  };
+
+  const formatCountDisplay = (value: number) =>
+    isBangla ? toBanglaDigits(value) : value.toString();
+  const formatText = (text: string) => (isBangla ? toBanglaDigits(text) : text);
+
+  const colorMap = {
+    2: 'bg-success text-success-foreground border-success-border',
+    5: 'bg-primary text-primary-foreground border-primary-border',
+    10: 'bg-info text-info-foreground border-info-border',
+    15: 'bg-warning text-warning-foreground border-warning-border',
+    20: 'bg-destructive text-destructive-foreground border-destructive-border',
+  } as const;
+
+  const quantities = QUANTITY_OPTIONS.map(option => ({
+    value: option.value,
+    label: t(option.label),
+    time: t(option.time),
+    color: colorMap[option.value as keyof typeof colorMap],
+    displayValue: formatCountDisplay(option.value),
+  }));
 
   return (
     <div className={`bg-card border border-border rounded-lg p-6 ${className}`}>
@@ -88,7 +83,7 @@ const QuantitySelector: React.FC<QuantitySelectorProps> = ({
             )}
 
             <div className="space-y-2">
-              <div className="text-2xl font-bold">{option.value}</div>
+              <div className="text-2xl font-bold">{option.displayValue}</div>
               <div className="text-sm font-medium">{option.label}</div>
               <div className="flex items-center justify-center text-xs opacity-75">
                 <ClockIcon className="w-3 h-3 mr-1" />
@@ -117,7 +112,7 @@ const QuantitySelector: React.FC<QuantitySelectorProps> = ({
             </div>
             <div className="text-sm text-primary-foreground">
               <p className="font-medium mb-1">
-                {t('quantitySelector-selected', { count: selectedQuantity })}{' '}
+                {formatText(t('quantitySelector-selected', { count: selectedQuantity }))}{' '}
               </p>
               <ul className="text-xs space-y-1 opacity-90">
                 <li>{t('quantitySelector-tip-1')}</li>
@@ -133,4 +128,4 @@ const QuantitySelector: React.FC<QuantitySelectorProps> = ({
   );
 };
 
-export default QuantitySelector;
+export default memo(QuantitySelector);

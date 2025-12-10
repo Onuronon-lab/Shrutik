@@ -1,1 +1,1 @@
-export { default as ExportBatchManager } from './ExportBatchManager';
+export { default, ExportBatchManager } from './ExportBatchManager';
