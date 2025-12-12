@@ -30,7 +30,13 @@ const TranscriptionForm: React.FC<TranscriptionFormProps> = ({
   const [showBanglaKeyboard, setShowBanglaKeyboard] = React.useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isBangla = i18n.language?.startsWith('bn');
+
+  const toBanglaDigits = (value: number | string) => {
+    const digits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+    return value.toString().replace(/\d/g, digit => digits[Number(digit)]);
+  };
 
   const {
     register,
@@ -126,7 +132,15 @@ const TranscriptionForm: React.FC<TranscriptionFormProps> = ({
 
           {/* Character Count */}
           <div className="mt-1 text-xs text-gray-500 text-right">
-            {t('transcriptionForm-char-count', { count: text.length })}
+            {isBangla
+              ? toBanglaDigits(
+                  t('transcriptionForm-char-count', {
+                    count: text.length,
+                  })
+                )
+              : t('transcriptionForm-char-count', {
+                  count: text.length,
+                })}
           </div>
         </div>
 

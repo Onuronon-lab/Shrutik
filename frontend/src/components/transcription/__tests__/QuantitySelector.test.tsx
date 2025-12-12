@@ -46,8 +46,8 @@ describe('QuantitySelector', () => {
       <QuantitySelector selectedQuantity={10} onQuantityChange={mockOnQuantityChange} />
     );
 
-    const tenOption = screen.getByText('১০টি বাক্য');
-    expect(tenOption).toHaveClass('border-current');
+    const tenOptionButton = screen.getByText('১০টি বাক্য').closest('button');
+    expect(tenOptionButton).toHaveClass('border-current');
   });
 
   test('shows instructions when quantity is selected', () => {

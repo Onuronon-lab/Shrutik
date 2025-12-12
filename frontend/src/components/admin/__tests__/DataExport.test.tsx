@@ -1,32 +1,63 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import DataExport from '../DataExport';
 
-// Mock the API service
-jest.mock('../../../services/api', () => ({
-  apiService: {
-    getExportStatistics: jest.fn().mockResolvedValue({
-      statistics: {
-        total_recordings: 100,
-        total_chunks: 500,
-        total_transcriptions: 1000,
-        validated_transcriptions: 800,
-      },
-    }),
-    getExportHistory: jest.fn().mockResolvedValue({
-      logs: [],
-      total_count: 0,
-      page: 1,
-      page_size: 20,
-    }),
-    exportDataset: jest.fn(),
-    exportMetadata: jest.fn(),
+const mockUseAuth = jest.fn();
+const mockUseExportStats = jest.fn();
+const mockUseExportHistory = jest.fn();
+const mockExportDataset = jest.fn();
+const mockExportMetadata = jest.fn();
+const mockT = jest.fn();
+
+jest.mock('../../../contexts/AuthContext', () => ({
+  useAuth: () => mockUseAuth(),
+}));
+
+jest.mock('../../../services/export.service', () => ({
+  exportService: {
+    exportDataset: (...args: unknown[]) => mockExportDataset(...args),
+    exportMetadata: (...args: unknown[]) => mockExportMetadata(...args),
   },
 }));
 
-// Mock the useAuth hook
-jest.mock('../../../contexts/AuthContext', () => ({
-  useAuth: () => ({
+jest.mock('../../../features/export/hooks/useExportStats', () => ({
+  useExportStats: (...args: unknown[]) => mockUseExportStats(...args),
+}));
+
+jest.mock('../../../features/export/hooks/useExportHistory', () => ({
+  useExportHistory: (...args: unknown[]) => mockUseExportHistory(...args),
+}));
+
+jest.mock('../../../features/export/components/DatasetExportForm', () => ({
+  DatasetExportForm: ({ t }: { t: (key: string) => string }) => (
+    <div data-testid="dataset-form">{t('dataExport-exportButton')}</div>
+  ),
+}));
+
+jest.mock('../../../features/export/components/MetadataExportPanel', () => ({
+  MetadataExportPanel: () => <div data-testid="metadata-panel" />,
+}));
+
+jest.mock('../../../features/export/components/PlatformStatsOverview', () => ({
+  PlatformStatsOverview: () => <div data-testid="stats-overview" />,
+}));
+
+jest.mock('../../../features/export/components/ExportHistoryPanel', () => ({
+  ExportHistoryPanel: () => <div data-testid="history-panel" />,
+}));
+
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string, vars?: Record<string, unknown>) => mockT(key, vars),
+    i18n: { language: 'en' },
+  }),
+}));
+
+const DataExport = require('../DataExport').default;
+
+const renderComponent = (component: React.ReactElement) => render(component);
+
+beforeEach(() => {
+  mockUseAuth.mockReturnValue({
     user: {
       id: 1,
       name: 'Test Developer',
@@ -38,70 +69,98 @@ jest.mock('../../../contexts/AuthContext', () => ({
     logout: jest.fn(),
     isAuthenticated: true,
     isLoading: false,
-  }),
-}));
+  });
 
-const renderComponent = (component: React.ReactElement) => {
-  return render(component);
-};
+  mockUseExportStats.mockReturnValue({
+    stats: {
+      total_recordings: 100,
+      total_chunks: 500,
+      total_transcriptions: 1000,
+      validated_transcriptions: 800,
+    },
+    loading: false,
+    error: null,
+  });
+
+  mockUseExportHistory.mockReturnValue({
+    history: {
+      logs: [],
+      total_count: 0,
+      page_size: 20,
+    },
+    loading: false,
+    error: null,
+    filters: {},
+    setFilters: jest.fn(),
+    page: 1,
+    setPage: jest.fn(),
+  });
+
+  mockExportDataset.mockResolvedValue({
+    export_id: 'export-123',
+    total_records: 120,
+    data: { sample: true },
+  });
+
+  mockExportMetadata.mockResolvedValue({
+    export_id: 'meta-123',
+    statistics: {},
+    platform_metrics: {},
+  });
+
+  mockT.mockImplementation((key: string, vars?: Record<string, unknown>) => {
+    if (vars && typeof vars.count !== 'undefined') {
+      return `${key}-${vars.count}`;
+    }
+    return key;
+  });
+});
+
+afterEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('DataExport Component', () => {
-  test('renders data export interface for sworik developer', () => {
+  test('renders data export interface for Sworik developer', () => {
     renderComponent(<DataExport />);
 
-    // Check if main heading is present
-    expect(screen.getByText('Data Export')).toBeInTheDocument();
-    expect(
-      screen.getByText('Export validated datasets and platform metadata for AI training')
-    ).toBeInTheDocument();
+    expect(screen.getByText('dataExport-title')).toBeInTheDocument();
+    expect(screen.getByText('dataExport-subtitle')).toBeInTheDocument();
 
-    // Check if tabs are present
-    expect(screen.getByText('Dataset Export')).toBeInTheDocument();
-    expect(screen.getByText('Metadata Export')).toBeInTheDocument();
-    expect(screen.getByText('Export History')).toBeInTheDocument();
+    expect(screen.getByText('exportTab-dataset')).toBeInTheDocument();
+    expect(screen.getByText('exportTab-metadata')).toBeInTheDocument();
+    expect(screen.getByText('exportTab-history')).toBeInTheDocument();
+
+    expect(screen.getByTestId('stats-overview')).toBeInTheDocument();
   });
 
   test('shows dataset export form by default', () => {
     renderComponent(<DataExport />);
 
-    // Check if dataset export form elements are present
-    expect(screen.getByText('Export Format')).toBeInTheDocument();
-    expect(screen.getByText('Quality Filters')).toBeInTheDocument();
-    // Use getAllByText to handle multiple instances
-    expect(screen.getAllByText('Export Dataset')[0]).toBeInTheDocument();
+    expect(screen.getByTestId('dataset-form')).toHaveTextContent('dataExport-exportButton');
   });
 });
 
 describe('DataExport Access Control', () => {
-  test('shows access denied for non-sworik developer', () => {
-    // Mock useAuth to return a contributor user
-    jest.doMock('../../../contexts/AuthContext', () => ({
-      useAuth: () => ({
-        user: {
-          id: 1,
-          name: 'Test Contributor',
-          email: 'contributor@example.com',
-          role: 'contributor',
-        },
-        token: 'mock-token',
-        login: jest.fn(),
-        logout: jest.fn(),
-        isAuthenticated: true,
-        isLoading: false,
-      }),
-    }));
+  test('shows access denied message for unauthorized role', () => {
+    mockUseAuth.mockReturnValue({
+      user: {
+        id: 2,
+        name: 'Test Contributor',
+        email: 'contributor@example.com',
+        role: 'contributor',
+      },
+      token: 'mock-token',
+      login: jest.fn(),
+      logout: jest.fn(),
+      isAuthenticated: true,
+      isLoading: false,
+    });
 
-    // Re-import the component to get the new mock
-    const DataExportWithContributor = require('../DataExport').default;
+    renderComponent(<DataExport />);
 
-    renderComponent(<DataExportWithContributor />);
-
-    // Check if access denied message is shown
-    expect(screen.getByText('Access Denied')).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        'Data export functionality is restricted to Admins and Sworik developers only.'
-      )
-    ).toBeInTheDocument();
+    expect(screen.getByText('access_denied')).toBeInTheDocument();
+    expect(screen.getByText('export_restricted')).toBeInTheDocument();
+    expect(screen.queryByTestId('dataset-form')).not.toBeInTheDocument();
   });
 });
