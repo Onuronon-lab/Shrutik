@@ -34,6 +34,33 @@ interface VoiceRecordingInterfaceProps {
   onRecordingComplete?: (recording: VoiceRecording) => void;
 }
 
+interface AudioFileMetadata {
+  file: File;
+  sampleRate: number;
+  channels: number;
+  bitDepth: number;
+}
+
+// Simple function to create file with metadata
+const createAudioFile = (blob: Blob): AudioFileMetadata => {
+  const file = new File([blob], 'recording.webm', { type: 'audio/webm' });
+
+  // Log file details for debugging
+  console.log('Created WebM file:', {
+    name: file.name,
+    type: file.type,
+    size: file.size,
+    lastModified: file.lastModified,
+  });
+
+  return {
+    file: file,
+    sampleRate: 48000, // Default for most WebM recordings
+    channels: 1, // Mono
+    bitDepth: 16, // Standard bit depth
+  };
+};
+
 const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
   onRecordingComplete,
 }) => {
@@ -303,29 +330,26 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
     setError(null);
 
     try {
-      // Convert webm to wav for better compatibility
-      const audioFile = new File([recordingState.audioBlob], 'recording.webm', {
-        type: 'audio/webm',
-      });
+      const audioFile = createAudioFile(recordingState.audioBlob);
 
       let sessionToUse = recordingSession;
 
-      // Try to upload with current session first
+      // Upload with WebM format
       let uploadData = {
         session_id: sessionToUse.session_id,
         duration: recordingState.recordingTime,
         audio_format: 'webm',
-        file_size: recordingState.audioBlob.size,
-        sample_rate: 44100,
-        channels: 1,
-        bit_depth: 16,
+        file_size: audioFile.file.size,
+        sample_rate: audioFile.sampleRate,
+        channels: audioFile.channels,
+        bit_depth: audioFile.bitDepth,
       };
 
       console.log('Upload data:', uploadData);
       console.log('Audio file:', audioFile);
 
       try {
-        const recording = await recordingService.uploadRecording(audioFile, uploadData);
+        const recording = await recordingService.uploadRecording(audioFile.file, uploadData);
 
         setUploadStatus('success');
         setUploadProgress(100);
@@ -354,7 +378,7 @@ const VoiceRecordingInterface: React.FC<VoiceRecordingInterfaceProps> = ({
           uploadData.session_id = newSession.session_id;
 
           // Retry upload with new session
-          const recording = await recordingService.uploadRecording(audioFile, uploadData);
+          const recording = await recordingService.uploadRecording(audioFile.file, uploadData);
 
           setUploadStatus('success');
           setUploadProgress(100);
