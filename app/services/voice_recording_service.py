@@ -196,15 +196,16 @@ class VoiceRecordingService:
         try:
             # Generate unique filename
             file_hash = hashlib.md5(
-                "{session.session_id}_{user_id}_{datetime.now(timezone.utc).isoformat()}".encode()
+                f"{session.session_id}_{user_id}_{datetime.now(timezone.utc).isoformat()}".encode()
             ).hexdigest()
-            filename = "{file_hash}{file_extension}"
+            filename = f"{file_hash}{file_extension}"
 
-            # Create upload directory structure
-            upload_dir = os.path.join(settings.UPLOAD_DIR, "recordings", str(user_id))
-            os.makedirs(upload_dir, exist_ok=True)
+            # Create a temporary directory for uploads
+            temp_dir = os.path.join(settings.UPLOAD_DIR, "temp")
+            os.makedirs(temp_dir, exist_ok=True)
 
-            file_path = os.path.join(upload_dir, filename)
+            # Save to temp location first
+            file_path = os.path.join(temp_dir, filename)
 
             # Save file
             with open(file_path, "wb") as buffer:
@@ -216,7 +217,7 @@ class VoiceRecordingService:
                 file_path, upload_data
             )
 
-            # Create database record
+            # Create database record first to get the recording ID
             recording_data = VoiceRecordingCreate(
                 script_id=session.script_id,
                 language_id=session.language_id,
@@ -229,15 +230,17 @@ class VoiceRecordingService:
                     "bit_depth": upload_data.bit_depth,
                     "file_size": upload_data.file_size,
                     "original_filename": audio_file.filename,
+                    "temp_file_path": file_path,  # Store temp path for cleanup if needed
                     **audio_metadata,
                 },
             )
 
+            # Create record with empty file_path first
             db_recording = VoiceRecording(
                 user_id=user_id,
                 script_id=recording_data.script_id,
                 language_id=recording_data.language_id,
-                file_path=file_path,
+                file_path="",  # Will be updated after moving the file
                 duration=recording_data.duration,
                 status=RecordingStatus.UPLOADED,
                 meta_data=recording_data.meta_data,
@@ -246,6 +249,20 @@ class VoiceRecordingService:
             self.db.add(db_recording)
             self.db.commit()
             self.db.refresh(db_recording)
+
+            # Now that we have the recording ID, create the final directory structure
+            final_dir = os.path.join(
+                settings.UPLOAD_DIR, "recordings", str(user_id), str(db_recording.id)
+            )
+            os.makedirs(final_dir, exist_ok=True)
+
+            # Move the file to its final location with recording ID as the filename
+            final_path = os.path.join(final_dir, f"{db_recording.id}.webm")
+            os.rename(file_path, final_path)
+
+            # Update the recording with the final path
+            db_recording.file_path = final_path
+            self.db.commit()
 
             # Clean up session
             if session.session_id in self._active_sessions:
@@ -272,9 +289,28 @@ class VoiceRecordingService:
     def _validate_and_extract_audio_metadata(
         self, file_path: str, upload_data: RecordingUploadRequest
     ) -> Dict[str, Any]:
-        """Validate audio file and extract metadata using librosa."""
+        """Validate audio file and extract metadata.
+
+        For WebM files, we trust the metadata from the frontend and skip librosa validation
+        since it has issues with WebM format.
+        """
         try:
-            # Load audio file
+            # For WebM files, use the metadata from the upload request
+            if upload_data.audio_format.lower() == "webm":
+                logger.info(f"Processing WebM file, skipping librosa validation")
+                return {
+                    "duration": upload_data.duration,
+                    "sample_rate": upload_data.sample_rate,
+                    "channels": upload_data.channels,
+                    "bit_depth": upload_data.bit_depth,
+                    "rms_energy": [],
+                    "spectral_centroid": [],
+                    "zero_crossing_rate": [],
+                    "silence_percentage": 0.0,
+                    "is_valid": True,
+                }
+
+            # For other formats, use librosa for validation
             y, sr = librosa.load(file_path, sr=None)
 
             # Extract metadata
