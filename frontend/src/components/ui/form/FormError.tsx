@@ -1,8 +1,7 @@
-import React from 'react';
 import { FieldErrors } from 'react-hook-form';
 
 interface FormErrorProps {
-  error?: string | FieldErrors<any>;
+  error?: string | FieldErrors<any> | undefined;
   className?: string;
 }
 

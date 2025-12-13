@@ -35,7 +35,7 @@ const TranscriptionForm: React.FC<TranscriptionFormProps> = ({
 
   const toBanglaDigits = (value: number | string) => {
     const digits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
-    return value.toString().replace(/\d/g, digit => digits[Number(digit)]);
+    return value.toString().replace(/\d/g, digit => digits[Number(digit)] || digit);
   };
 
   const {

@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import {
   MicrophoneIcon,
   DocumentTextIcon,
-  Cog6ToothIcon,
+  ShieldCheckIcon,
   ArrowDownTrayIcon,
   Bars3Icon,
   XMarkIcon,
@@ -38,7 +38,7 @@ const Navbar: React.FC = () => {
     {
       name: 'Admin',
       href: '/admin',
-      icon: Cog6ToothIcon,
+      icon: ShieldCheckIcon,
       roles: ['admin'],
     },
   ];

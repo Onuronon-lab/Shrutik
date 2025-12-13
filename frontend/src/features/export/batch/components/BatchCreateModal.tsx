@@ -1,5 +1,5 @@
 import React from 'react';
-import { InformationCircleIcon, ArrowPathIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { InformationCircleIcon } from '@heroicons/react/24/outline';
 import type { TFunction } from 'i18next';
 import { Modal, Button } from '../../../../components/ui';
 import type { CreateBatchFormValues } from '../types';

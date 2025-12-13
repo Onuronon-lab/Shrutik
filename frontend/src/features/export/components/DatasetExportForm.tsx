@@ -104,9 +104,9 @@ export const DatasetExportForm: React.FC<DatasetExportFormProps> = ({
                     step="0.1"
                     value={request.quality_filters?.min_confidence ?? ''}
                     onChange={e =>
-                      updateQualityFilters({
-                        min_confidence: e.target.value ? parseFloat(e.target.value) : undefined,
-                      })
+                      updateQualityFilters(
+                        e.target.value ? { min_confidence: parseFloat(e.target.value) } : {}
+                      )
                     }
                     className="w-full px-2 py-1 text-sm border border-border rounded focus:ring-1 focus:ring-ring"
                     placeholder="0.0-1.0"
@@ -123,9 +123,9 @@ export const DatasetExportForm: React.FC<DatasetExportFormProps> = ({
                     step="0.1"
                     value={request.quality_filters?.min_quality ?? ''}
                     onChange={e =>
-                      updateQualityFilters({
-                        min_quality: e.target.value ? parseFloat(e.target.value) : undefined,
-                      })
+                      updateQualityFilters(
+                        e.target.value ? { min_quality: parseFloat(e.target.value) } : {}
+                      )
                     }
                     className="w-full px-2 py-1 text-sm border border-border rounded focus:ring-1 focus:ring-ring"
                     placeholder="0.0-1.0"
@@ -147,7 +147,7 @@ export const DatasetExportForm: React.FC<DatasetExportFormProps> = ({
                 <input
                   type="date"
                   value={request.date_from || ''}
-                  onChange={e => updateRequest({ date_from: e.target.value || undefined })}
+                  onChange={e => updateRequest(e.target.value ? { date_from: e.target.value } : {})}
                   className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring"
                 />
               </div>
@@ -158,7 +158,7 @@ export const DatasetExportForm: React.FC<DatasetExportFormProps> = ({
                 <input
                   type="date"
                   value={request.date_to || ''}
-                  onChange={e => updateRequest({ date_to: e.target.value || undefined })}
+                  onChange={e => updateRequest(e.target.value ? { date_to: e.target.value } : {})}
                   className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring"
                 />
               </div>
@@ -174,9 +174,7 @@ export const DatasetExportForm: React.FC<DatasetExportFormProps> = ({
               min="1"
               value={request.max_records ?? ''}
               onChange={e =>
-                updateRequest({
-                  max_records: e.target.value ? parseInt(e.target.value, 10) : undefined,
-                })
+                updateRequest(e.target.value ? { max_records: parseInt(e.target.value, 10) } : {})
               }
               className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring"
               placeholder={t('leave-empt-for-all-records')}

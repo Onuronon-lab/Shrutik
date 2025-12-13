@@ -125,11 +125,14 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - REACT_APP_API_URL=http://localhost:8000/api
+      - VITE_API_URL=http://localhost:8000/api
+      - DOCKER_ENV=true
     volumes:
       - ./frontend/src:/app/src
       - ./frontend/public:/app/public
-    command: npm start
+      - ./frontend/vite.config.ts:/app/vite.config.ts
+      - ./frontend/tsconfig.json:/app/tsconfig.json
+    command: npm run dev -- --host 0.0.0.0
     depends_on:
       - backend
     stdin_open: true

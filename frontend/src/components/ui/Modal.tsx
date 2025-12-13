@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { cn } from '../../utils/cn';
 

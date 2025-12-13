@@ -1,11 +1,12 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
+import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest';
 import QuantitySelector from '../QuantitySelector';
 import i18n from '../../../i18n';
 
 describe('QuantitySelector', () => {
-  const mockOnQuantityChange = jest.fn();
+  const mockOnQuantityChange = vi.fn();
 
   const renderWithI18n = (ui: React.ReactElement) =>
     render(<I18nextProvider i18n={i18n}>{ui}</I18nextProvider>);
@@ -18,7 +19,7 @@ describe('QuantitySelector', () => {
     mockOnQuantityChange.mockClear();
   });
 
-  test('renders quantity options', () => {
+  it('renders quantity options', () => {
     renderWithI18n(
       <QuantitySelector selectedQuantity={0} onQuantityChange={mockOnQuantityChange} />
     );
@@ -30,7 +31,7 @@ describe('QuantitySelector', () => {
     expect(screen.getByText('২০টি বাক্য')).toBeInTheDocument();
   });
 
-  test('calls onQuantityChange when option is selected', () => {
+  it('calls onQuantityChange when option is selected', () => {
     renderWithI18n(
       <QuantitySelector selectedQuantity={0} onQuantityChange={mockOnQuantityChange} />
     );
@@ -41,7 +42,7 @@ describe('QuantitySelector', () => {
     expect(mockOnQuantityChange).toHaveBeenCalledWith(5);
   });
 
-  test('shows selected quantity with visual indicator', () => {
+  it('shows selected quantity with visual indicator', () => {
     renderWithI18n(
       <QuantitySelector selectedQuantity={10} onQuantityChange={mockOnQuantityChange} />
     );
@@ -50,7 +51,7 @@ describe('QuantitySelector', () => {
     expect(tenOptionButton).toHaveClass('border-current');
   });
 
-  test('shows instructions when quantity is selected', () => {
+  it('shows instructions when quantity is selected', () => {
     renderWithI18n(
       <QuantitySelector selectedQuantity={5} onQuantityChange={mockOnQuantityChange} />
     );

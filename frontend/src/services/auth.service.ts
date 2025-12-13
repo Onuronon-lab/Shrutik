@@ -22,7 +22,9 @@ export const authService = {
         token: token,
       };
     } finally {
-      apiClient.api.defaults.headers.Authorization = originalAuth;
+      if (originalAuth !== undefined) {
+        apiClient.api.defaults.headers.Authorization = originalAuth;
+      }
     }
   },
 
