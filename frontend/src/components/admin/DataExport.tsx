@@ -23,7 +23,6 @@ import { ExportHistoryPanel } from '../../features/export/components/ExportHisto
 import { useExportStats } from '../../features/export/hooks/useExportStats';
 import { useExportHistory } from '../../features/export/hooks/useExportHistory';
 import { ExportTab } from '../../features/export/types';
-import LoadingSpinner from '../common/LoadingSpinner';
 
 const INITIAL_DATASET_REQUEST: DatasetExportRequest = {
   format: 'json',
