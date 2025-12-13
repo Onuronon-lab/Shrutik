@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { DocumentTextIcon } from '@heroicons/react/24/outline';
 import QuantitySelector from '../components/transcription/QuantitySelector';
-import TranscriptionInterface from '../components/transcription/TranscriptionInterface';
+import LazyTranscriptionInterface from '../components/transcription/LazyTranscriptionInterface';
 import { useTranslation } from 'react-i18next';
 
 const TranscribePage: React.FC = () => {
@@ -34,7 +34,7 @@ const TranscribePage: React.FC = () => {
   if (sessionStarted) {
     return (
       <div className="max-w-4xl mx-auto">
-        <TranscriptionInterface
+        <LazyTranscriptionInterface
           selectedQuantity={selectedQuantity}
           onComplete={handleSessionComplete}
           onBack={handleBackToSelection}
