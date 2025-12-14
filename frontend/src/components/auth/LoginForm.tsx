@@ -1,27 +1,36 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
-import { ThemeToggle } from '../layout/ThemeSwitcher';
 import { useTranslation } from 'react-i18next';
-import LanguageSwitch from '../layout/LanguageSwitch';
+import { SettingsMenu } from '../layout/SettingsMenu';
+import { loginSchema, type LoginFormData } from '../../schemas/auth.schema';
+import { FormInput, FormError } from '../ui/form';
+import { cn } from '../../utils/cn';
 
 const LoginForm: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
 
   const { t } = useTranslation();
-
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || '/';
 
-  // show success message from registration redirect
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setError: setFormError,
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  });
+
+  // Show success message from registration redirect
   useEffect(() => {
     if (location.state?.message) {
       setSuccessMessage(location.state.message);
@@ -29,47 +38,38 @@ const LoginForm: React.FC = () => {
     }
   }, [location.state]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
+  const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
 
-    const trimmedEmail = email.trim();
-    if (!/^\S+@\S+\.\S+$/.test(trimmedEmail)) {
-      setError('Invalid email format');
-      setIsLoading(false);
-      return;
-    }
-
     try {
-      const success = await login(trimmedEmail, password);
+      const success = await login(data.email, data.password);
 
       if (success.user) {
-        setIsLoading(false);
         navigate(from, { replace: true });
       } else {
-        setError('Invalid email or password');
+        setFormError('root', { message: 'Invalid email or password' });
       }
     } catch (error: any) {
-      setIsLoading(false); // IMPORTANT
-
       // Axios Error Parsing
       if (error.response) {
-        setError(error.response.data?.error.message || 'Server returned an error');
+        setFormError('root', {
+          message: error.response.data?.error.message || 'Server returned an error',
+        });
       } else if (error.request) {
-        setError('No response from server. It might be offline.');
+        setFormError('root', { message: 'No response from server. It might be offline.' });
       } else {
-        setError(error.message || 'Network Error');
+        setFormError('root', { message: error.message || 'Network Error' });
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8 relative">
       <div className="max-w-md w-full space-y-8">
-        <div className="absolute top-4 right-4 flex items-center space-x-2">
-          <ThemeToggle className="h-8 w-16 px-1 lg:h-10 lg:w-20 lg:px-2" />
-          <LanguageSwitch />
+        <div className="absolute top-4 right-4">
+          <SettingsMenu />
         </div>
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-foreground">
@@ -86,69 +86,45 @@ const LoginForm: React.FC = () => {
           </div>
         )}
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="rounded-md shadow-sm space-y-2">
-            <div>
-              <label htmlFor="email" className="sr-only">
-                {t('login-email')}
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="text"
-                autoComplete="email"
-                required
-                className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${
-                  error
-                    ? 'border-destructive focus:ring-destructive focus:border-destructive'
-                    : 'border-border focus:ring-primary focus:border-primary'
-                } placeholder-nutral text-nutral-foreground rounded-t-md focus:outline-none focus:ring-2 sm:text-sm`}
-                placeholder={t('login-email')}
-                value={email}
-                onChange={e => {
-                  setEmail(e.target.value);
-                  if (error) setError(''); // Clear error when user starts typing
-                }}
-              />
-            </div>
+            <FormInput
+              register={register}
+              errors={errors}
+              name="email"
+              type="text"
+              autoComplete="email"
+              placeholder={t('login-email')}
+              label={t('login-email')}
+              className={cn('rounded-t-md')}
+            />
 
             <div className="relative">
-              <label htmlFor="password" className="sr-only">
-                {t('login-password')}
-              </label>
-              <input
-                id="password"
+              <FormInput
+                register={register}
+                errors={errors}
                 name="password"
                 type={showPassword ? 'text' : 'password'}
                 autoComplete="current-password"
-                required
-                className={`appearance-none rounded-none relative block w-full px-3 py-2 pr-10 border ${
-                  error
-                    ? 'border-destructive focus:ring-destructive focus:border-destructive'
-                    : 'border-border focus:ring-primary focus:border-primary'
-                } placeholder-nutral text-nutral-foreground rounded-b-md focus:outline-none focus:ring-2 sm:text-sm`}
                 placeholder={t('login-password')}
-                value={password}
-                onChange={e => {
-                  setPassword(e.target.value);
-                  if (error) setError(''); // Clear error when user starts typing
-                }}
+                label={t('login-password')}
+                className={cn('rounded-b-md pr-10')}
               />
               <button
                 type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                className="absolute inset-y-0 right-0 flex items-center px-3 bg-input border-l border-border rounded-r-md text-secondary-foreground hover:text-foreground hover:bg-input/90 transition-colors"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? (
-                  <EyeSlashIcon className="h-5 w-5 text-muted-foreground" />
+                  <EyeSlashIcon className="h-5 w-5" />
                 ) : (
-                  <EyeIcon className="h-5 w-5 text-muted-foreground" />
+                  <EyeIcon className="h-5 w-5" />
                 )}
               </button>
             </div>
           </div>
 
-          {error && <div className="text-destructive text-sm text-center">{error}</div>}
+          <FormError error={errors.root?.message} />
 
           <div>
             <button

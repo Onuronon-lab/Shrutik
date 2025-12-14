@@ -1,6 +1,14 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef, useEffect, memo } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { CheckIcon, ForwardIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from 'react-i18next';
+import {
+  transcriptionSchema,
+  type TranscriptionFormData,
+} from '../../schemas/transcription.schema';
+import { FormTextarea } from '../ui/form';
+import { BANGLA_KEYBOARD_LAYOUT } from '../../utils/constants';
 
 interface TranscriptionFormProps {
   chunkId: number;
@@ -19,32 +27,39 @@ const TranscriptionForm: React.FC<TranscriptionFormProps> = ({
   placeholder = 'এখানে বাংলায় অডিওর ট্রান্সক্রিপশন লিখুন...',
   className = '',
 }) => {
-  const [text, setText] = useState('');
-  const [showBanglaKeyboard, setShowBanglaKeyboard] = useState(false);
+  const [showBanglaKeyboard, setShowBanglaKeyboard] = React.useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isBangla = i18n.language?.startsWith('bn');
 
-  // Bangla keyboard layout (simplified)
-  const banglaKeys = [
-    ['১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯', '০'],
-    ['ক', 'খ', 'গ', 'ঘ', 'ঙ', 'চ', 'ছ', 'জ', 'ঝ', 'ঞ'],
-    ['ট', 'ঠ', 'ড', 'ঢ', 'ণ', 'ত', 'থ', 'দ', 'ধ', 'ন'],
-    ['প', 'ফ', 'ব', 'ভ', 'ম', 'য', 'র', 'ল', 'শ', 'ষ'],
-    ['স', 'হ', 'ড়', 'ঢ়', 'য়', 'ৎ', 'ং', 'ঃ', 'ঁ'],
-    ['া', 'ি', 'ী', 'ু', 'ূ', 'ৃ', 'ে', 'ৈ', 'ো', 'ৌ'],
-    ['্', '।', '?', '!', ',', ';', ':', '"', "'", ' '],
-  ];
+  const toBanglaDigits = (value: number | string) => {
+    const digits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+    return value.toString().replace(/\d/g, digit => digits[Number(digit)] || digit);
+  };
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    formState: { errors },
+  } = useForm<TranscriptionFormData>({
+    resolver: zodResolver(transcriptionSchema),
+  });
+
+  const text = watch('text', '');
+
+  const banglaKeys = BANGLA_KEYBOARD_LAYOUT;
 
   useEffect(() => {
     // Reset form when chunk changes
-    setText('');
-  }, [chunkId]);
+    reset();
+  }, [chunkId, reset]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (text.trim() && !isSubmitting) {
-      onSubmit(text.trim());
+  const handleFormSubmit = (data: TranscriptionFormData) => {
+    if (data.text.trim() && !isSubmitting) {
+      onSubmit(data.text.trim());
     }
   };
 
@@ -54,9 +69,12 @@ const TranscriptionForm: React.FC<TranscriptionFormProps> = ({
 
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
-    const newText = text.substring(0, start) + key + text.substring(end);
+    const currentValue = text || '';
+    const newText = currentValue.substring(0, start) + key + currentValue.substring(end);
 
-    setText(newText);
+    // Update form value manually
+    const event = { target: { value: newText } } as any;
+    register('text').onChange(event);
 
     // Set cursor position after the inserted character
     setTimeout(() => {
@@ -70,7 +88,7 @@ const TranscriptionForm: React.FC<TranscriptionFormProps> = ({
     if (e.ctrlKey || e.metaKey) {
       if (e.key === 'Enter') {
         e.preventDefault();
-        handleSubmit(e);
+        handleSubmit(handleFormSubmit)();
       }
     }
   };
@@ -79,24 +97,25 @@ const TranscriptionForm: React.FC<TranscriptionFormProps> = ({
 
   return (
     <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
         {/* Text Input Area */}
         <div>
-          <label htmlFor="transcription" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="text" className="block text-sm font-medium text-gray-700 mb-2">
             {t('transcriptionForm-title')}
           </label>
           <div className="relative">
-            <textarea
+            <FormTextarea
+              register={register}
+              errors={errors}
+              name="text"
               ref={textareaRef}
-              id="transcription"
-              value={text}
-              onChange={e => setText(e.target.value)}
               onKeyDown={handleTextareaKeyDown}
               placeholder={placeholder}
               rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 resize-none"
+              className="focus:ring-green-500 focus:border-green-500"
               style={{ fontFamily: 'SolaimanLipi, Kalpurush, Arial, sans-serif' }}
               disabled={isSubmitting}
+              showLabel={false}
             />
 
             {/* Virtual Keyboard Toggle */}
@@ -113,7 +132,15 @@ const TranscriptionForm: React.FC<TranscriptionFormProps> = ({
 
           {/* Character Count */}
           <div className="mt-1 text-xs text-gray-500 text-right">
-            {t('transcriptionForm-char-count', { count: text.length })} {text.length} অক্ষর
+            {isBangla
+              ? toBanglaDigits(
+                  t('transcriptionForm-char-count', {
+                    count: text.length,
+                  })
+                )
+              : t('transcriptionForm-char-count', {
+                  count: text.length,
+                })}
           </div>
         </div>
 
@@ -178,4 +205,4 @@ const TranscriptionForm: React.FC<TranscriptionFormProps> = ({
   );
 };
 
-export default TranscriptionForm;
+export default memo(TranscriptionForm);

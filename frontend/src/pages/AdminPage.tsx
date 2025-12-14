@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Cog6ToothIcon,
+  ShieldCheckIcon,
   UsersIcon,
   DocumentTextIcon,
   ChartBarIcon,
@@ -9,16 +9,11 @@ import {
   XCircleIcon,
   ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline';
-import { apiService } from '../services/api';
+import { adminService } from '../services/admin.service';
 import { PlatformStats, SystemHealth } from '../types/api';
 import { useAuth } from '../contexts/AuthContext';
-import {
-  UserManagement,
-  ScriptManagement,
-  QualityReview,
-  StatsDashboard,
-  DataExport,
-} from '../components/admin';
+import { UserManagement, ScriptManagement, QualityReview, DataExport } from '../components/admin';
+import LazyStatsDashboard from '../components/admin/LazyStatsDashboard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 
 type TabType = 'overview' | 'users' | 'scripts' | 'quality' | 'stats' | 'export';
@@ -40,8 +35,8 @@ const AdminPage: React.FC = () => {
       setLoading(true);
       setError(null);
       const [statsData, healthData] = await Promise.all([
-        apiService.getPlatformStats(),
-        apiService.getSystemHealth(),
+        adminService.getPlatformStats(),
+        adminService.getSystemHealth(),
       ]);
       setPlatformStats(statsData);
       setSystemHealth(healthData);
@@ -75,7 +70,7 @@ const AdminPage: React.FC = () => {
       case 'quality':
         return <QualityReview />;
       case 'stats':
-        return <StatsDashboard />;
+        return <LazyStatsDashboard />;
       case 'export':
         return <DataExport />;
       default:
@@ -265,7 +260,7 @@ const AdminPage: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto">
       <div className="text-center mb-8">
-        <Cog6ToothIcon className="mx-auto h-16 w-16 text-primary mb-4" />
+        <ShieldCheckIcon className="mx-auto h-16 w-16 text-primary mb-4" />
         <h1 className="text-3xl font-bold text-foreground mb-2">Admin Dashboard</h1>
         <p className="text-secondary-foreground">
           Manage users, scripts, and monitor platform activity

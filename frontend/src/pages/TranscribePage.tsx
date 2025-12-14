@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { DocumentTextIcon } from '@heroicons/react/24/outline';
 import QuantitySelector from '../components/transcription/QuantitySelector';
-import TranscriptionInterface from '../components/transcription/TranscriptionInterface';
+import LazyTranscriptionInterface from '../components/transcription/LazyTranscriptionInterface';
 import { useTranslation } from 'react-i18next';
 
 const TranscribePage: React.FC = () => {
@@ -9,6 +9,8 @@ const TranscribePage: React.FC = () => {
   const [sessionStarted, setSessionStarted] = useState(false);
 
   const { t } = useTranslation();
+
+  const formatInstruction = (key: string) => t(key).replace(/^•\s*/, '').trim();
 
   const handleQuantityChange = (quantity: number) => {
     setSelectedQuantity(quantity);
@@ -32,7 +34,7 @@ const TranscribePage: React.FC = () => {
   if (sessionStarted) {
     return (
       <div className="max-w-4xl mx-auto">
-        <TranscriptionInterface
+        <LazyTranscriptionInterface
           selectedQuantity={selectedQuantity}
           onComplete={handleSessionComplete}
           onBack={handleBackToSelection}
@@ -69,27 +71,65 @@ const TranscribePage: React.FC = () => {
         )}
 
         {/* Instructions */}
-        <div className="bg-info border border-info-border rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-info-foreground mb-4">
+        <div className="relative overflow-hidden rounded-2xl border border-border bg-card/90 dark:bg-muted/40 p-6 shadow-[0_12px_45px_rgba(15,23,42,0.18)] backdrop-blur">
+          <div className="pointer-events-none absolute inset-0 opacity-80 dark:opacity-40">
+            <div className="absolute -top-24 -right-16 h-48 w-48 rounded-full bg-primary/20 blur-3xl" />
+            <div className="absolute -bottom-16 -left-10 h-40 w-40 rounded-full bg-violet-400/20 blur-3xl" />
+          </div>
+          <div className="relative flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+            <div className="h-8 w-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center ring-1 ring-primary/20">
+              ℹ️
+            </div>
+            <span>{t('transcriptionPage-instruction')}</span>
+          </div>
+          <h3 className="relative text-2xl font-semibold text-foreground mb-6 mt-3">
             {t('transcriptionPage-instruction')}
           </h3>
-          <div className="grid md:grid-cols-2 gap-4 text-sm text-info-foreground">
-            <div>
-              <h4 className="font-medium mb-2">{t('transcriptionPage-audio-instructions')}</h4>
-              <ul className="space-y-1 text-xs">
-                <li>{t('transcriptionPage-audio-play')}</li>
-                <li>{t('transcriptionPage-audio-waveform')}</li>
-                <li>{t('transcriptionPage-audio-restart')}</li>
-                <li>{t('transcriptionPage-audio-repeat')}</li>
+          <div className="relative grid gap-6 md:grid-cols-2 text-sm text-secondary-foreground">
+            <div className="rounded-xl border border-border bg-card/80 dark:bg-muted/60 p-5 shadow-sm">
+              <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                {t('transcriptionPage-audio-instructions')}
+              </h4>
+              <ul className="space-y-2 text-xs leading-relaxed">
+                <li className="flex items-start gap-2">
+                  <span className="text-primary/80 text-base leading-none">•</span>
+                  {formatInstruction('transcriptionPage-audio-play')}
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary/80 text-base leading-none">•</span>
+                  {formatInstruction('transcriptionPage-audio-waveform')}
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary/80 text-base leading-none">•</span>
+                  {formatInstruction('transcriptionPage-audio-restart')}
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary/80 text-base leading-none">•</span>
+                  {formatInstruction('transcriptionPage-audio-repeat')}
+                </li>
               </ul>
             </div>
-            <div>
-              <h4 className="font-medium mb-2">{t('transcriptionPage-writing-instructions')}</h4>
-              <ul className="space-y-1 text-xs">
-                <li>{t('transcriptionPage-write-accurately')}</li>
-                <li>{t('transcriptionPage-use-keyboard')}</li>
-                <li>{t('transcriptionPage-avoid-unclear-audio')}</li>
-                <li>{t('transcriptionPage-submit-shortcut')}</li>
+            <div className="rounded-xl border border-border bg-card/80 dark:bg-muted/60 p-5 shadow-sm">
+              <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                {t('transcriptionPage-writing-instructions')}
+              </h4>
+              <ul className="space-y-2 text-xs leading-relaxed">
+                <li className="flex items-start gap-2">
+                  <span className="text-violet-500/80 text-base leading-none">•</span>
+                  {formatInstruction('transcriptionPage-write-accurately')}
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-violet-500/80 text-base leading-none">•</span>
+                  {formatInstruction('transcriptionPage-use-keyboard')}
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-violet-500/80 text-base leading-none">•</span>
+                  {formatInstruction('transcriptionPage-avoid-unclear-audio')}
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-violet-500/80 text-base leading-none">•</span>
+                  {formatInstruction('transcriptionPage-submit-shortcut')}
+                </li>
               </ul>
             </div>
           </div>

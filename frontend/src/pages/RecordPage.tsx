@@ -1,19 +1,26 @@
-import React, { useState } from 'react';
+import React, { useCallback } from 'react';
 import { MicrophoneIcon } from '@heroicons/react/24/outline';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 import VoiceRecordingInterface from '../components/recording/VoiceRecordingInterface';
 import ErrorBoundary from '../components/common/ErrorBoundary';
 import { VoiceRecording } from '../types/api';
 import { useTranslation } from 'react-i18next';
+import { useUploadStore } from '../stores/uploadStore';
 
 const RecordPage: React.FC = () => {
-  const [completedRecordings, setCompletedRecordings] = useState<VoiceRecording[]>([]);
-
   const { t } = useTranslation();
 
-  const handleRecordingComplete = (recording: VoiceRecording) => {
-    setCompletedRecordings(prev => [recording, ...prev]);
-  };
+  // Use Zustand store to track completed recordings
+  const uploadState = useUploadStore(state => state.state);
+
+  // Get recent successful uploads as completed recordings
+  const completedRecordings: VoiceRecording[] =
+    uploadState.status === 'success' ? [uploadState.recording] : [];
+
+  const handleRecordingComplete = useCallback((_recording: VoiceRecording) => {
+    // Recording completion is now handled by the upload store
+    // This callback is maintained for backward compatibility
+  }, []);
 
   return (
     <div className="max-w-4xl mx-auto">

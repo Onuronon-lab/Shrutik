@@ -1,16 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useRecordingStore } from '../../stores/recordingStore';
 
 interface AudioVisualizerProps {
   isRecording: boolean;
-  stream?: MediaStream | null;
   className?: string;
 }
 
-const AudioVisualizer: React.FC<AudioVisualizerProps> = ({
-  isRecording,
-  stream,
-  className = '',
-}) => {
+const AudioVisualizer: React.FC<AudioVisualizerProps> = ({ isRecording, className = '' }) => {
+  // Get stream from the recording store instead of props
+  const stream = useRecordingStore(state => state.stream);
   const animationRef = useRef<number | undefined>(undefined);
   const analyserRef = useRef<AnalyserNode | undefined>(undefined);
   const [audioLevel, setAudioLevel] = useState(0);

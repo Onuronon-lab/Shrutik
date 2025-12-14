@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, AuthContextType, AuthResponse } from '../types/auth';
-import { apiService } from '../services/api';
+import { authService } from '../services/auth.service';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -25,7 +25,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const validateStoredToken = async () => {
     try {
-      const response = await apiService.validateToken();
+      const response = await authService.validateToken();
 
       if (response.token) {
         localStorage.setItem('auth_token', response.token);
@@ -46,7 +46,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setIsLoading(true);
 
-      const res = await apiService.login({ email, password });
+      const res = await authService.login({ email, password });
 
       setUser(res.user);
       setToken(res.token);
@@ -64,7 +64,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setIsLoading(true);
 
-      const res = await apiService.register({ name, email, password });
+      const res = await authService.register({ name, email, password });
 
       setUser(res.user);
       setToken(res.token);
