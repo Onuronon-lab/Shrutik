@@ -1,24 +1,31 @@
-## Development
+# Shrutik — dev-testing
 
-This is the deployment-dev branch. All code should be merged and pull requested here before going to the master branch.
+This branch is used for **development, experiments, and testing** before changes are promoted to stable branches.
 
-### Development Workflow
+### Purpose
 
-1. Create feature branch from `deployment-dev`
-2. Implement changes with tests
-3. Run tests and linting
-4. Submit pull request to `deployment-dev`
-5. After review and approval, merge to `deployment-dev`
+- Test new features and ideas
+- Validate bug fixes
+- Run integration & load tests
+- Break things safely (on purpose)
 
-## License
+### Stability
 
-By contributing to Shrutik, you agree that your contributions will be licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. This ensures that all contributions remain available for educational and non-commercial use while requiring attribution to the original creators.
+⚠️ **Not stable. Not production-ready.**  
+Expect frequent changes, unfinished features, and occasional chaos.
 
-## Support
+### Usage
 
-For issues or questions:
+- For contributors and internal testing only
+- Do **not** deploy this branch to production
+- If you want something reliable, switch branches
 
-- File an issue in the project repository
-- Check logs in `logs/` directory
-- Review error messages in database: `SELECT * FROM export_batches WHERE status = 'failed'`
-- Contact system administrator
+### Notes
+
+- May contain temporary configs
+- APIs and behavior can change without notice
+- Force pushes may happen
+
+---
+
+Built fast. Tested hard. Shipped only when ready 🚀
