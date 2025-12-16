@@ -32,10 +32,29 @@ def check_dependencies():
     """Check if required packages are installed and provide installation instructions."""
     required_packages = {
         "sqlalchemy": "sqlalchemy",
-        "edge_tts": "edge-tts",
         "aiohttp": "aiohttp",
         "tqdm": "tqdm",
     }
+
+    # Check for at least one TTS backend
+    tts_available = False
+    try:
+        import edge_tts  # noqa: F401
+
+        tts_available = True
+    except ImportError:
+        pass
+
+    if not tts_available:
+        try:
+            import gtts  # noqa: F401
+
+            tts_available = True
+        except ImportError:
+            pass
+
+    if not tts_available:
+        required_packages["gtts"] = "gtts"  # Add gtts as fallback
 
     missing = []
     for module_name, package_name in required_packages.items():
@@ -61,13 +80,33 @@ def check_dependencies():
 check_dependencies()
 
 import aiohttp
-import edge_tts
 from aiohttp import TCPConnector
-from aiohttp.client_exceptions import (
-    ClientConnectorError,
-    ClientOSError,
-    ClientPayloadError,
-)
+
+# Import TTS libraries - prefer Edge TTS, fallback to Google TTS
+EDGE_TTS_AVAILABLE = False
+GTTS_AVAILABLE = False
+
+try:
+    import edge_tts  # noqa: F401
+
+    EDGE_TTS_AVAILABLE = True
+    print("✓ Edge TTS available")
+except ImportError:
+    print("⚠️  Edge TTS not available")
+
+try:
+    from gtts import gTTS  # noqa: F401
+
+    GTTS_AVAILABLE = True
+    print("✓ Google TTS available")
+except ImportError:
+    print("⚠️  Google TTS not available")
+
+if not EDGE_TTS_AVAILABLE and not GTTS_AVAILABLE:
+    print("ERROR: No TTS backend available. Install at least one:")
+    print("  pip install edge-tts")
+    print("  pip install gtts")
+    sys.exit(1)
 
 # Now import after checking
 from sqlalchemy import create_engine, text
@@ -113,7 +152,7 @@ TARGET_WORDS = {
 
 # TTS settings
 TTS_VOICE = "en-US-JennyNeural"
-TTS_RATE = "0%"
+TTS_RATE = "+0%"  # Ensure proper format
 
 # DB helper user/email
 AUTO_USER = {
@@ -200,11 +239,16 @@ class UniqueContentGenerator:
 
     def generate_unique_script(self, word_target: int) -> str:
         """Generate a narrative-driven script with natural flow."""
+        if word_target < 50:
+            raise ValueError(f"Word target too small: {word_target}")
+
         sections = []
         current_words = 0
 
         # 1. Opening (grab attention)
         opening = self._get_unique_from_pool(self.openings)
+        if not opening:
+            opening = "Let's talk about growth and improvement."
         sections.append(opening)
         current_words += len(opening.split())
 
@@ -298,6 +342,14 @@ class UniqueContentGenerator:
             last_period = trimmed.rfind(".")
             if last_period > 0:
                 full_text = trimmed[: last_period + 1]
+
+        # Validate final output
+        final_words = len(full_text.split())
+        if final_words < 20:
+            raise ValueError(f"Generated script too short: {final_words} words")
+
+        if len(full_text.strip()) < 100:
+            raise ValueError(f"Generated script too short: {len(full_text)} characters")
 
         return full_text
 
@@ -570,44 +622,147 @@ async def db_insert_recording(
 # ----------------- TTS SYNTHESIS -----------------
 
 
-async def synthesize_edge_tts_with_retries(
+async def synthesize_tts_with_retries(
     text: str,
     out_path: Path,
     session: aiohttp.ClientSession,
     retries: int = TTS_MAX_RETRIES,
 ) -> Path:
-    """Synthesize speech with retry logic."""
+    """Synthesize speech with retry logic. Try Edge TTS first, fallback to Google TTS."""
     tmp_mp3 = out_path.with_suffix(".mp3")
-    last_exc = None
 
-    for attempt in range(1, retries + 1):
-        try:
-            comm = edge_tts.Communicate(text, TTS_VOICE)
-            await comm.save(str(tmp_mp3))
-            return tmp_mp3
-        except (
-            ClientConnectorError,
-            ClientPayloadError,
-            ClientOSError,
-            asyncio.TimeoutError,
-        ) as exc:
-            last_exc = exc
-            sleep_for = TTS_RETRY_BASE_SECONDS * (2 ** (attempt - 1))
-            await asyncio.sleep(sleep_for)
-            continue
-        except Exception as exc:
-            last_exc = exc
-            await asyncio.sleep(0.5)
-            continue
+    # Validate text length
+    if len(text.strip()) < 10:
+        raise ValueError(f"Text too short for TTS: {len(text)} characters")
 
-    raise last_exc if last_exc is not None else RuntimeError("TTS failed")
+    # Try Edge TTS first if available
+    if EDGE_TTS_AVAILABLE:
+        print(f"  🎤 Trying Edge TTS for {out_path.name}...")
+        for attempt in range(1, retries + 1):
+            try:
+                print(f"    Edge TTS attempt {attempt}/{retries}...")
+                comm = edge_tts.Communicate(text, TTS_VOICE, rate=TTS_RATE)
+                await comm.save(str(tmp_mp3))
+
+                # Verify the file was created and has content
+                if tmp_mp3.exists() and tmp_mp3.stat().st_size > 1000:  # At least 1KB
+                    print(f"    ✅ Edge TTS successful: {tmp_mp3.stat().st_size} bytes")
+                    return tmp_mp3
+                else:
+                    raise RuntimeError(
+                        f"Edge TTS output file too small: {tmp_mp3.stat().st_size if tmp_mp3.exists() else 0} bytes"
+                    )
+
+            except Exception as exc:
+                print(f"    ⚠️  Edge TTS error (attempt {attempt}): {exc}")
+                if attempt < retries:
+                    sleep_for = TTS_RETRY_BASE_SECONDS * (2 ** (attempt - 1))
+                    print(f"    Retrying in {sleep_for}s...")
+                    await asyncio.sleep(sleep_for)
+                continue
+
+        print(f"  ❌ Edge TTS failed after {retries} attempts, trying Google TTS...")
+
+    # Fallback to Google TTS if Edge TTS failed or not available
+    if GTTS_AVAILABLE:
+        print(f"  🎤 Trying Google TTS for {out_path.name}...")
+        for attempt in range(1, retries + 1):
+            try:
+                print(f"    Google TTS attempt {attempt}/{retries}...")
+
+                # Google TTS is synchronous, run in thread pool
+                def _gtts_sync():
+                    tts = gTTS(text=text, lang="en", slow=False)
+                    tts.save(str(tmp_mp3))
+
+                await asyncio.to_thread(_gtts_sync)
+
+                # Verify the file was created and has content
+                if tmp_mp3.exists() and tmp_mp3.stat().st_size > 1000:  # At least 1KB
+                    print(
+                        f"    ✅ Google TTS successful: {tmp_mp3.stat().st_size} bytes"
+                    )
+                    return tmp_mp3
+                else:
+                    raise RuntimeError(
+                        f"Google TTS output file too small: {tmp_mp3.stat().st_size if tmp_mp3.exists() else 0} bytes"
+                    )
+
+            except Exception as exc:
+                print(f"    ⚠️  Google TTS error (attempt {attempt}): {exc}")
+                if attempt < retries:
+                    sleep_for = TTS_RETRY_BASE_SECONDS * (2 ** (attempt - 1))
+                    print(f"    Retrying in {sleep_for}s...")
+                    await asyncio.sleep(sleep_for)
+                continue
+
+    # If we get here, both TTS backends failed
+    error_msg = f"All TTS backends failed after {retries} attempts each"
+    print(f"  ❌ {error_msg}")
+    raise RuntimeError(error_msg)
 
 
 # ----------------- MAIN GENERATION -----------------
 
 
+async def test_tts_connectivity():
+    """Test TTS services before starting generation. Try Edge TTS first, fallback to Google TTS."""
+    print("🔍 Testing TTS connectivity...")
+    test_text = "This is a test of the text to speech service."
+    test_file = OUT_DIR / "tts_test.mp3"
+
+    # Try Edge TTS first if available
+    if EDGE_TTS_AVAILABLE:
+        print("  Testing Edge TTS...")
+        try:
+            comm = edge_tts.Communicate(test_text, TTS_VOICE, rate=TTS_RATE)
+            await comm.save(str(test_file))
+
+            if test_file.exists() and test_file.stat().st_size > 1000:
+                print(f"  ✅ Edge TTS working: {test_file.stat().st_size} bytes")
+                test_file.unlink()  # Clean up
+                return True
+            else:
+                print(
+                    f"  ❌ Edge TTS failed: file too small ({test_file.stat().st_size if test_file.exists() else 0} bytes)"
+                )
+        except Exception as e:
+            print(f"  ❌ Edge TTS failed: {e}")
+
+    # Try Google TTS if Edge TTS failed or not available
+    if GTTS_AVAILABLE:
+        print("  Testing Google TTS...")
+        try:
+
+            def _gtts_sync():
+                tts = gTTS(text=test_text, lang="en", slow=False)
+                tts.save(str(test_file))
+
+            await asyncio.to_thread(_gtts_sync)
+
+            if test_file.exists() and test_file.stat().st_size > 1000:
+                print(f"  ✅ Google TTS working: {test_file.stat().st_size} bytes")
+                test_file.unlink()  # Clean up
+                return True
+            else:
+                print(
+                    f"  ❌ Google TTS failed: file too small ({test_file.stat().st_size if test_file.exists() else 0} bytes)"
+                )
+        except Exception as e:
+            print(f"  ❌ Google TTS failed: {e}")
+
+    print("❌ All TTS services failed")
+    return False
+
+
 async def run_generation():
     """Main generation workflow."""
+    # Test TTS first
+    if not await test_tts_connectivity():
+        print("\n❌ TTS service is not working. Please check your internet connection.")
+        print("   Edge TTS requires internet access to Microsoft's speech service.")
+        return []
+
     # Get user input
     counts = get_user_input()
 
@@ -631,6 +786,11 @@ async def run_generation():
 
             # Generate unique script
             text_body = content_generator.generate_unique_script(target_words)
+            actual_words = len(text_body.split())
+            print(
+                f"  📄 Generated script: {actual_words} words (target: {target_words})"
+            )
+            print(f"  📄 Preview: {text_body[:150]}...")
 
             # Insert script
             try:
@@ -644,36 +804,17 @@ async def run_generation():
 
             # Synthesize TTS
             outname = OUT_DIR / f"script_{script_id}_{duration_key}_{idx}"
+            print(
+                f"  📝 Generating audio for script {script_id} ({len(text_body.split())} words)..."
+            )
+
             try:
-                tmp_mp3 = await synthesize_edge_tts_with_retries(
-                    text_body, outname, session
-                )
+                tmp_mp3 = await synthesize_tts_with_retries(text_body, outname, session)
             except Exception as e:
-                print(f"[ERROR] TTS failed for script_id={script_id}: {e}")
-                # Create silent fallback
-                fallback = OUT_DIR / f"script_{script_id}_{duration_key}_{idx}.mp3"
-                if FFMPEG_AVAILABLE:
-                    try:
-                        await run_subprocess(
-                            [
-                                "ffmpeg",
-                                "-y",
-                                "-f",
-                                "lavfi",
-                                "-i",
-                                "anullsrc=r=48000:cl=mono",
-                                "-t",
-                                "1",
-                                "-q:a",
-                                "9",
-                                str(fallback),
-                            ]
-                        )
-                    except Exception:
-                        fallback.write_bytes(b"")
-                else:
-                    fallback.write_bytes(b"")
-                tmp_mp3 = fallback
+                print(f"[ERROR] TTS completely failed for script_id={script_id}: {e}")
+                print(f"[ERROR] Script text preview: {text_body[:200]}...")
+                # Don't create fallback - let the error propagate so we can fix the issue
+                raise
 
             # Convert to webm
             final_audio_path = tmp_mp3

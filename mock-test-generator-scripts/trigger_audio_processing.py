@@ -13,6 +13,7 @@ Usage:
 import os
 import sys
 import time
+from typing import List
 
 # Check dependencies
 missing_deps = []
