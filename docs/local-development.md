@@ -26,6 +26,10 @@ This guide covers setting up Shrutik for local development, including all the to
 ```bash
 git clone https://github.com/Onuronon-lab/Shrutik.git
 cd shrutik
+
+# Switch to the deployment-dev branch
+git fetch origin
+git switch deployment-dev
 ```
 
 ### 2. Backend Setup
@@ -174,9 +178,8 @@ pkill -f celery
 # Update config for Docker
 cp .env.docker .env
 
-# Start Docker using development script
-chmod +x docker-dev.sh
-./docker-dev.sh start
+# Start Services 
+docker compose up -d
 ```
 
 **Switch to Local:**
@@ -184,11 +187,7 @@ chmod +x docker-dev.sh
 # Stop Docker
 docker-compose down
 
-# Update config for local
-cp .env.development .env
-
-# Start local services
-./scripts/start-dev.sh
+Follow The Previous Instructions for locally starting service
 ```
 
 > **Complete Docker Guide**: For detailed Docker setup instructions, troubleshooting, and configuration explanations, see our [Docker Local Setup Guide](docker-local-setup.md).
@@ -197,7 +196,6 @@ cp .env.development .env
 
 | File | Purpose | When to Use |
 |------|---------|-------------|
-| `.env.example` | Template with all variables | Reference for available options |
 | `.env.development` | Local development | Native Python development |
 | `.env.docker` | Docker development | Docker Compose development |
 | `.env` | Active configuration | Current environment (copy from above) |

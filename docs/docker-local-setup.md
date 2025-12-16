@@ -18,7 +18,11 @@ This guide explains how to run Shrutik completely with Docker on your local mach
 
 ```bash
 git clone https://github.com/Onuronon-lab/Shrutik.git
-cd Shrutik
+cd 
+
+# Switch to the deployment-dev branch
+git fetch origin
+git switch deployment-dev
 
 ```
 
@@ -124,7 +128,6 @@ docker compose exec backend python scripts/create_admin.py --name "Admin" --emai
 
 -   **Frontend** → [http://localhost:3000](http://localhost:3000)
     
--   **Backend API** → [http://localhost:8000](http://localhost:8000)
     
 -   **API Docs** → [http://localhost:8000/docs](http://localhost:8000/docs)
     
