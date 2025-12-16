@@ -20,9 +20,8 @@ cd shrutik
 # Copy Docker environment configuration
 cp .env.docker .env
 
-# Start all services using our development script
-chmod +x docker-dev.sh
-./docker-dev.sh start
+# Build images and start all services
+docker compose up --build -d
 ```
 
 **Access the platform:**
@@ -41,11 +40,19 @@ For development or customization:
 git clone https://github.com/Onuronon-lab/Shrutik.git
 cd shrutik
 
-# Run setup script
-./scripts/setup-local.sh
+# Switch to the deployment-dev branch
+git fetch origin
+git switch deployment-dev
 
-# Start development servers
-./scripts/start-dev.sh
+# Create virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Start backend
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ## Initial Configuration
@@ -133,24 +140,37 @@ curl http://localhost:3000
 
 **Services won't start:**
 ```bash
-# Check Docker logs
-./docker-dev.sh logs
+# All services
+docker compose logs -f
 
-# Restart services
-./docker-dev.sh restart
+# Specific service (example: backend)
+docker compose logs -f backend
+
+# Restart all services
+docker compose restart
+
+# Restart a single Service
+docker compose restart backend
 
 # Or check status
-./docker-dev.sh status
+docker compose ps
 ```
 
 **Database connection errors:**
 ```bash
-# Reset database and restart
-./docker-dev.sh cleanup
-./docker-dev.sh start
+# Stop services and remove volumes
+docker compose down -v --remove-orphans
+# (Optional) Clean unused Docker resources
+docker system prune -f
+# Rebuild and start all services
+docker compose up -d --build
 
-# Run migrations
-./docker-dev.sh migrate
+# Run migrations inside the backend container
+docker compose exec backend python scripts/init-db.py
+# If that fails, try the fallback
+docker compose exec backend python scripts/simple-init.py
+
+
 ```
 
 **Permission errors:**
