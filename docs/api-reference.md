@@ -5,7 +5,6 @@ This document provides comprehensive documentation for the Shrutik API, includin
 ## 🔗 Base URL
 
 - **Development**: `http://localhost:8000`
-- **Production**: `https://api.yourdomain.com`
 
 ## Authentication
 
@@ -868,10 +867,5 @@ curl -X POST https://api.yourdomain.com/api/recordings/upload \
   -F "audio_file=@recording.wav"
 ```
 
-### Postman Collection
 
-Import our [Postman collection](https://api.yourdomain.com/postman/shrutik-api.json) for easy API testing.
-
----
-
-This API reference provides comprehensive documentation for integrating with Shrutik. For additional support, join our [Discord community](https://discord.gg/9hZ9eW8ARk) or check our [GitHub repository](https://github.com/Onuronon-lab/Shrutik).
+For additional support, join our [Discord community](https://discord.gg/9hZ9eW8ARk) or check our [GitHub repository](https://github.com/Onuronon-lab/Shrutik).
