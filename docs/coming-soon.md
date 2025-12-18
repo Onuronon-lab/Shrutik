@@ -1,5 +1,5 @@
-# Coming Soon
+# Page not available yet
 
-This section is under construction. Documentation will be available soon.  
+This page will be available in a future update.
 
 You can continue navigating using the sidebar or search.

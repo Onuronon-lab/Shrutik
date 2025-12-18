@@ -7,9 +7,9 @@ This guide covers setting up Shrutik for local development, including all the to
 ### System Requirements
 
 - **Python**: 3.11 or higher
-- **Node.js**: 18 or higher
-- **PostgreSQL**: 13 or higher
-- **Redis**: 6 or higher
+- **Node.js**: 20 or higher
+- **PostgreSQL**: 15 or higher
+- **Redis**: 7 or higher
 - **Git**: Latest version
 
 ### Development Tools (Recommended)
@@ -364,7 +364,7 @@ python scripts/load_sample_data.py
 
 ```bash
 # Use faster database for development
-export DATABASE_URL="sqlite:///./dev.db"
+export DATABASE_URL="postgresql://postgres:password@localhost:5432/voice_collection"
 
 # Disable Celery for faster startup
 export USE_CELERY=false

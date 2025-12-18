@@ -50,10 +50,8 @@ source venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
-
-# Start backend
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
+To start backend, frontend, and Celery worker, see the [Local Setup Guide](local-development.md#start-services).
 
 ## Initial Configuration
 
