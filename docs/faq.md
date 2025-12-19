@@ -222,15 +222,27 @@ If your database becomes corrupted:
 3. Or reset the database:
 
 ```bash
-./docker-dev.sh cleanup
-./docker-dev.sh start
-./docker-dev.sh migrate
-python create_admin.py
+# Stop and remove all containers, volumes, and networks
+docker compose down -v --remove-orphans
+
+# Optional: prune unused Docker resources
+docker system prune -f
+
+# Start services (build images if necessary)
+docker compose up -d --build
+
+# Wait a few seconds for Postgres and Redis to be ready
+
+# Run database migrations
+docker compose exec backend alembic upgrade head
+
+# Or use a custom initialization script
+docker compose exec backend python scripts/init-db.py
+
+# Create Admin user
+docker compose exec backend python create_admin.py
 ```
 
-**Note**: This will delete all data!
-
----
 
 ## Still have questions?
 
