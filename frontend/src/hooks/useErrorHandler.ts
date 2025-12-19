@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface UseErrorHandlerReturn {
   error: string | null;
@@ -9,6 +10,7 @@ interface UseErrorHandlerReturn {
 
 export function useErrorHandler(): UseErrorHandlerReturn {
   const [error, setErrorState] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   const setError = useCallback((error: string | null) => {
     setErrorState(error);
@@ -26,9 +28,9 @@ export function useErrorHandler(): UseErrorHandlerReturn {
     } else if (error?.message) {
       setErrorState(error.message);
     } else if (error?.request) {
-      setErrorState('No response from server. It might be offline.');
+      setErrorState(t('server-offline-error'));
     } else {
-      setErrorState('An unexpected error occurred');
+      setErrorState(t('unexpected-error'));
     }
   }, []);
 

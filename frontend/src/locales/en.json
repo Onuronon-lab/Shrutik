@@ -5,6 +5,8 @@
   "record-voice-description": "Read Bangla scripts and contribute voice recordings",
   "transcribe-audio": "Transcribe Audio",
   "transcribe-audio-description": "Listen to audio clips and provide accurate transcriptions",
+  "export-data": "Export Data",
+  "export-description": "Download validated datasets for AI training",
   "admin-dashboard": "Admin Dashboard",
   "admin-dashboard-description": "Manage users, scripts, and monitor platform activity",
   "contribution-stat-title": "Your Contribution Stats",
@@ -20,6 +22,21 @@
   "recordPage-2-minutes": "2 Minutes",
   "recordPage-5-minutes": "5 Minutes",
   "recordPage-10-minutes": "10 Minutes",
+
+  "mic_permission_failed": "Failed to access microphone. Please check permissions.",
+  "recording_start_error": "Error starting recording.",
+  "server-offline-error": "No response from server. It might be offline.",
+  "unexpected-error": "An unexpected error occurred",
+
+  "login-record-error": "Please log in to access recording features",
+  "invalid-script": "Invalid script data received",
+  "script-load-error": "Load script error:",
+  "script-load-fail": "Failed to load script",
+  "record-session-create-fail": "Failed to create recording session",
+  "session-error": "Create session error:",
+  "select-duration-error": "Error in selectDuration:",
+
+
   "record-control": "Recording Controls",
   "record-upload-success": "Recording uploaded successfully! It will be processed for transcription.",
 

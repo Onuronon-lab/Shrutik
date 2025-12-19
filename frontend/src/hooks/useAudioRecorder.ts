@@ -1,6 +1,7 @@
 import { useCallback, useRef, useEffect } from 'react';
 import { useRecordingStore } from '../stores/recordingStore';
 import { RecordingStatus } from '../types/state';
+import { useTranslation } from 'react-i18next';
 
 export interface UseAudioRecorderReturn {
   // State
@@ -50,6 +51,7 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
   const chunksRef = useRef<Blob[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const maxDurationRef = useRef<number>(600); // Default 10 minutes
+  const { t } = useTranslation();
 
   // Cleanup on unmount
   useEffect(() => {
@@ -122,8 +124,8 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
           }
         }, 1000);
       } catch (error) {
-        console.error('Error starting recording:', error);
-        throw new Error('Failed to access microphone. Please check permissions.');
+        console.error(t('recording_start_error'), error);
+        throw new Error(t('mic_permission_failed'));
       }
     },
     [

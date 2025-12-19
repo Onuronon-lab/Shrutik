@@ -4,6 +4,7 @@ import { useSessionStore } from '../stores/sessionStore';
 import { recordingService } from '../services/recording.service';
 import { DurationOption } from '../types/state';
 import { Script, RecordingSession } from '../types/api';
+import { useTranslation } from 'react-i18next';
 
 export interface UseScriptManagerReturn {
   // State
@@ -42,6 +43,8 @@ export function useScriptManager(): UseScriptManagerReturn {
     reset: resetSession,
   } = useSessionStore();
 
+  const { t } = useTranslation();
+
   // Load script for selected duration
   const loadScript = useCallback(
     async (duration: DurationOption): Promise<Script> => {
@@ -51,23 +54,23 @@ export function useScriptManager(): UseScriptManagerReturn {
         // Check authentication
         const token = localStorage.getItem('auth_token');
         if (!token) {
-          throw new Error('Please log in to access recording features');
+          throw new Error(t('login-record-error'));
         }
 
         const script = await recordingService.getRandomScript(duration.value);
 
         if (!script || typeof script !== 'object') {
-          throw new Error('Invalid script data received');
+          throw new Error(t('invalid-script'));
         }
 
         setLoadingState({ status: 'loaded', script, loadTime: Date.now() });
         return script;
       } catch (err: any) {
-        console.error('Load script error:', err);
+        console.error(t('script-load-error'), err);
 
-        let errorMessage = 'Failed to load script';
+        let errorMessage = t('script-load-fail');
         if (err.response?.status === 401) {
-          errorMessage = 'Please log in to access recording features';
+          errorMessage = t('login-record-error');
         } else if (err.response?.data?.detail) {
           errorMessage = err.response.data.detail;
         } else if (err.message) {
@@ -76,7 +79,7 @@ export function useScriptManager(): UseScriptManagerReturn {
 
         setLoadingState({
           status: 'error',
-          error: typeof errorMessage === 'string' ? errorMessage : 'Failed to load script',
+          error: typeof errorMessage === 'string' ? errorMessage : t('script-load-fail'),
           retryCount: 0,
         });
         throw new Error(errorMessage);
@@ -95,15 +98,15 @@ export function useScriptManager(): UseScriptManagerReturn {
         const session = await recordingService.createRecordingSession(scriptId);
 
         if (!session || typeof session !== 'object') {
-          throw new Error('Failed to create recording session');
+          throw new Error(t('record-session-create-fail'));
         }
 
         setRecordingSession(session);
         return session;
       } catch (err: any) {
-        console.error('Create session error:', err);
+        console.error(t('session-error'), err);
 
-        let errorMessage = 'Failed to create recording session';
+        let errorMessage = t('record-session-create-fail');
         if (err.response?.data?.detail) {
           errorMessage = err.response.data.detail;
         } else if (err.message) {
@@ -111,7 +114,7 @@ export function useScriptManager(): UseScriptManagerReturn {
         }
 
         setSessionError(
-          typeof errorMessage === 'string' ? errorMessage : 'Failed to create recording session'
+          typeof errorMessage === 'string' ? errorMessage : t('record-session-create-fail')
         );
         throw new Error(errorMessage);
       } finally {

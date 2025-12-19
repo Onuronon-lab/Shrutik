@@ -8,6 +8,9 @@
   "transcribe-audio": "অডিও ট্রান্সক্রাইব করুন",
   "transcribe-audio-description": "অডিও ক্লিপ শুনে সঠিক ট্রান্সক্রিপশন দিন",
 
+  "export-data": "ডেটা এক্সপোর্ট ",
+  "export-description": "এআই ট্রেনিংয়ের জন্য যাচাইকৃত ডেটাসেট ডাউনলোড করুন",
+
   "admin-dashboard": "অ্যাডমিন ড্যাশবোর্ড",
   "admin-dashboard-description": "ব্যবহারকারী, স্ক্রিপ্ট পরিচালনা করুন এবং প্ল্যাটফর্মের কার্যক্রম পর্যবেক্ষণ করুন",
 
@@ -25,6 +28,21 @@
   "recordPage-2-minutes": "২ মিনিট",
   "recordPage-5-minutes": "৫ মিনিট",
   "recordPage-10-minutes": "১০ মিনিট",
+
+  "mic_permission_failed": "মাইক্রোফোনে প্রবেশ করা যাচ্ছে না। অনুগ্রহ করে অনুমতিগুলো পরীক্ষা করুন।",
+  "recording_start_error": "রেকর্ডিং শুরু করতে ত্রুটি হয়েছে",
+
+  "server-offline-error": "সার্ভার অফলাইন থাকায় রেসপন্স করছে না",
+  "unexpected-error": "অনাকাঙ্ক্ষিত সমস্যা হয়েছে",
+
+    "login-record-error": "অনুগ্রহ করে রেকর্ডিং ফিচার এক্সেস এর জন্য লগ ইন করুন ",
+  "invalid-script": "অকার্যকর স্ক্রিপ্ট ডেটা গ্রহণ করা হয়েছে",
+  "script-load-error": "লোড স্ক্রিপ্ট এরর:",
+  "script-load-fail": " স্ক্রিপ্ট লোড করতে ব্যর্থ হয়েছে",
+  "record-session-create-fail": "রেকর্ড সেশন ক্রিয়েট করতে ব্যর্থ হয়েছে",
+  "session-error": "সেশন ক্রিয়েট করতে এরর:",
+  "select-duration-error": "সময়কাল সিলেক্ট এরর:",
+
 
   "record-control": "রেকর্ডিং কন্ট্রোল",
   "record-upload-success": "রেকর্ডিং সফলভাবে আপলোড হয়েছে! এটি ট্রান্সক্রিপশনের জন্য প্রসেস করা হবে।",
@@ -154,10 +172,10 @@
   "export.pagination.previous": "পূর্ববর্তী",
   "export.pagination.next": "পরবর্তী",
   "export.modal.title": "এক্সপোর্ট ব্যাচ তৈরি করুন",
-  "export.modal.date_range": "তারিখ পরিসীমা (ঐচ্ছিক)",
+  "export.modal.date_range": "তারিখ পরিসীমা (অপশনাল)",
   "export.modal.date_from": "থেকে",
   "export.modal.date_to": "পর্যন্ত",
-  "export.modal.duration_range": "সময়কাল পরিসীমা (সেকেন্ড, ঐচ্ছিক)",
+  "export.modal.duration_range": "সময়কাল পরিসীমা (সেকেন্ড, অপশনাল)",
   "export.modal.duration_min": "সর্বনিম্ন",
   "export.modal.duration_max": "সর্বোচ্চ",
   "export.modal.force_create": "যেকোনো চাঙ্ক সংখ্যা দিয়ে ব্যাচ তৈরি করুন (২০০ সর্বনিম্ন বাইপাস)",
