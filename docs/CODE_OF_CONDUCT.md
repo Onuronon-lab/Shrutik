@@ -130,12 +130,7 @@ If you disagree with a moderation decision:
 ### Support Channels
 - **Discord Community**: https://discord.gg/9hZ9eW8ARk
 - **GitHub Discussions**: https://github.com/Onuronon-lab/Shrutik/discussions
-- **Community Forum**: https://community.shrutik.org
 
-### Educational Resources
-- **Inclusive Language Guide**: https://shrutik.org/inclusive-language
-- **Cultural Sensitivity Training**: https://shrutik.org/cultural-awareness
-- **Technical Writing Guidelines**: https://shrutik.org/writing-guide
 
 ## Recognition
 
