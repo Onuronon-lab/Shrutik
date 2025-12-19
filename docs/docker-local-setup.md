@@ -18,7 +18,7 @@ This guide explains how to run Shrutik completely with Docker on your local mach
 
 ```bash
 git clone https://github.com/Onuronon-lab/Shrutik.git
-cd 
+cd Shrutik
 
 # Switch to the deployment-dev branch
 git fetch origin
