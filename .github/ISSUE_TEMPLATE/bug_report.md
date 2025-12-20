@@ -39,6 +39,7 @@ If applicable, add screenshots to help explain your problem.
 ## Additional Context
 
 Add any other context about the problem here, such as:
+
 - Error messages or logs
 - Related issues
 - Workarounds you've tried

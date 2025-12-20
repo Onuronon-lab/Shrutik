@@ -171,3 +171,4 @@ book/
 *.html
 
 node_modules*
+exports/

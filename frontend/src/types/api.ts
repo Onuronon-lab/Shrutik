@@ -8,6 +8,18 @@ export interface ApiError {
   message: string;
   status: number;
   details?: any;
+  // Enhanced error structure for export operations
+  error?: string;
+  structured_details?: {
+    available_chunks?: number;
+    required_chunks?: number;
+    user_role?: string;
+    downloads_today?: number;
+    daily_limit?: number;
+    reset_time?: string;
+    hours_until_reset?: number;
+    suggestions?: string[];
+  };
 }
 
 // Script related types

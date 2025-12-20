@@ -12,10 +12,11 @@ import {
   BatchFeedback,
   BatchTable,
   BatchCreateModal,
+  BatchSuccessModal,
 } from '../../features/export/batch/components';
 import { useBatchData } from '../../features/export/batch/hooks/useBatchData';
 import { useDownloadQuota } from '../../features/export/batch/hooks/useDownloadQuota';
-import type { CreateBatchFormValues } from '../../features/export/batch/types';
+import type { CreateBatchFormValues, ExportBatch } from '../../features/export/batch/types';
 
 const DEFAULT_CREATE_FILTERS: CreateBatchFormValues = {
   date_from: '',
@@ -30,9 +31,11 @@ const ExportBatchManager: React.FC = () => {
   const { t } = useTranslation();
   const [success, setSuccess] = useState<string | null>(null);
   const createModal = useModal();
+  const successModal = useModal();
   const { error, setError, handleError } = useErrorHandler();
   const [createFilters, setCreateFilters] = useState<CreateBatchFormValues>(DEFAULT_CREATE_FILTERS);
   const [createLoading, setCreateLoading] = useState(false);
+  const [createdBatch, setCreatedBatch] = useState<ExportBatch | null>(null);
 
   const hasAccess = user?.role === 'sworik_developer' || user?.role === 'admin';
 
@@ -74,8 +77,34 @@ const ExportBatchManager: React.FC = () => {
 
       const response = await exportService.createExportBatch(filters);
 
-      setSuccess(t('export.success.batch_created', { count: response.chunk_count }));
+      // Store the created batch and show success modal
+      setCreatedBatch({
+        id: response.id || 0,
+        batch_id: response.batch_id,
+        archive_path: response.archive_path || '',
+        status: response.status || 'pending',
+        storage_type: response.storage_type || 'local',
+        chunk_count: response.chunk_count,
+        file_size_bytes: response.file_size_bytes,
+        chunk_ids: response.chunk_ids || [],
+        exported: response.exported || false,
+        error_message: response.error_message,
+        retry_count: response.retry_count || 0,
+        checksum: response.checksum,
+        compression_level: response.compression_level,
+        format_version: response.format_version || '1.0',
+        recording_id_range: response.recording_id_range,
+        language_stats: response.language_stats,
+        total_duration_seconds: response.total_duration_seconds,
+        filter_criteria: response.filter_criteria || filters,
+        created_at: response.created_at || new Date().toISOString(),
+        completed_at: response.completed_at,
+        created_by_id: response.created_by_id,
+      });
+
       createModal.close();
+      successModal.open();
+
       setCreateFilters({
         date_from: '',
         date_to: '',
@@ -95,14 +124,28 @@ const ExportBatchManager: React.FC = () => {
 
   const handleDownload = async (batchId: string) => {
     try {
-      // Check quota first
-      if (quota && quota.downloads_remaining <= 0) {
-        setError(
-          t('export.error.quota_exceeded', {
-            limit: quota.daily_limit,
-            resetTime: new Date(quota.reset_time).toLocaleString(),
-          })
-        );
+      // Check quota first (skip for unlimited users)
+      if (quota && quota.downloads_remaining <= 0 && !quota.is_unlimited) {
+        const resetTime = quota.reset_time ? new Date(quota.reset_time) : null;
+        const hoursUntilReset = resetTime
+          ? Math.ceil((resetTime.getTime() - new Date().getTime()) / (1000 * 60 * 60))
+          : 0;
+
+        setError({
+          error: t('export.error.quota_exceeded_title'),
+          details: {
+            downloads_today: quota.downloads_today,
+            daily_limit: quota.daily_limit,
+            reset_time: quota.reset_time,
+            hours_until_reset: hoursUntilReset,
+            suggestions: [
+              resetTime
+                ? t('export.error.quota_suggestion_wait', { resetTime: resetTime.toLocaleString() })
+                : 'Contact admin for assistance',
+              t('export.error.quota_suggestion_admin'),
+            ],
+          },
+        });
         return;
       }
 
@@ -132,6 +175,10 @@ const ExportBatchManager: React.FC = () => {
     }
   };
 
+  const handleCreateAnother = () => {
+    createModal.open();
+  };
+
   // Check if user has export permissions
   if (user?.role !== 'sworik_developer' && user?.role !== 'admin') {
     return (
@@ -152,7 +199,7 @@ const ExportBatchManager: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto">
       <BatchHeader t={t} onCreateClick={createModal.open} />
-      <BatchQuotaCard quota={quota} t={t} />
+      <BatchQuotaCard quota={quota} userRole={user?.role} t={t} />
       <BatchFeedback error={error || null} success={success} />
       <BatchFilters
         statusFilter={statusFilter}
@@ -168,7 +215,8 @@ const ExportBatchManager: React.FC = () => {
         onPageChange={setPage}
         onDownload={handleDownload}
         canRetryFailed={user?.role === 'admin'}
-        quotaExhausted={quota ? quota.downloads_remaining <= 0 : false}
+        quotaExhausted={quota ? quota.downloads_remaining <= 0 && !quota.is_unlimited : false}
+        userRole={user?.role}
         onEmptyAction={createModal.open}
         t={t}
       />
@@ -179,6 +227,28 @@ const ExportBatchManager: React.FC = () => {
         onChange={updateCreateFilters}
         onSubmit={handleCreateBatch}
         loading={createLoading}
+        t={t}
+      />
+      <BatchSuccessModal
+        isOpen={successModal.isOpen}
+        onClose={successModal.close}
+        batch={createdBatch}
+        onDownload={handleDownload}
+        onCreateAnother={handleCreateAnother}
+        canDownload={
+          createdBatch?.status === 'completed' &&
+          (!quota || quota.downloads_remaining > 0 || quota.is_unlimited)
+        }
+        downloadDisabledReason={
+          quota && quota.downloads_remaining <= 0 && !quota.is_unlimited
+            ? t('export.error.quota_exceeded', {
+                limit: quota.daily_limit,
+                resetTime: quota.reset_time ? new Date(quota.reset_time).toLocaleString() : 'N/A',
+              })
+            : createdBatch?.status !== 'completed'
+              ? t('export.success.modal.batch_not_ready')
+              : undefined
+        }
         t={t}
       />
     </div>

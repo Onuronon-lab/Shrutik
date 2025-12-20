@@ -115,3 +115,32 @@ export interface ExportProgress {
   estimated_completion?: string;
   error_message?: string;
 }
+
+// Enhanced Error Response Types for Export Operations
+
+export interface ExportErrorDetails {
+  available_chunks?: number;
+  required_chunks?: number;
+  user_role?: string;
+  downloads_today?: number;
+  daily_limit?: number;
+  reset_time?: string; // ISO format string
+  hours_until_reset?: number;
+  suggestions: string[];
+}
+
+export interface ExportStructuredErrorResponse {
+  error: string;
+  details: ExportErrorDetails;
+}
+
+// Enhanced Download Quota Response
+
+export interface ExportDownloadQuotaResponse {
+  downloads_today: number;
+  downloads_remaining: number;
+  daily_limit: number;
+  reset_time?: string; // ISO format string, null for unlimited quota
+  user_role: string;
+  is_unlimited: boolean;
+}
