@@ -4,3 +4,4 @@ export { BatchFilters } from './BatchFilters';
 export { BatchFeedback } from './BatchFeedback';
 export { BatchTable } from './BatchTable';
 export { BatchCreateModal } from './BatchCreateModal';
+export { BatchSuccessModal } from './BatchSuccessModal';

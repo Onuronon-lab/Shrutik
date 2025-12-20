@@ -172,6 +172,18 @@ async def startup_event():
     logger.info(f"Redis URL: {settings.REDIS_URL}")
     logger.info(f"Celery enabled: {settings.USE_CELERY}")
 
+    # Validate configuration at startup
+    try:
+        config_valid = settings.validate_startup_configuration()
+        if config_valid:
+            logger.info("Configuration validation passed")
+        else:
+            logger.warning(
+                "Configuration validation completed with corrections - check logs above for details"
+            )
+    except Exception as e:
+        logger.error(f"Configuration validation failed: {e}")
+
     # Initialize performance optimizations
     try:
         # Optimize database settings

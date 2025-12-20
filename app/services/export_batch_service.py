@@ -20,7 +20,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import List, Optional, Tuple
 
-from sqlalchemy import and_, func, not_
+from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
 
 from app.core.config import StorageConfig, settings
@@ -30,6 +30,7 @@ from app.models.audio_chunk import AudioChunk
 from app.models.export_batch import ExportBatch, ExportBatchStatus, StorageType
 from app.models.export_download import ExportDownload
 from app.models.transcription import Transcription
+from app.models.user import UserRole
 
 logger = logging.getLogger(__name__)
 
@@ -152,6 +153,7 @@ class ExportBatchService:
         self,
         max_chunks: int = 200,
         user_id: Optional[int] = None,
+        user_role: UserRole = UserRole.SWORIK_DEVELOPER,
         date_from: Optional[datetime] = None,
         date_to: Optional[datetime] = None,
         min_duration: Optional[float] = None,
@@ -161,28 +163,39 @@ class ExportBatchService:
         """
         Create export batch from ready chunks with optional filtering.
 
+        Args:
+            max_chunks: Maximum number of chunks to include in batch
+            user_id: ID of user creating the batch
+            user_role: Role of user creating the batch (affects minimum chunk requirements)
+            date_from: Filter chunks created after this date
+            date_to: Filter chunks created before this date
+            min_duration: Filter chunks with duration >= this value
+            max_duration: Filter chunks with duration <= this value
+            force_create: Allow batch creation with any chunk count (admin only)
+
         Steps:
         1. Check R2 free tier limits (if enabled)
-        2. Query chunks WHERE ready_for_export = TRUE
+        2. Determine role-based minimum chunk requirement
+        3. Query chunks WHERE ready_for_export = TRUE
            - Exclude chunks already in completed export batches
            - Apply date range filter if specified (created_at)
            - Apply duration filter if specified
            - LIMIT max_chunks (default 200)
-        3. If force_create is False and chunk count < max_chunks, raise error
-           (scheduled exports require full batches for consistency)
-        4. If force_create is True (admin request), proceed with any chunk count
-        5. Filter out oversized chunks (> EXPORT_MAX_CHUNK_SIZE_MB)
-        6. Generate tar.zst with audio files and JSON metadata
-        7. Upload to configured storage (local or R2)
-        8. Create ExportBatch record with filter_criteria
-        9. Trigger cleanup task
-        10. Log skipped chunks for admin review
+        4. Validate chunk count against role-based minimum
+        5. If force_create is True, check admin role and proceed with any chunk count
+        6. Filter out oversized chunks (> EXPORT_MAX_CHUNK_SIZE_MB)
+        7. Generate tar.zst with audio files and JSON metadata
+        8. Upload to configured storage (local or R2)
+        9. Create ExportBatch record with filter_criteria
+        10. Trigger cleanup task
+        11. Log skipped chunks for admin review
         """
         logger.info(
-            f"Creating export batch with max_chunks={max_chunks}, force_create={force_create}",
+            f"Creating export batch with max_chunks={max_chunks}, user_role={user_role.value}, force_create={force_create}",
             extra={
                 "operation_type": "export_batch_creation",
                 "max_chunks": max_chunks,
+                "user_role": user_role.value,
                 "force_create": force_create,
                 "user_id": user_id,
                 "date_from": date_from.isoformat() if date_from else None,
@@ -198,25 +211,33 @@ class ExportBatchService:
                 "R2 free tier limits would be exceeded. Cannot create export batch."
             )
 
-        # Step 2: Query ready chunks with filters
+        # Step 2: Determine role-based minimum chunk requirement
+        try:
+            role_min_chunks = settings.get_min_chunks_for_role(user_role.value)
+        except ValueError as e:
+            raise ValidationError(str(e))
+
+        # Step 3: Query ready chunks with filters
         # Get chunk IDs that are already in completed export batches
-        exported_chunk_ids_subquery = (
-            self.db.query(func.unnest(ExportBatch.chunk_ids).label("chunk_id"))
+        # Use a simpler approach: get all completed batches and extract chunk_ids in Python
+        completed_batches = (
+            self.db.query(ExportBatch.chunk_ids)
             .filter(ExportBatch.status == ExportBatchStatus.COMPLETED)
-            .subquery()
+            .all()
         )
 
+        # Extract all exported chunk IDs
+        exported_chunk_ids = set()
+        for batch in completed_batches:
+            if batch.chunk_ids:
+                exported_chunk_ids.update(batch.chunk_ids)
+
         # Build query for ready chunks
-        query = self.db.query(AudioChunk).filter(
-            and_(
-                AudioChunk.ready_for_export == True,
-                not_(
-                    AudioChunk.id.in_(
-                        self.db.query(exported_chunk_ids_subquery.c.chunk_id)
-                    )
-                ),
-            )
-        )
+        query = self.db.query(AudioChunk).filter(AudioChunk.ready_for_export == True)
+
+        # Exclude already exported chunks
+        if exported_chunk_ids:
+            query = query.filter(~AudioChunk.id.in_(exported_chunk_ids))
 
         # Apply date range filter
         if date_from:
@@ -236,25 +257,76 @@ class ExportBatchService:
         chunks = query.all()
 
         logger.info(
-            f"Found {len(chunks)} ready chunks matching criteria",
+            f"Found {len(chunks)} ready chunks matching criteria (role minimum: {role_min_chunks})",
             extra={
                 "operation_type": "export_batch_creation",
                 "chunk_count": len(chunks),
-                "batch_id": batch_id,
+                "role_min_chunks": role_min_chunks,
+                "user_role": user_role.value,
             },
         )
 
-        # Step 3 & 4: Check chunk count vs force_create
-        if not force_create and len(chunks) < max_chunks:
+        # Step 4: Validate chunk count against role-based minimum
+        if not force_create and len(chunks) < role_min_chunks:
+            # Generate role-specific error message with suggestions
+            suggestions = []
+            if user_role == UserRole.SWORIK_DEVELOPER:
+                suggestions.extend(
+                    [
+                        "Wait for more chunks to be processed (check back in a few hours)",
+                        "Contact an admin who can create batches with as few as 10 chunks",
+                        "Try adjusting your date range or duration filters to find more chunks",
+                    ]
+                )
+            elif user_role == UserRole.ADMIN:
+                suggestions.extend(
+                    [
+                        "Wait for more chunks to be processed",
+                        "Try adjusting your date range or duration filters",
+                        "Use force_create=true to create a batch with any available chunk count",
+                    ]
+                )
+
+            error_details = {
+                "available_chunks": len(chunks),
+                "required_chunks": role_min_chunks,
+                "user_role": user_role.value,
+                "suggestions": suggestions,
+            }
+
             raise ValidationError(
-                f"Insufficient chunks for scheduled export: {len(chunks)} < {max_chunks}. "
-                f"Use force_create=True to create batch with fewer chunks."
+                f"Insufficient chunks for batch creation: {len(chunks)} < {role_min_chunks} "
+                f"(minimum for {user_role.value}). {'; '.join(suggestions[:2])}"
             )
+
+        # Step 5: Handle force_create logic (admin only)
+        if force_create and user_role != UserRole.ADMIN:
+            logger.warning(
+                f"Non-admin user {user_id} attempted to use force_create, ignoring flag",
+                extra={
+                    "operation_type": "export_batch_creation",
+                    "user_id": user_id,
+                    "user_role": user_role.value,
+                    "force_create_ignored": True,
+                },
+            )
+            # Re-check minimum for non-admin users
+            if len(chunks) < role_min_chunks:
+                suggestions = [
+                    "Wait for more chunks to be processed",
+                    "Contact an admin to create a batch with force_create=true",
+                    "Try adjusting your filters to find more chunks",
+                ]
+                raise ValidationError(
+                    f"Insufficient chunks for batch creation: {len(chunks)} < {role_min_chunks} "
+                    f"(minimum for {user_role.value}). Only admins can use force_create. "
+                    f"Suggestions: {'; '.join(suggestions)}"
+                )
 
         if len(chunks) == 0:
             raise ValidationError("No chunks available for export")
 
-        # Step 5: Filter out oversized chunks
+        # Step 6: Filter out oversized chunks
         max_chunk_size_bytes = settings.EXPORT_MAX_CHUNK_SIZE_MB * 1024 * 1024
         valid_chunks = []
         skipped_chunks = []
@@ -325,12 +397,12 @@ class ExportBatchService:
             batch.status = ExportBatchStatus.PROCESSING
             self.db.commit()
 
-            # Step 6: Generate tar.zst archive
+            # Step 7: Generate tar.zst archive
             archive_path, file_size = self.generate_export_archive(
                 valid_chunks, batch_id
             )
 
-            # Step 7: Upload to storage
+            # Step 8: Upload to storage
             storage_path = self.upload_to_storage(archive_path, batch_id)
 
             # Update batch record
@@ -348,8 +420,8 @@ class ExportBatchService:
             }
             batch.total_duration_seconds = sum(chunk.duration for chunk in valid_chunks)
 
-            # Calculate checksum
-            batch.checksum = self._calculate_file_checksum(archive_path)
+            # Calculate checksum using the final storage path
+            batch.checksum = self._calculate_file_checksum(storage_path)
 
             self.db.commit()
             self.db.refresh(batch)
@@ -373,7 +445,7 @@ class ExportBatchService:
             )
             export_metrics_collector.reset_consecutive_failures()
 
-            # Step 9: Cleanup will be triggered by Celery task (not done here)
+            # Step 10: Cleanup will be triggered by Celery task (not done here)
             # The cleanup task should be called separately after batch creation
 
             return batch
@@ -888,20 +960,28 @@ For more information, visit: https://github.com/yourusername/shrutik
         self,
         batch_id: str,
         user_id: int,
+        user_role: UserRole,
         ip_address: Optional[str] = None,
         user_agent: Optional[str] = None,
     ):
         """
-        Get download path for export batch with rate limiting.
+        Get download path for export batch with role-based rate limiting.
+
+        Args:
+            batch_id: ID of the batch to download
+            user_id: ID of the user requesting download
+            user_role: Role of the user (affects download limits)
+            ip_address: IP address of the request
+            user_agent: User agent string of the request
 
         Steps:
-        1. Check user's daily download count (max 2 per day)
-        2. If limit exceeded, raise error with reset time
+        1. Check user's daily download count against role-based limit
+        2. If limit exceeded, raise error with detailed quota information
         3. Record download in export_downloads table
         4. Return (file_path, mime_type) for local or dict with download_url for R2
         """
         logger.info(
-            f"Processing download request for batch {batch_id} by user {user_id}",
+            f"Processing download request for batch {batch_id} by user {user_id} ({user_role.value})",
             extra={
                 "operation_type": "export_download",
                 "r2_operation_class": (
@@ -909,6 +989,7 @@ For more information, visit: https://github.com/yourusername/shrutik
                 ),
                 "batch_id": batch_id,
                 "user_id": user_id,
+                "user_role": user_role.value,
                 "storage_type": self.storage_config.storage_type,
             },
         )
@@ -923,12 +1004,79 @@ For more information, visit: https://github.com/yourusername/shrutik
                 f"Export batch {batch_id} is not ready for download (status: {batch.status.value})"
             )
 
-        # Check download limit
-        can_download, reset_time = self.check_download_limit(user_id)
+        # Check download limit with role-based logic
+        can_download, reset_time, downloads_today, daily_limit = (
+            self.check_download_limit(user_id, user_role)
+        )
+
+        # Admin users with unlimited quota should never be blocked
         if not can_download:
-            raise ValidationError(
-                f"Daily download limit exceeded. Limit resets at {reset_time.strftime('%Y-%m-%d %H:%M:%S UTC')}"
-            )
+            # Double-check for admin users - this should not happen but provides safety
+            if user_role == UserRole.ADMIN and daily_limit == -1:
+                logger.warning(
+                    f"Admin user {user_id} was blocked despite unlimited quota - allowing download",
+                    extra={
+                        "operation_type": "export_download",
+                        "user_id": user_id,
+                        "user_role": user_role.value,
+                        "downloads_today": downloads_today,
+                        "daily_limit": daily_limit,
+                        "safety_override": True,
+                    },
+                )
+                can_download = True
+            else:
+                # Calculate hours until reset for error message
+                now = datetime.now(timezone.utc)
+                hours_until_reset = 0
+                if reset_time:
+                    hours_until_reset = max(
+                        0, int((reset_time - now).total_seconds() / 3600)
+                    )
+
+                # Generate role-specific suggestions
+                suggestions = []
+                if user_role == UserRole.SWORIK_DEVELOPER:
+                    suggestions.extend(
+                        [
+                            f"Wait until midnight UTC when your quota resets (in {hours_until_reset} hours)",
+                            "Contact an admin if you need urgent access to more downloads",
+                        ]
+                    )
+                elif user_role == UserRole.ADMIN:
+                    suggestions.extend(
+                        [
+                            "This should not happen for admin users - contact support",
+                            "Check your user role configuration",
+                        ]
+                    )
+
+                error_details = {
+                    "downloads_today": downloads_today,
+                    "daily_limit": daily_limit,
+                    "reset_time": reset_time.isoformat() if reset_time else None,
+                    "hours_until_reset": hours_until_reset,
+                    "suggestions": suggestions,
+                }
+
+                logger.warning(
+                    f"Download blocked for user {user_id} ({user_role.value}): {downloads_today}/{daily_limit}",
+                    extra={
+                        "operation_type": "export_download",
+                        "user_id": user_id,
+                        "user_role": user_role.value,
+                        "downloads_today": downloads_today,
+                        "daily_limit": daily_limit,
+                        "reset_time": reset_time.isoformat() if reset_time else None,
+                        "status": "blocked",
+                    },
+                )
+
+                raise ValidationError(
+                    f"Daily download limit exceeded: {downloads_today}/{daily_limit}. "
+                    f"Limit resets at {reset_time.strftime('%Y-%m-%d %H:%M:%S UTC') if reset_time else 'N/A'} "
+                    f"(in {hours_until_reset} hours). {'; '.join(suggestions)}"
+                )
 
         # Record download
         download_record = ExportDownload(
@@ -941,7 +1089,7 @@ For more information, visit: https://github.com/yourusername/shrutik
         self.db.commit()
 
         logger.info(
-            f"Download recorded for batch {batch_id} by user {user_id}",
+            f"Download recorded for batch {batch_id} by user {user_id} ({user_role.value})",
             extra={
                 "operation_type": "export_download",
                 "r2_operation_class": (
@@ -949,7 +1097,10 @@ For more information, visit: https://github.com/yourusername/shrutik
                 ),
                 "batch_id": batch_id,
                 "user_id": user_id,
+                "user_role": user_role.value,
                 "storage_type": self.storage_config.storage_type,
+                "downloads_today": downloads_today + 1,  # After this download
+                "daily_limit": daily_limit,
                 "status": "success",
             },
         )
@@ -1037,26 +1188,88 @@ For more information, visit: https://github.com/yourusername/shrutik
 
         return batch
 
-    def check_download_limit(self, user_id: int) -> Tuple[bool, Optional[datetime]]:
+    def check_download_limit(
+        self, user_id: int, user_role: UserRole
+    ) -> Tuple[bool, Optional[datetime], int, int]:
         """
-        Check if user has exceeded daily download limit.
+        Check if user has exceeded daily download limit based on their role.
 
-        Returns (can_download, reset_time)
+        Args:
+            user_id: ID of the user
+            user_role: Role of the user (affects download limits)
+
+        Returns:
+            Tuple of (can_download, reset_time, downloads_today, daily_limit)
+            - can_download: Whether user can download now
+            - reset_time: When the quota resets (midnight UTC), None if unlimited
+            - downloads_today: Number of downloads user has made today
+            - daily_limit: Daily limit for user's role (-1 for unlimited)
         """
-        download_count = self.get_user_download_count_today(user_id)
-        limit = settings.EXPORT_DAILY_DOWNLOAD_LIMIT
+        # Validate inputs
+        if user_id is None or user_id <= 0:
+            raise ValidationError("Invalid user_id provided")
 
-        can_download = download_count < limit
+        if not isinstance(user_role, UserRole):
+            raise ValidationError("Invalid user_role provided")
 
-        # Calculate reset time (midnight UTC)
+        downloads_today = self.get_user_download_count_today(user_id)
+
+        # Get role-based download limit with proper error handling
+        try:
+            daily_limit = settings.get_daily_download_limit_for_role(user_role.value)
+        except ValueError as e:
+            logger.error(f"Configuration error for user role {user_role.value}: {e}")
+            raise ValidationError(f"Configuration error: {str(e)}")
+
+        # Handle unlimited downloads (admin with -1 limit)
+        if daily_limit == -1:
+            logger.info(
+                f"User {user_id} ({user_role.value}) has unlimited downloads (used {downloads_today} today)",
+                extra={
+                    "operation_type": "download_limit_check",
+                    "user_id": user_id,
+                    "user_role": user_role.value,
+                    "downloads_today": downloads_today,
+                    "daily_limit": daily_limit,
+                    "unlimited_quota": True,
+                },
+            )
+            # For unlimited quota users, reset_time should always be None
+            return True, None, downloads_today, daily_limit
+
+        # Validate daily_limit configuration
+        if daily_limit < 0:
+            logger.error(
+                f"Invalid daily_limit configuration: {daily_limit} for role {user_role.value}"
+            )
+            raise ValidationError(
+                f"Invalid quota configuration for role {user_role.value}"
+            )
+
+        # Check if user has exceeded their limit
+        can_download = downloads_today < daily_limit
+
+        # Calculate reset time (midnight UTC) - only for limited quota users
         now = datetime.now(timezone.utc)
         reset_time = (now + timedelta(days=1)).replace(
             hour=0, minute=0, second=0, microsecond=0
         )
 
-        logger.info(f"User {user_id} download count today: {download_count}/{limit}")
+        logger.info(
+            f"User {user_id} ({user_role.value}) download count today: {downloads_today}/{daily_limit}",
+            extra={
+                "operation_type": "download_limit_check",
+                "user_id": user_id,
+                "user_role": user_role.value,
+                "downloads_today": downloads_today,
+                "daily_limit": daily_limit,
+                "can_download": can_download,
+                "reset_time": reset_time.isoformat() if reset_time else None,
+                "unlimited_quota": False,
+            },
+        )
 
-        return can_download, reset_time
+        return can_download, reset_time, downloads_today, daily_limit
 
     def get_user_download_count_today(self, user_id: int) -> int:
         """

@@ -37,7 +37,10 @@ class ExportBatch(Base):
     id = Column(Integer, primary_key=True, index=True)
     batch_id = Column(String(255), unique=True, nullable=False, index=True)  # UUID
     archive_path = Column(String(500), nullable=False)  # Local or R2 path (.tar.zst)
-    storage_type = Column(Enum(StorageType), nullable=False)
+    storage_type = Column(
+        Enum(StorageType, values_callable=lambda obj: [e.value for e in obj]),
+        nullable=False,
+    )
     chunk_count = Column(Integer, nullable=False)
     file_size_bytes = Column(BigInteger, nullable=True)
 
@@ -46,7 +49,7 @@ class ExportBatch(Base):
 
     # Status tracking
     status = Column(
-        Enum(ExportBatchStatus),
+        Enum(ExportBatchStatus, values_callable=lambda obj: [e.value for e in obj]),
         default=ExportBatchStatus.PENDING,
         nullable=False,
         index=True,

@@ -139,5 +139,263 @@ class Settings(BaseSettings):
     EXPORT_MAX_CHUNK_SIZE_MB: int = 50
     EXPORT_DAILY_DOWNLOAD_LIMIT: int = 2
 
+    # Role-based Export Configuration
+    # Minimum chunk requirements by user role
+    # These values control how many chunks are required to create an export batch
+    # Lower values allow more flexible batch creation for privileged users
+    EXPORT_MIN_CHUNKS_SWORIK_DEVELOPER: int = 50  # Sworik developers need fewer chunks
+    EXPORT_MIN_CHUNKS_ADMIN: int = 10  # Admins have the most flexibility
+
+    # Daily download limits by user role
+    # Controls how many export batches a user can download per day (UTC)
+    # Use -1 for unlimited downloads
+    EXPORT_DAILY_DOWNLOAD_LIMIT_SWORIK_DEVELOPER: int = (
+        5  # Generous limit for developers
+    )
+    EXPORT_DAILY_DOWNLOAD_LIMIT_ADMIN: int = -1  # Unlimited downloads for admins
+
+    def __init__(self, **kwargs):
+        """Initialize settings with validation."""
+        super().__init__(**kwargs)
+        self._validate_role_based_config()
+
+    def _validate_role_based_config(self):
+        """Validate role-based configuration values and log warnings for invalid settings."""
+        import logging
+        import os
+
+        logger = logging.getLogger(__name__)
+
+        # Track configuration sources for debugging
+        config_sources = {}
+
+        # Validate minimum chunk requirements
+        original_sworik_chunks = self.EXPORT_MIN_CHUNKS_SWORIK_DEVELOPER
+        if self.EXPORT_MIN_CHUNKS_SWORIK_DEVELOPER < 1:
+            logger.warning(
+                f"EXPORT_MIN_CHUNKS_SWORIK_DEVELOPER ({self.EXPORT_MIN_CHUNKS_SWORIK_DEVELOPER}) "
+                "is less than 1. Using default value of 50."
+            )
+            self.EXPORT_MIN_CHUNKS_SWORIK_DEVELOPER = 50
+            config_sources["EXPORT_MIN_CHUNKS_SWORIK_DEVELOPER"] = (
+                "default (invalid value corrected)"
+            )
+        else:
+            env_value = os.getenv("EXPORT_MIN_CHUNKS_SWORIK_DEVELOPER")
+            config_sources["EXPORT_MIN_CHUNKS_SWORIK_DEVELOPER"] = (
+                "environment" if env_value else "default"
+            )
+
+        original_admin_chunks = self.EXPORT_MIN_CHUNKS_ADMIN
+        if self.EXPORT_MIN_CHUNKS_ADMIN < 1:
+            logger.warning(
+                f"EXPORT_MIN_CHUNKS_ADMIN ({self.EXPORT_MIN_CHUNKS_ADMIN}) "
+                "is less than 1. Using default value of 10."
+            )
+            self.EXPORT_MIN_CHUNKS_ADMIN = 10
+            config_sources["EXPORT_MIN_CHUNKS_ADMIN"] = (
+                "default (invalid value corrected)"
+            )
+        else:
+            env_value = os.getenv("EXPORT_MIN_CHUNKS_ADMIN")
+            config_sources["EXPORT_MIN_CHUNKS_ADMIN"] = (
+                "environment" if env_value else "default"
+            )
+
+        # Validate download limits (allow -1 for unlimited, 0 for no downloads allowed)
+        original_sworik_downloads = self.EXPORT_DAILY_DOWNLOAD_LIMIT_SWORIK_DEVELOPER
+        if self.EXPORT_DAILY_DOWNLOAD_LIMIT_SWORIK_DEVELOPER < -1:
+            logger.warning(
+                f"EXPORT_DAILY_DOWNLOAD_LIMIT_SWORIK_DEVELOPER ({self.EXPORT_DAILY_DOWNLOAD_LIMIT_SWORIK_DEVELOPER}) "
+                "is invalid. Must be -1 (unlimited), 0 (no downloads), or positive integer. Using default value of 5."
+            )
+            self.EXPORT_DAILY_DOWNLOAD_LIMIT_SWORIK_DEVELOPER = 5
+            config_sources["EXPORT_DAILY_DOWNLOAD_LIMIT_SWORIK_DEVELOPER"] = (
+                "default (invalid value corrected)"
+            )
+        else:
+            env_value = os.getenv("EXPORT_DAILY_DOWNLOAD_LIMIT_SWORIK_DEVELOPER")
+            config_sources["EXPORT_DAILY_DOWNLOAD_LIMIT_SWORIK_DEVELOPER"] = (
+                "environment" if env_value else "default"
+            )
+
+        original_admin_downloads = self.EXPORT_DAILY_DOWNLOAD_LIMIT_ADMIN
+        if self.EXPORT_DAILY_DOWNLOAD_LIMIT_ADMIN < -1:
+            logger.warning(
+                f"EXPORT_DAILY_DOWNLOAD_LIMIT_ADMIN ({self.EXPORT_DAILY_DOWNLOAD_LIMIT_ADMIN}) "
+                "is invalid. Must be -1 (unlimited), 0 (no downloads), or positive integer. Using default value of -1."
+            )
+            self.EXPORT_DAILY_DOWNLOAD_LIMIT_ADMIN = -1
+            config_sources["EXPORT_DAILY_DOWNLOAD_LIMIT_ADMIN"] = (
+                "default (invalid value corrected)"
+            )
+        else:
+            env_value = os.getenv("EXPORT_DAILY_DOWNLOAD_LIMIT_ADMIN")
+            config_sources["EXPORT_DAILY_DOWNLOAD_LIMIT_ADMIN"] = (
+                "environment" if env_value else "default"
+            )
+
+        # Validate logical consistency
+        if self.EXPORT_MIN_CHUNKS_ADMIN > self.EXPORT_MIN_CHUNKS_SWORIK_DEVELOPER:
+            logger.warning(
+                f"Admin minimum chunks ({self.EXPORT_MIN_CHUNKS_ADMIN}) is greater than "
+                f"Sworik Developer minimum chunks ({self.EXPORT_MIN_CHUNKS_SWORIK_DEVELOPER}). "
+                "This may indicate a configuration error - admins typically have lower requirements."
+            )
+
+        # Log configuration source for debugging
+        logger.info("Role-based export configuration loaded:")
+        logger.info(
+            f"  Sworik Developer min chunks: {self.EXPORT_MIN_CHUNKS_SWORIK_DEVELOPER} (source: {config_sources['EXPORT_MIN_CHUNKS_SWORIK_DEVELOPER']})"
+        )
+        logger.info(
+            f"  Admin min chunks: {self.EXPORT_MIN_CHUNKS_ADMIN} (source: {config_sources['EXPORT_MIN_CHUNKS_ADMIN']})"
+        )
+        logger.info(
+            f"  Sworik Developer daily downloads: {self.EXPORT_DAILY_DOWNLOAD_LIMIT_SWORIK_DEVELOPER} (source: {config_sources['EXPORT_DAILY_DOWNLOAD_LIMIT_SWORIK_DEVELOPER']})"
+        )
+        logger.info(
+            f"  Admin daily downloads: {self.EXPORT_DAILY_DOWNLOAD_LIMIT_ADMIN} (source: {config_sources['EXPORT_DAILY_DOWNLOAD_LIMIT_ADMIN']})"
+        )
+
+        # Log any corrections made
+        corrections_made = []
+        if original_sworik_chunks != self.EXPORT_MIN_CHUNKS_SWORIK_DEVELOPER:
+            corrections_made.append(
+                f"EXPORT_MIN_CHUNKS_SWORIK_DEVELOPER: {original_sworik_chunks} -> {self.EXPORT_MIN_CHUNKS_SWORIK_DEVELOPER}"
+            )
+        if original_admin_chunks != self.EXPORT_MIN_CHUNKS_ADMIN:
+            corrections_made.append(
+                f"EXPORT_MIN_CHUNKS_ADMIN: {original_admin_chunks} -> {self.EXPORT_MIN_CHUNKS_ADMIN}"
+            )
+        if (
+            original_sworik_downloads
+            != self.EXPORT_DAILY_DOWNLOAD_LIMIT_SWORIK_DEVELOPER
+        ):
+            corrections_made.append(
+                f"EXPORT_DAILY_DOWNLOAD_LIMIT_SWORIK_DEVELOPER: {original_sworik_downloads} -> {self.EXPORT_DAILY_DOWNLOAD_LIMIT_SWORIK_DEVELOPER}"
+            )
+        if original_admin_downloads != self.EXPORT_DAILY_DOWNLOAD_LIMIT_ADMIN:
+            corrections_made.append(
+                f"EXPORT_DAILY_DOWNLOAD_LIMIT_ADMIN: {original_admin_downloads} -> {self.EXPORT_DAILY_DOWNLOAD_LIMIT_ADMIN}"
+            )
+
+        if corrections_made:
+            logger.info(
+                f"Configuration corrections applied: {', '.join(corrections_made)}"
+            )
+
+    def get_min_chunks_for_role(self, user_role: str) -> int:
+        """Get minimum chunk requirement for a specific user role.
+
+        Args:
+            user_role: The user role (from UserRole enum)
+
+        Returns:
+            Minimum number of chunks required for the role
+
+        Raises:
+            ValueError: If the role doesn't have export permissions
+        """
+        if user_role == "admin":
+            return self.EXPORT_MIN_CHUNKS_ADMIN
+        elif user_role == "sworik_developer":
+            return self.EXPORT_MIN_CHUNKS_SWORIK_DEVELOPER
+        else:
+            raise ValueError(f"Role '{user_role}' does not have export permissions")
+
+    def get_daily_download_limit_for_role(self, user_role: str) -> int:
+        """Get daily download limit for a specific user role.
+
+        Args:
+            user_role: The user role (from UserRole enum)
+
+        Returns:
+            Daily download limit (-1 for unlimited, positive integer for limit)
+
+        Raises:
+            ValueError: If the role doesn't have export permissions or configuration is invalid
+        """
+        if user_role == "admin":
+            limit = self.EXPORT_DAILY_DOWNLOAD_LIMIT_ADMIN
+            # Validate admin limit configuration
+            if limit < -1:
+                raise ValueError(
+                    f"Invalid admin download limit configuration: {limit}. Must be -1 (unlimited) or >= 0"
+                )
+            return limit
+        elif user_role == "sworik_developer":
+            limit = self.EXPORT_DAILY_DOWNLOAD_LIMIT_SWORIK_DEVELOPER
+            # Validate sworik developer limit configuration
+            if limit < -1:
+                raise ValueError(
+                    f"Invalid sworik_developer download limit configuration: {limit}. Must be -1 (unlimited) or >= 0"
+                )
+            return limit
+        else:
+            raise ValueError(f"Role '{user_role}' does not have export permissions")
+
+    def validate_startup_configuration(self) -> bool:
+        """Validate all configuration values at startup.
+
+        Returns:
+            True if all configuration is valid, False if any corrections were needed
+
+        This method can be called at application startup to ensure configuration
+        is valid and log any issues that were automatically corrected.
+        """
+        import logging
+        import os
+
+        logger = logging.getLogger(__name__)
+
+        # Check if any environment variables are missing
+        expected_env_vars = [
+            "EXPORT_MIN_CHUNKS_SWORIK_DEVELOPER",
+            "EXPORT_MIN_CHUNKS_ADMIN",
+            "EXPORT_DAILY_DOWNLOAD_LIMIT_SWORIK_DEVELOPER",
+            "EXPORT_DAILY_DOWNLOAD_LIMIT_ADMIN",
+        ]
+
+        missing_vars = []
+        for var in expected_env_vars:
+            if not os.getenv(var):
+                missing_vars.append(var)
+
+        if missing_vars:
+            logger.info(
+                f"Using default values for missing environment variables: {', '.join(missing_vars)}"
+            )
+
+        # Re-run validation to check if any corrections are needed
+        original_values = {
+            "sworik_chunks": self.EXPORT_MIN_CHUNKS_SWORIK_DEVELOPER,
+            "admin_chunks": self.EXPORT_MIN_CHUNKS_ADMIN,
+            "sworik_downloads": self.EXPORT_DAILY_DOWNLOAD_LIMIT_SWORIK_DEVELOPER,
+            "admin_downloads": self.EXPORT_DAILY_DOWNLOAD_LIMIT_ADMIN,
+        }
+
+        # This will apply any necessary corrections
+        self._validate_role_based_config()
+
+        # Check if any values were corrected
+        corrections_needed = (
+            original_values["sworik_chunks"] != self.EXPORT_MIN_CHUNKS_SWORIK_DEVELOPER
+            or original_values["admin_chunks"] != self.EXPORT_MIN_CHUNKS_ADMIN
+            or original_values["sworik_downloads"]
+            != self.EXPORT_DAILY_DOWNLOAD_LIMIT_SWORIK_DEVELOPER
+            or original_values["admin_downloads"]
+            != self.EXPORT_DAILY_DOWNLOAD_LIMIT_ADMIN
+        )
+
+        if not corrections_needed and not missing_vars:
+            logger.info("All role-based export configuration is valid")
+            return True
+        else:
+            logger.warning(
+                "Configuration validation completed with corrections or missing values"
+            )
+            return False
+
 
 settings = Settings()

@@ -73,4 +73,29 @@ class ExportDownloadQuotaResponse(BaseModel):
     downloads_today: int
     downloads_remaining: int
     daily_limit: int
-    reset_time: datetime
+    reset_time: Optional[datetime]  # None for unlimited quota
+    user_role: str = Field(description="User role (admin, sworik_developer)")
+    is_unlimited: bool = Field(description="True if user has unlimited downloads")
+
+
+# Enhanced Error Response Schemas
+
+
+class ErrorDetails(BaseModel):
+    """Detailed error information with context and suggestions."""
+
+    available_chunks: Optional[int] = None
+    required_chunks: Optional[int] = None
+    user_role: Optional[str] = None
+    downloads_today: Optional[int] = None
+    daily_limit: Optional[int] = None
+    reset_time: Optional[str] = None  # ISO format string
+    hours_until_reset: Optional[int] = None
+    suggestions: List[str] = Field(default_factory=list)
+
+
+class StructuredErrorResponse(BaseModel):
+    """Structured error response with actionable guidance."""
+
+    error: str
+    details: ErrorDetails

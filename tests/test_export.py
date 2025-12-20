@@ -499,6 +499,8 @@ def test_create_export_batch_force_create(
     export_batch_service, ready_chunks, db_session
 ):
     """Test that force_create allows batch with fewer chunks."""
+    from app.models.user import UserRole
+
     # Mock file operations
     with (
         patch("os.path.exists", return_value=True),
@@ -519,7 +521,7 @@ def test_create_export_batch_force_create(
     ):
 
         batch = export_batch_service.create_export_batch(
-            max_chunks=200, force_create=True
+            max_chunks=200, user_role=UserRole.ADMIN, force_create=True
         )
 
         assert batch is not None
@@ -553,8 +555,10 @@ def test_create_export_batch_filters_oversized_chunks(
         ),
     ):
 
+        from app.models.user import UserRole
+
         batch = export_batch_service.create_export_batch(
-            max_chunks=200, force_create=True
+            max_chunks=200, user_role=UserRole.ADMIN, force_create=True
         )
 
         # Should have 4 chunks (1 filtered out)
@@ -597,8 +601,10 @@ def test_create_export_batch_excludes_already_exported(
         ),
     ):
 
+        from app.models.user import UserRole
+
         batch = export_batch_service.create_export_batch(
-            max_chunks=200, force_create=True
+            max_chunks=200, user_role=UserRole.ADMIN, force_create=True
         )
 
         assert batch.chunk_count == 2
@@ -643,8 +649,13 @@ def test_create_export_batch_date_filter(
         ),
     ):
 
+        from app.models.user import UserRole
+
         batch = export_batch_service.create_export_batch(
-            max_chunks=200, date_from=date_from, force_create=True
+            max_chunks=200,
+            user_role=UserRole.ADMIN,
+            date_from=date_from,
+            force_create=True,
         )
 
         # Should have 3 chunks (last 3 days)
@@ -681,8 +692,14 @@ def test_create_export_batch_duration_filter(
         ),
     ):
 
+        from app.models.user import UserRole
+
         batch = export_batch_service.create_export_batch(
-            max_chunks=200, min_duration=3.0, max_duration=7.0, force_create=True
+            max_chunks=200,
+            user_role=UserRole.ADMIN,
+            min_duration=3.0,
+            max_duration=7.0,
+            force_create=True,
         )
 
         # Should have 3 chunks (3.0, 5.0, 7.0)
@@ -751,11 +768,13 @@ def test_list_export_batches(export_batch_service, db_session):
     db_session.commit()
 
     # Test pagination
-    batches = export_batch_service.list_export_batches(skip=0, limit=3)
+    batches, total_count = export_batch_service.list_export_batches(skip=0, limit=3)
     assert len(batches) == 3
+    assert total_count == 5
 
-    batches = export_batch_service.list_export_batches(skip=3, limit=3)
+    batches, total_count = export_batch_service.list_export_batches(skip=3, limit=3)
     assert len(batches) == 2
+    assert total_count == 5
 
 
 def test_download_export_batch_success(
@@ -773,9 +792,12 @@ def test_download_export_batch_success(
     db_session.add(batch)
     db_session.commit()
 
+    from app.models.user import UserRole
+
     file_path, mime_type = export_batch_service.download_export_batch(
         batch_id="download-test",
         user_id=contributor_user.id,
+        user_role=UserRole.SWORIK_DEVELOPER,
         ip_address="127.0.0.1",
         user_agent="test-agent",
     )
@@ -809,10 +831,10 @@ def test_download_export_batch_limit_exceeded(
     db_session.add(batch)
     db_session.commit()
 
-    # Create 2 downloads today (at limit)
+    # Create 5 downloads today (at limit for sworik_developer)
     from datetime import datetime, timezone
 
-    for i in range(2):
+    for i in range(5):
         download = ExportDownload(
             batch_id="limit-test",
             user_id=contributor_user.id,
@@ -821,10 +843,14 @@ def test_download_export_batch_limit_exceeded(
         db_session.add(download)
     db_session.commit()
 
-    # Third download should fail
+    # Sixth download should fail
+    from app.models.user import UserRole
+
     with pytest.raises(ValidationError) as exc_info:
         export_batch_service.download_export_batch(
-            batch_id="limit-test", user_id=contributor_user.id
+            batch_id="limit-test",
+            user_id=contributor_user.id,
+            user_role=UserRole.SWORIK_DEVELOPER,
         )
 
     assert "Daily download limit exceeded" in str(exc_info.value)
@@ -832,17 +858,23 @@ def test_download_export_batch_limit_exceeded(
 
 def test_check_download_limit(export_batch_service, db_session, contributor_user):
     """Test download limit checking."""
+    from app.models.user import UserRole
+
     # No downloads yet
-    can_download, reset_time = export_batch_service.check_download_limit(
-        contributor_user.id
+    can_download, reset_time, downloads_today, daily_limit = (
+        export_batch_service.check_download_limit(
+            contributor_user.id, UserRole.SWORIK_DEVELOPER
+        )
     )
     assert can_download is True
     assert reset_time is not None
+    assert downloads_today == 0
+    assert daily_limit == 5  # Default for sworik_developer
 
-    # Add 2 downloads (at limit)
+    # Add 5 downloads (at limit)
     from datetime import datetime, timezone
 
-    for i in range(2):
+    for i in range(5):
         download = ExportDownload(
             batch_id=f"batch-{i}",
             user_id=contributor_user.id,
@@ -852,10 +884,14 @@ def test_check_download_limit(export_batch_service, db_session, contributor_user
     db_session.commit()
 
     # Should be at limit
-    can_download, reset_time = export_batch_service.check_download_limit(
-        contributor_user.id
+    can_download, reset_time, downloads_today, daily_limit = (
+        export_batch_service.check_download_limit(
+            contributor_user.id, UserRole.SWORIK_DEVELOPER
+        )
     )
     assert can_download is False
+    assert downloads_today == 5
+    assert daily_limit == 5
 
 
 def test_get_user_download_count_today(
@@ -932,7 +968,9 @@ def test_calculate_file_checksum(export_batch_service):
 
 def test_cleanup_old_local_archives(export_batch_service):
     """Test cleanup of old local archives."""
+    import os
     from datetime import datetime, timedelta, timezone
+    from pathlib import Path
 
     export_dir = Path(export_batch_service.storage_config.local_export_dir)
 
