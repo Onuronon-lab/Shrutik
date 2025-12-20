@@ -169,6 +169,8 @@ logs/
 # mdBook generated files
 book/
 *.html
+# But keep essential frontend files
+!frontend/index.html
 
 node_modules*
 exports/
