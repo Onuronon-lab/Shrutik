@@ -30,5 +30,5 @@
 # Appendix
 
 - [Troubleshooting](troubleshooting.md)
-- [coming soon](coming-soon.md)
 - [FAQ](faq.md)
+- [coming soon](coming-soon.md)
