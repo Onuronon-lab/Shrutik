@@ -145,50 +145,59 @@ graph TB
 
 ```mermaid
 erDiagram
-    USERS ||--o{ VOICE_RECORDINGS : creates
-    USERS ||--o{ TRANSCRIPTIONS : creates
-    USERS ||--o{ QUALITY_REVIEWS : performs
-    
+    %% Core Relationships
+    USERS ||--o{ VOICE_RECORDINGS : "creates"
+    USERS ||--o{ TRANSCRIPTIONS : "creates"
+    USERS ||--o{ QUALITY_REVIEWS : "performs"
+    USERS ||--o{ EXPORT_AUDIT_LOGS : "performs"
+    USERS ||--o{ EXPORT_DOWNLOADS : "downloads"
+    USERS ||--o| EXPORT_BATCHES : "creates (optional)"
+
+    LANGUAGES ||--o{ SCRIPTS : "has"
     LANGUAGES ||--o{ VOICE_RECORDINGS : "recorded in"
     LANGUAGES ||--o{ TRANSCRIPTIONS : "transcribed in"
-    LANGUAGES ||--o{ SCRIPTS : "written in"
-    
+
     SCRIPTS ||--o{ VOICE_RECORDINGS : "recorded from"
-    
-    VOICE_RECORDINGS ||--o{ AUDIO_CHUNKS : "chunked into"
-    AUDIO_CHUNKS ||--o{ TRANSCRIPTIONS : "transcribed as"
-    
-    TRANSCRIPTIONS ||--o{ QUALITY_REVIEWS : "reviewed in"
-    
+
+    VOICE_RECORDINGS ||--|{ AUDIO_CHUNKS : "divided into (1 to many)"
+
+    AUDIO_CHUNKS ||--o{ TRANSCRIPTIONS : "has many"
+    AUDIO_CHUNKS ||--o| TRANSCRIPTIONS : "has one consensus"
+
+    TRANSCRIPTIONS ||--o{ QUALITY_REVIEWS : "reviewed by"
+
+    EXPORT_BATCHES ||--o{ EXPORT_AUDIT_LOGS : "generates"
+    EXPORT_BATCHES ||--o{ EXPORT_DOWNLOADS : "downloaded by"
+
+    %% Entities with attributes
     USERS {
         int id PK
-        string email UK
         string name
+        string email UK
         string password_hash
-        enum role
-        json preferences
-        timestamp created_at
-        timestamp updated_at
+        string role "(enum: userrole)"
+        json meta_data
+        timestamptz created_at
+        timestamptz updated_at
     }
-    
+
     LANGUAGES {
         int id PK
         string name
         string code UK
-        string script
-        json metadata
-        boolean active
+        timestamptz created_at
     }
-    
+
     SCRIPTS {
         int id PK
         int language_id FK
-        text content
-        enum difficulty
-        json metadata
-        boolean active
+        text text
+        string duration_category "(enum: durationcategory)"
+        json meta_data
+        timestamptz created_at
+        timestamptz updated_at
     }
-    
+
     VOICE_RECORDINGS {
         int id PK
         int user_id FK
@@ -196,11 +205,12 @@ erDiagram
         int language_id FK
         string file_path
         float duration
-        enum status
-        json metadata
-        timestamp created_at
+        string status "(enum: recordingstatus)"
+        json meta_data
+        timestamptz created_at
+        timestamptz updated_at
     }
-    
+
     AUDIO_CHUNKS {
         int id PK
         int recording_id FK
@@ -210,9 +220,15 @@ erDiagram
         float end_time
         float duration
         text sentence_hint
-        json metadata
+        json meta_data
+        timestamptz created_at
+        int transcript_count
+        boolean ready_for_export
+        float consensus_quality
+        int consensus_transcript_id FK "optional"
+        int consensus_failed_count
     }
-    
+
     TRANSCRIPTIONS {
         int id PK
         int chunk_id FK
@@ -223,18 +239,67 @@ erDiagram
         float confidence
         boolean is_consensus
         boolean is_validated
-        json metadata
-        timestamp created_at
+        json meta_data
+        timestamptz created_at
+        timestamptz updated_at
     }
-    
+
     QUALITY_REVIEWS {
         int id PK
         int transcription_id FK
         int reviewer_id FK
-        enum decision
-        int rating
+        string decision "(enum: reviewdecision)"
+        float rating
         text comment
-        timestamp created_at
+        json meta_data
+        timestamptz created_at
+    }
+
+    EXPORT_BATCHES {
+        int id PK
+        string batch_id UK
+        string archive_path
+        string storage_type "(enum: storagetype)"
+        int chunk_count
+        bigint file_size_bytes
+        json chunk_ids
+        string status "(enum: exportbatchstatus)"
+        boolean exported
+        text error_message
+        int retry_count
+        string checksum
+        int compression_level
+        string format_version
+        json recording_id_range
+        json language_stats
+        float total_duration_seconds
+        json filter_criteria
+        timestamptz created_at
+        timestamptz completed_at
+        int created_by_id FK "optional"
+    }
+
+    EXPORT_AUDIT_LOGS {
+        int id PK
+        string export_id
+        int user_id FK
+        string export_type
+        string format
+        json filters_applied
+        int records_exported
+        bigint file_size_bytes
+        string ip_address
+        string user_agent
+        timestamptz created_at
+    }
+
+    EXPORT_DOWNLOADS {
+        int id PK
+        string batch_id FK
+        int user_id FK
+        timestamptz downloaded_at
+        string ip_address
+        string user_agent
     }
 ```
 
