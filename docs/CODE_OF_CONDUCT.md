@@ -166,8 +166,6 @@ For answers to common questions about this code of conduct, see the FAQ at https
 ## Contact Information
 
 * **General Conduct Questions**: onuronon.dev@gmail.com
-* **Appeals**: appeals@shrutik.org (not there yet)
-* **Community Team**: community@shrutik.org (not there yet)
 
 ---
 

@@ -17,6 +17,10 @@ The fastest way to get Shrutik running is with Docker:
 git clone https://github.com/Onuronon-lab/Shrutik.git
 cd shrutik
 
+# Switch to the deployment-dev branch
+git fetch origin
+git switch deployment-dev
+
 # Copy Docker environment configuration
 cp .env.docker .env
 

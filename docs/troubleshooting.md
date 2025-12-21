@@ -12,19 +12,20 @@ This guide covers common issues and their solutions when working with Shrutik.
 
 ```bash
 # Check logs for all services
-./docker-dev.sh logs
+docker compose logs -f
 
-# Check specific service logs
-./docker-dev.sh logs backend
-./docker-dev.sh logs postgres
-./docker-dev.sh logs redis
+# Check logs for a specific service
+docker compose logs -f backend
+docker compose logs -f postgres
+docker compose logs -f redis
 
-# Restart services
-./docker-dev.sh restart
+# Restart all services
+docker compose restart
 
-# Clean restart (removes volumes)
-./docker-dev.sh cleanup
-./docker-dev.sh start
+# Clean restart (removes containers, networks, and volumes)
+docker compose down -v --remove-orphans
+docker system prune -f  # optional: remove unused Docker resources
+docker compose up -d    # start services again
 ```
 
 ### Port Already in Use
@@ -59,12 +60,23 @@ netstat -tulpn | grep :8000
 docker-compose exec postgres pg_isready -U postgres
 
 # Check database logs
-./docker-dev.sh logs postgres
+docker compose logs -f postgres
 
-# Reset database
-./docker-dev.sh cleanup
-./docker-dev.sh start
-./docker-dev.sh migrate
+# Reset database and remove containers, volumes, and networks
+docker compose down -v --remove-orphans
+
+# Optional: prune unused Docker resources
+docker system prune -f
+
+# Start all services
+docker compose up -d
+
+# Run database migrations inside the backend container
+docker compose exec backend alembic upgrade head
+
+# Or use a custom initialization script if you have one
+docker compose exec backend python scripts/init-db.py
+
 ```
 
 ### Redis Connection Issues
@@ -78,10 +90,10 @@ docker-compose exec postgres pg_isready -U postgres
 docker-compose exec redis redis-cli ping
 
 # Check Redis logs
-./docker-dev.sh logs redis
+docker compose logs -f redis
 
 # Restart Redis
-docker-compose restart redis
+docker compose restart redis
 ```
 
 ## Local Development Issues
@@ -185,7 +197,7 @@ df -h  # Check disk space
 
 ```bash
 # Check backend logs
-./docker-dev.sh logs backend
+docker compose logs -f backend
 
 # Check API health
 curl http://localhost:8000/health
@@ -205,7 +217,7 @@ curl -X GET http://localhost:8000/api/auth/me \
 
 ```bash
 # Check frontend logs
-./docker-dev.sh logs frontend
+docker compose logs -f frontend
 
 # Verify API connection
 curl http://localhost:8000/health

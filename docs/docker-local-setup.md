@@ -277,13 +277,5 @@ docker compose logs frontend
 docker compose build frontend --no-cache
 docker compose up -d frontend
 
-```
-
-
-# **Production-Like Setup**
-
-```bash
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
-
-```
+``````
 

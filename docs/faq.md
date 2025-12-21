@@ -208,7 +208,7 @@ Reset your admin password:
 docker-compose exec backend python create_admin.py
 
 # Local development
-python create_admin.py
+python scripts/create_admin.py --name "AdminUser" --email admin@example.com
 ```
 
 This will create a new admin user or update the existing one.
