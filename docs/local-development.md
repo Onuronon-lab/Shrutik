@@ -65,10 +65,10 @@ brew services start postgresql   # Mac
 createdb voice_collection
 
 # Set environment variables
-cp .env.development .env
+cp .env.example .env
 ```
 
-Edit `.env.development`:
+Edit `.env.example`:
 
 ```env
 # Development Database
@@ -176,7 +176,7 @@ pkill -f uvicorn
 pkill -f celery
 
 # Update config for Docker
-cp .env.docker .env
+cp .env.example .env
 
 # Start Services 
 docker compose up -d
@@ -191,15 +191,6 @@ Follow The Previous Instructions for locally starting service
 ```
 
 > **Complete Docker Guide**: For detailed Docker setup instructions, troubleshooting, and configuration explanations, see our [Docker Local Setup Guide](docker-local-setup.md).
-
-### Environment Files Summary
-
-| File | Purpose | When to Use |
-|------|---------|-------------|
-| `.env.development` | Local development | Native Python development |
-| `.env.docker` | Docker development | Docker Compose development |
-| `.env` | Active configuration | Current environment (copy from above) |
-| `frontend/.env.local` | Frontend development | Local frontend development |
 
 ## 🧪 Testing
 
@@ -324,13 +315,6 @@ alembic upgrade head
 python create_admin.py
 ```
 
-### Sample Data
-
-```bash
-# Load sample data for development
-python scripts/load_sample_data.py
-```
-
 ## Common Development Tasks
 
 ### Adding New API Endpoints
@@ -396,48 +380,6 @@ module.exports = {
 - **[Contributing Guide](contributing.md)** - Contribution guidelines
 - **[Docker Local Setup](docker-local-setup.md)** - Docker development environment
 
-## Troubleshooting
 
-### Common Issues
-
-**Port already in use:**
-```bash
-# Find and kill process using port 8000
-lsof -ti:8000 | xargs kill -9
-```
-
-**Database connection issues:**
-```bash
-# Check PostgreSQL status
-sudo systemctl status postgresql
-
-# Restart PostgreSQL
-sudo systemctl restart postgresql
-```
-
-**Redis connection issues:**
-```bash
-# Check Redis status
-redis-cli ping
-
-# Start Redis
-redis-server
-```
-
-**Permission errors:**
-```bash
-# Fix upload directory permissions
-mkdir -p uploads
-chmod 755 uploads
-```
-
-### Getting Help
-
-If you encounter issues:
-
-1. Check the [troubleshooting section](getting-started.md#troubleshooting)
-2. Search existing [GitHub issues](https://github.com/Onuronon-lab/Shrutik/issues)
-3. Join our [Discord community](https://discord.gg/9hZ9eW8ARk)
-4. Create a new issue with detailed information
 
 Happy coding! 🎉

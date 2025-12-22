@@ -31,9 +31,6 @@ Yes! Shrutik is free and open-source under the Creative Commons BY-NC-SA 4.0 Lic
 - Redis 6+
 - 8GB RAM recommended
 
-### Can I deploy Shrutik to production?
-
-Yes! Shrutik is production-ready. We recommend using Docker for production deployments. See our deployment guides for detailed instructions.
 
 ### How do I backup my data?
 
@@ -51,17 +48,6 @@ docker-compose exec -T postgres psql -U postgres voice_collection < backup.sql
 # Backup uploads directory
 tar -czf uploads-backup.tar.gz uploads/
 ```
-
-### How do I scale Shrutik for more users?
-
-Shrutik is designed to scale horizontally:
-
-1. **Database**: Use PostgreSQL with read replicas
-2. **Redis**: Use Redis Cluster for high availability
-3. **Backend**: Run multiple backend instances behind a load balancer
-4. **File Storage**: Use cloud storage (S3, MinIO) instead of local storage
-5. **Background Jobs**: Scale Celery workers across multiple machines
-
 ## Usage Questions
 
 ### How do I add a new language?
