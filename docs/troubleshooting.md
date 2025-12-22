@@ -295,39 +295,3 @@ If you're still experiencing issues:
 3. **Join community**: [Discord Server](https://discord.gg/9hZ9eW8ARk)
 4. **Check documentation**: Review relevant sections in this documentation
 
-### Issue Template
-
-When reporting issues, please include:
-
-```
-**Environment:**
-- OS: [e.g., Ubuntu 22.04, macOS 13.0, Windows 11]
-- Docker version: [run `docker --version`]
-- Docker Compose version: [run `docker-compose --version`]
-
-**Problem Description:**
-[Clear description of the issue]
-
-**Steps to Reproduce:**
-1. [First step]
-2. [Second step]
-3. [And so on...]
-
-**Expected Behavior:**
-[What you expected to happen]
-
-**Actual Behavior:**
-[What actually happened]
-
-**Error Messages:**
-```
-[Paste complete error messages here]
-```
-
-**Logs:**
-```
-[Paste relevant log outputs here]
-```
-```
-
-This helps us diagnose and fix issues quickly!

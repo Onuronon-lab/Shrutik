@@ -22,7 +22,7 @@ git fetch origin
 git switch deployment-dev
 
 # Copy Docker environment configuration
-cp .env.docker .env
+cp .env.example .env
 
 # Build images and start all services
 docker compose up --build -d
@@ -57,44 +57,8 @@ pip install -r requirements.txt
 ```
 To start backend, frontend, and Celery worker, see the [Local Setup Guide](local-development.md#start-services).
 
-## Initial Configuration
 
-### 1. Environment Variables
-
-Edit the `.env` file with your configuration:
-
-```env
-# Database
-DATABASE_URL=postgresql://postgres:password@localhost:5432/voice_collection
-
-# Redis
-REDIS_URL=redis://localhost:6379/0
-
-# Security
-SECRET_KEY=your-super-secret-key-change-this-in-production
-
-# File Storage
-UPLOAD_DIR=uploads
-MAX_FILE_SIZE=104857600  # 100MB
-
-# Optional: CDN Configuration
-CDN_ENABLED=false
-CDN_BASE_URL=
-```
-
-### 2. Create Admin User
-
-```bash
-# Using Docker
-docker-compose exec backend python create_admin.py
-
-# Local development
-python scripts/create_admin.py --name "AdminUser" --email admin@example.com
-```
-
-Follow the prompts to create your first admin user.
-
-### 3. Verify Setup
+### Verify Setup
 
 ```bash
 # Check backend health
@@ -106,12 +70,11 @@ curl http://localhost:3000
 
 ## First Steps
 
-### For Contributors
+### For Developers
 
 1. **Register an Account**: Visit http://localhost:3000 and create an account
-2. **Choose a Language**: Select the language you want to contribute to
-3. **Start Recording**: Begin with voice recordings or transcriptions
-4. **Track Progress**: Monitor your contributions in the dashboard
+2. **Start Recording**: Begin with voice recordings or transcriptions
+3. **Track Progress**: Monitor your contributions in the dashboard
 
 ### For Administrators
 
