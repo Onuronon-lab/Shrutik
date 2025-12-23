@@ -134,7 +134,23 @@ def cleanup_database():
     print("\n🗑️  Cleaning up database...")
 
     with engine.begin() as conn:
-        # Delete transcriptions first (foreign key constraint)
+        # First, clear consensus transcript references in audio chunks to avoid foreign key constraint violations
+        result = conn.execute(
+            text(
+                """
+            UPDATE audio_chunks
+            SET consensus_transcript_id = NULL
+            WHERE recording_id IN (
+                SELECT id FROM voice_recordings
+                WHERE meta_data->>'generated_by' IN ('generate_test_data', 'generate_test_data_v2')
+            )
+            """
+            )
+        )
+        consensus_refs_cleared = result.rowcount
+        print(f"  ✓ Cleared {consensus_refs_cleared} consensus transcript references")
+
+        # Delete transcriptions (now safe from foreign key constraints)
         result = conn.execute(
             text(
                 """
@@ -191,6 +207,7 @@ def cleanup_database():
         print(f"  ✓ Deleted {scripts_deleted} scripts")
 
         return {
+            "consensus_refs_cleared": consensus_refs_cleared,
             "transcriptions": transcriptions_deleted,
             "chunks": chunks_deleted,
             "recordings": recordings_deleted,
@@ -359,6 +376,7 @@ def main():
     print("✅ CLEANUP COMPLETE")
     print("=" * 60)
     print("\nDatabase cleanup:")
+    print(f"  - Consensus references cleared: {db_stats['consensus_refs_cleared']}")
     print(f"  - Transcriptions deleted: {db_stats['transcriptions']}")
     print(f"  - Audio chunks deleted: {db_stats['chunks']}")
     print(f"  - Voice recordings deleted: {db_stats['recordings']}")
