@@ -68,7 +68,7 @@ createdb voice_collection
 cp .env.example .env
 ```
 
-Edit `.env.example`:
+Edit `.env`:
 
 ```env
 # Development Database
@@ -186,9 +186,9 @@ docker compose up -d
 ```bash
 # Stop Docker
 docker-compose down
+```
 
 Follow The Previous Instructions for locally starting service
-```
 
 > **Complete Docker Guide**: For detailed Docker setup instructions, troubleshooting, and configuration explanations, see our [Docker Local Setup Guide](docker-local-setup.md).
 

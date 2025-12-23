@@ -60,11 +60,16 @@ To start backend, frontend, and Celery worker, see the [Local Setup Guide](local
 
 ### Verify Setup
 
-```bash
-# Check backend health
-curl http://localhost:8000/health
+Once you've successfully started the services using either **Option 1 (Docker)** or **Option 2 (Local Development)**, confirm that everything is running correctly:
 
-# Check frontend
+#### Check Backend Health
+The backend provides a simple health endpoint to verify that the FastAPI server is up and running.
+
+```bash
+curl http://localhost:8000/health
+```
+#### Check Frontend
+```bash
 curl http://localhost:3000
 ```
 
@@ -150,7 +155,7 @@ chmod -R 755 uploads/
 - **Documentation**: Check our [comprehensive docs](README.md)
 - **GitHub Issues**: Report bugs and request features
 - **Discord**: Join our community for real-time help
-- **Email**: Contact us at support@shrutik.org
+- **Email**: Contact us at onuronon.dev@gmail.com
 
 ## Next Steps
 
