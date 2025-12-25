@@ -35,6 +35,9 @@ psutil>=5.9.0
 # Performance and caching
 hiredis>=2.2.0
 
+# Archive compression for export functionality
+zstandard>=0.22.0
+
 # Development dependencies
 pytest>=7.4.0
 pytest-asyncio>=0.21.0
