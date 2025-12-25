@@ -160,16 +160,28 @@ sudo chown -R $USER:$USER .
 **Problem**: Cannot create admin user or login fails.
 
 **Solutions**:
-
 ```bash
-# Ensure database is migrated
-alembic upgrade head
+# Ensure the database is migrated
+# Local environment
+alembic upgrade head  # see Local Database docs for details.
 
-# Create admin user interactively
-python create_admin.py
+# Docker environment
+docker compose exec backend alembic upgrade head  # see Docker Database docs for details
 
-# Check user in database
-docker-compose exec postgres psql -U postgres -d voice_collection -c "SELECT * FROM users;"
+# Create admin user 
+# Local
+python scripts/create_admin.py --name "AdminUser" --email admin@example.com
+
+# Docker
+docker compose exec backend python scripts/create_admin.py --name "AdminUser" --email admin@example.com
+
+# Check users in database
+# Local
+psql -U postgres -d voice_collection -c "SELECT * FROM users;"
+
+# Docker
+docker compose exec postgres psql -U postgres -d voice_collection -c "SELECT * FROM users;"
+
 ```
 
 ### File Upload Issues
@@ -223,7 +235,7 @@ docker compose logs -f frontend
 curl http://localhost:8000/health
 
 # Check environment variables
-cat frontend/.env.local
+cat frontend/.env
 ```
 
 ### Build Errors
@@ -259,14 +271,25 @@ LOG_LEVEL=DEBUG
 ### Check Service Health
 
 ```bash
-# Backend health check
+# Backend health check (works for both local and Docker)
 curl http://localhost:8000/health
 
 # Database connection
-docker-compose exec postgres pg_isready -U postgres
+
+# Local PostgreSQL
+pg_isready -U postgres -d voice_collection
+
+# Docker PostgreSQL
+docker-compose exec postgres pg_isready -U postgres -d voice_collection
 
 # Redis connection
+
+# Local Redis
+redis-cli ping
+
+# Docker Redis
 docker-compose exec redis redis-cli ping
+
 ```
 
 ### Monitor Resource Usage
