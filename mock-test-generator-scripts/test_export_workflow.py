@@ -153,6 +153,7 @@ class ExportWorkflowTester:
             sys.path.insert(0, str(project_root))
 
             from app.core.config import StorageConfig
+            from app.models.user import UserRole
             from app.services.export_batch_service import ExportBatchService
 
             # Create export service
@@ -167,6 +168,7 @@ class ExportWorkflowTester:
             batch = export_service.create_export_batch(
                 max_chunks=max_chunks,
                 user_id=self.test_user_id,
+                user_role=UserRole.ADMIN,  # Use ADMIN role to match test user
                 force_create=force_create,
             )
 
@@ -194,6 +196,7 @@ class ExportWorkflowTester:
             sys.path.insert(0, str(project_root))
 
             from app.core.config import StorageConfig
+            from app.models.user import UserRole
             from app.services.export_batch_service import ExportBatchService
 
             # Create export service
@@ -206,6 +209,7 @@ class ExportWorkflowTester:
             result = export_service.download_export_batch(
                 batch_id=batch_id,
                 user_id=self.test_user_id,
+                user_role=UserRole.ADMIN,  # Use ADMIN role to match test user
                 ip_address="127.0.0.1",
                 user_agent="ExportWorkflowTester/1.0",
             )
@@ -311,6 +315,7 @@ class ExportWorkflowTester:
             sys.path.insert(0, str(project_root))
 
             from app.core.config import StorageConfig
+            from app.models.user import UserRole
             from app.services.export_batch_service import ExportBatchService
 
             storage_config = StorageConfig.from_env()
@@ -325,8 +330,11 @@ class ExportWorkflowTester:
             print(f"     - Current downloads today: {download_count}")
 
             # Check if user can download
-            can_download, reset_time = export_service.check_download_limit(
-                self.test_user_id
+            can_download, reset_time, downloads_today, daily_limit = (
+                export_service.check_download_limit(
+                    self.test_user_id,
+                    UserRole.ADMIN,  # Use ADMIN role to match test user
+                )
             )
             print(f"     - Can download: {can_download}")
             if reset_time:
