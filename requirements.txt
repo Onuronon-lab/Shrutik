@@ -17,6 +17,12 @@ bcrypt>=4.0.0,<4.2.0
 pydantic-settings>=2.0.0
 pydantic[email]>=2.0.0
 
+# Test generation dependencies
+tqdm >= 4.67.1
+aiohttp>=3.8.0
+gtts>=2.3.0
+edge-tts>=6.1.0
+
 # Audio processing dependencies
 librosa>=0.10.0
 pydub>=0.25.0
@@ -34,6 +40,9 @@ psutil>=5.9.0
 
 # Performance and caching
 hiredis>=2.2.0
+
+# Archive compression for export functionality
+zstandard>=0.22.0
 
 # Development dependencies
 pytest>=7.4.0

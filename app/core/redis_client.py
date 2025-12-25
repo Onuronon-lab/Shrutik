@@ -162,6 +162,14 @@ class RedisClient:
             logger.error(f"Redis INCR error for key {key}: {e}")
             return None
 
+    def incrby(self, key: str, amount: int) -> Optional[int]:
+        """Increment key value by amount."""
+        try:
+            return self.client.incrby(key, amount)
+        except Exception as e:
+            logger.error(f"Redis INCRBY error for key {key}: {e}")
+            return None
+
     def decr(self, key: str, amount: int = 1) -> Optional[int]:
         """Decrement key value."""
         try:
