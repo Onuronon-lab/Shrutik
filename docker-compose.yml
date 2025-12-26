@@ -1,3 +1,12 @@
+# Shrutik Voice Collection Platform - Docker Compose Configuration
+#
+# IMPORTANT: Export Batch Persistence
+# The ./exports:/app/exports volume mapping is CRITICAL for data persistence.
+# Without it, export batches will be lost when containers are restarted.
+#
+# If you encounter "export batch not found" errors after container restart,
+# run: ./scripts/fix_export_persistence.sh
+#
 version: '3.8'
 
 services:
@@ -49,6 +58,7 @@ services:
     volumes:
       - ./app:/app/app
       - ./uploads:/app/uploads
+      - ./exports:/app/exports
       - ./.env:/app/.env
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     healthcheck:
@@ -74,6 +84,7 @@ services:
     volumes:
       - ./app:/app/app
       - ./uploads:/app/uploads
+      - ./exports:/app/exports
       - ./.env:/app/.env
     command: celery -A app.core.celery_app worker --loglevel=info --queues=default,audio_processing,consensus,batch_processing,maintenance
     restart: unless-stopped
@@ -95,6 +106,7 @@ services:
     volumes:
       - ./app:/app/app
       - ./uploads:/app/uploads
+      - ./exports:/app/exports
       - ./.env:/app/.env
     command: celery -A app.core.celery_app beat --loglevel=info
     restart: unless-stopped
