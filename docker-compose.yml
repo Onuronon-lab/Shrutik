@@ -1,3 +1,12 @@
+# Shrutik Voice Collection Platform - Docker Compose Configuration
+#
+# IMPORTANT: Export Batch Persistence
+# The ./exports:/app/exports volume mapping is CRITICAL for data persistence.
+# Without it, export batches will be lost when containers are restarted.
+#
+# If you encounter "export batch not found" errors after container restart,
+# run: ./scripts/fix_export_persistence.sh
+#
 version: '3.8'
 
 services:
@@ -9,12 +18,12 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -23,11 +32,11 @@ services:
     image: redis:7-alpine
     container_name: voice_collection_redis
     ports:
-      - "6379:6379"
+      - '6379:6379'
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -36,7 +45,7 @@ services:
     build: .
     container_name: voice_collection_backend
     ports:
-      - "8000:8000"
+      - '8000:8000'
     environment:
       - DATABASE_URL=postgresql://postgres:password@postgres:5432/voice_collection
       - REDIS_URL=redis://redis:6379/0
@@ -49,10 +58,11 @@ services:
     volumes:
       - ./app:/app/app
       - ./uploads:/app/uploads
+      - ./exports:/app/exports
       - ./.env:/app/.env
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:8000/']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -74,6 +84,7 @@ services:
     volumes:
       - ./app:/app/app
       - ./uploads:/app/uploads
+      - ./exports:/app/exports
       - ./.env:/app/.env
     command: celery -A app.core.celery_app worker --loglevel=info --queues=default,audio_processing,consensus,batch_processing,maintenance
     restart: unless-stopped
@@ -95,6 +106,7 @@ services:
     volumes:
       - ./app:/app/app
       - ./uploads:/app/uploads
+      - ./exports:/app/exports
       - ./.env:/app/.env
     command: celery -A app.core.celery_app beat --loglevel=info
     restart: unless-stopped
@@ -110,7 +122,7 @@ services:
       redis:
         condition: service_healthy
     ports:
-      - "5555:5555"
+      - '5555:5555'
     volumes:
       - ./app:/app/app
       - ./.env:/app/.env
@@ -123,7 +135,7 @@ services:
       dockerfile: Dockerfile
     container_name: voice_collection_frontend
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - VITE_API_URL=http://localhost:8000/api
       - DOCKER_ENV=true
