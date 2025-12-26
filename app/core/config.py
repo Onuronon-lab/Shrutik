@@ -116,7 +116,7 @@ class Settings(BaseSettings):
 
     # Export Storage Configuration
     EXPORT_STORAGE_TYPE: Literal["local", "r2"] = "local"
-    EXPORT_LOCAL_DIR: str = "exports"
+    EXPORT_LOCAL_DIR: str = "/app/exports"
 
     # R2 Configuration (Cloudflare R2 for production)
     R2_ACCOUNT_ID: Optional[str] = None
