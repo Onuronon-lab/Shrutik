@@ -7,6 +7,7 @@ Features:
 - Dependency checking with installation instructions
 - Automatic database setup (language, user)
 - Unique, non-repetitive script generation using varied templates and content pools
+- Timeout protection for TTS operations to prevent hanging
 
 Usage:
     DATABASE_URL=postgresql://postgres:password@localhost:5432/voice_collection \
@@ -17,6 +18,7 @@ import asyncio
 import json
 import os
 import random
+import signal
 import socket
 import string
 import subprocess
@@ -171,6 +173,9 @@ FFMPEG_CONCURRENCY = 1
 # TTS retry settings
 TTS_MAX_RETRIES = 3
 TTS_RETRY_BASE_SECONDS = 1.0
+TTS_TIMEOUT_SECONDS = 60  # Timeout for Edge TTS operations
+GTTS_TIMEOUT_SECONDS = 30  # Timeout for Google TTS operations
+TTS_TEST_TIMEOUT_SECONDS = 30  # Timeout for connectivity tests
 
 # Compression/audio settings
 OPUS_BITRATE = "48k"
@@ -642,7 +647,16 @@ async def synthesize_tts_with_retries(
             try:
                 print(f"    Edge TTS attempt {attempt}/{retries}...")
                 comm = edge_tts.Communicate(text, TTS_VOICE, rate=TTS_RATE)
-                await comm.save(str(tmp_mp3))
+
+                # Add timeout to prevent hanging
+                try:
+                    await asyncio.wait_for(
+                        comm.save(str(tmp_mp3)), timeout=TTS_TIMEOUT_SECONDS
+                    )
+                except asyncio.TimeoutError:
+                    raise RuntimeError(
+                        f"Edge TTS save operation timed out after {TTS_TIMEOUT_SECONDS} seconds"
+                    )
 
                 # Verify the file was created and has content
                 if tmp_mp3.exists() and tmp_mp3.stat().st_size > 1000:  # At least 1KB
@@ -670,12 +684,19 @@ async def synthesize_tts_with_retries(
             try:
                 print(f"    Google TTS attempt {attempt}/{retries}...")
 
-                # Google TTS is synchronous, run in thread pool
+                # Google TTS is synchronous, run in thread pool with timeout
                 def _gtts_sync():
                     tts = gTTS(text=text, lang="en", slow=False)
                     tts.save(str(tmp_mp3))
 
-                await asyncio.to_thread(_gtts_sync)
+                try:
+                    await asyncio.wait_for(
+                        asyncio.to_thread(_gtts_sync), timeout=GTTS_TIMEOUT_SECONDS
+                    )
+                except asyncio.TimeoutError:
+                    raise RuntimeError(
+                        f"Google TTS save operation timed out after {GTTS_TIMEOUT_SECONDS} seconds"
+                    )
 
                 # Verify the file was created and has content
                 if tmp_mp3.exists() and tmp_mp3.stat().st_size > 1000:  # At least 1KB
@@ -716,7 +737,17 @@ async def test_tts_connectivity():
         print("  Testing Edge TTS...")
         try:
             comm = edge_tts.Communicate(test_text, TTS_VOICE, rate=TTS_RATE)
-            await comm.save(str(test_file))
+
+            # Add timeout to prevent hanging
+            try:
+                await asyncio.wait_for(
+                    comm.save(str(test_file)), timeout=TTS_TEST_TIMEOUT_SECONDS
+                )
+            except asyncio.TimeoutError:
+                print(
+                    f"  ❌ Edge TTS failed: connection timed out after {TTS_TEST_TIMEOUT_SECONDS} seconds"
+                )
+                raise RuntimeError("Edge TTS connection timeout")
 
             if test_file.exists() and test_file.stat().st_size > 1000:
                 print(f"  ✅ Edge TTS working: {test_file.stat().st_size} bytes")
@@ -738,7 +769,15 @@ async def test_tts_connectivity():
                 tts = gTTS(text=test_text, lang="en", slow=False)
                 tts.save(str(test_file))
 
-            await asyncio.to_thread(_gtts_sync)
+            try:
+                await asyncio.wait_for(
+                    asyncio.to_thread(_gtts_sync), timeout=TTS_TEST_TIMEOUT_SECONDS
+                )
+            except asyncio.TimeoutError:
+                print(
+                    f"  ❌ Google TTS failed: connection timed out after {TTS_TEST_TIMEOUT_SECONDS} seconds"
+                )
+                raise RuntimeError("Google TTS connection timeout")
 
             if test_file.exists() and test_file.stat().st_size > 1000:
                 print(f"  ✅ Google TTS working: {test_file.stat().st_size} bytes")
@@ -919,10 +958,21 @@ async def run_generation():
 
 
 if __name__ == "__main__":
+    # Set up signal handler for graceful shutdown
+    def signal_handler(signum, frame):
+        print(f"\n\n🛑 Received signal {signum}. Shutting down gracefully...")
+        print("   If the process is hanging, this will force exit.")
+        sys.exit(1)
+
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+
     try:
         asyncio.run(run_generation())
     except KeyboardInterrupt:
-        print("\n\nInterrupted by user.")
+        print("\n\n⚠️  Interrupted by user.")
+        sys.exit(1)
     except Exception as e:
-        print(f"\nERROR: {e}")
+        print(f"\n❌ ERROR: {e}")
+        print("   If the script was hanging, this timeout fix should prevent it.")
         raise
