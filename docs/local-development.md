@@ -7,9 +7,9 @@ This guide covers setting up Shrutik for local development, including all the to
 ### System Requirements
 
 - **Python**: 3.11 or higher
-- **Node.js**: 18 or higher
-- **PostgreSQL**: 13 or higher
-- **Redis**: 6 or higher
+- **Node.js**: 20 or higher
+- **PostgreSQL**: 15 or higher
+- **Redis**: 7 or higher
 - **Git**: Latest version
 
 ### Development Tools (Recommended)
@@ -26,6 +26,10 @@ This guide covers setting up Shrutik for local development, including all the to
 ```bash
 git clone https://github.com/Onuronon-lab/Shrutik.git
 cd shrutik
+
+# Switch to the deployment-dev branch
+git fetch origin
+git switch deployment-dev
 ```
 
 ### 2. Backend Setup
@@ -48,9 +52,6 @@ venv\Scripts\activate
 ```bash
 # Install Python dependencies
 pip install -r requirements.txt
-
-# Install development dependencies
-pip install -r requirements-dev.txt
 ```
 
 #### Database Setup
@@ -60,14 +61,20 @@ pip install -r requirements-dev.txt
 sudo systemctl start postgresql  # Linux
 brew services start postgresql   # Mac
 
+# Switch to PostgreSQL user (Linux)
+sudo -i -u postgres
+
 # Create database
 createdb voice_collection
 
+# Exit postgres user shell (Linux)
+exit
+
 # Set environment variables
-cp .env.development .env
+cp .env.example .env
 ```
 
-Edit `.env.development`:
+Edit `.env`:
 
 ```env
 # Development Database
@@ -95,7 +102,7 @@ SECRET_KEY=dev-secret-key-change-in-production
 alembic upgrade head
 
 # Create admin user
-python create_admin.py
+python scripts/create_admin.py --name "AdminUser" --email admin@example.com
 ```
 
 Follow the prompts to create your first admin user.
@@ -115,20 +122,8 @@ cp .env.example .env
 
 ### 4. Start Development Services
 
-#### Option A: Using Scripts (Recommended)
 
-```bash
-# Start all services
-./scripts/start-dev.sh
-```
-
-This script will start:
-- PostgreSQL and Redis (if not running)
-- Backend API server
-- Celery worker
-- Frontend development server
-
-#### Option B: Manual Start
+#### Start Services
 
 **Terminal 1 - Backend:**
 ```bash
@@ -139,7 +134,7 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 **Terminal 2 - Celery Worker:**
 ```bash
 source venv/bin/activate
-celery -A app.tasks.celery_app worker --loglevel=info
+celery -A  app.core.celery_app  worker  --loglevel=info
 ```
 
 **Terminal 3 - Frontend:**
@@ -187,36 +182,21 @@ pkill -f uvicorn
 pkill -f celery
 
 # Update config for Docker
-cp .env.docker .env
+cp .env.example .env
 
-# Start Docker using development script
-chmod +x docker-dev.sh
-./docker-dev.sh start
+# Start Services 
+docker compose up -d
 ```
 
 **Switch to Local:**
 ```bash
 # Stop Docker
 docker-compose down
-
-# Update config for local
-cp .env.development .env
-
-# Start local services
-./scripts/start-dev.sh
 ```
 
+Follow The Previous Instructions for locally starting service
+
 > **Complete Docker Guide**: For detailed Docker setup instructions, troubleshooting, and configuration explanations, see our [Docker Local Setup Guide](docker-local-setup.md).
-
-### Environment Files Summary
-
-| File | Purpose | When to Use |
-|------|---------|-------------|
-| `.env.example` | Template with all variables | Reference for available options |
-| `.env.development` | Local development | Native Python development |
-| `.env.docker` | Docker development | Docker Compose development |
-| `.env` | Active configuration | Current environment (copy from above) |
-| `frontend/.env.local` | Frontend development | Local frontend development |
 
 ## 🧪 Testing
 
@@ -341,13 +321,6 @@ alembic upgrade head
 python create_admin.py
 ```
 
-### Sample Data
-
-```bash
-# Load sample data for development
-python scripts/load_sample_data.py
-```
-
 ## Common Development Tasks
 
 ### Adding New API Endpoints
@@ -381,7 +354,7 @@ python scripts/load_sample_data.py
 
 ```bash
 # Use faster database for development
-export DATABASE_URL="sqlite:///./dev.db"
+export DATABASE_URL="postgresql://postgres:password@localhost:5432/voice_collection"
 
 # Disable Celery for faster startup
 export USE_CELERY=false
@@ -413,48 +386,6 @@ module.exports = {
 - **[Contributing Guide](contributing.md)** - Contribution guidelines
 - **[Docker Local Setup](docker-local-setup.md)** - Docker development environment
 
-## Troubleshooting
 
-### Common Issues
-
-**Port already in use:**
-```bash
-# Find and kill process using port 8000
-lsof -ti:8000 | xargs kill -9
-```
-
-**Database connection issues:**
-```bash
-# Check PostgreSQL status
-sudo systemctl status postgresql
-
-# Restart PostgreSQL
-sudo systemctl restart postgresql
-```
-
-**Redis connection issues:**
-```bash
-# Check Redis status
-redis-cli ping
-
-# Start Redis
-redis-server
-```
-
-**Permission errors:**
-```bash
-# Fix upload directory permissions
-mkdir -p uploads
-chmod 755 uploads
-```
-
-### Getting Help
-
-If you encounter issues:
-
-1. Check the [troubleshooting section](getting-started.md#troubleshooting)
-2. Search existing [GitHub issues](https://github.com/Onuronon-lab/Shrutik/issues)
-3. Join our [Discord community](https://discord.gg/9hZ9eW8ARk)
-4. Create a new issue with detailed information
 
 Happy coding! 🎉

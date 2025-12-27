@@ -130,12 +130,7 @@ If you disagree with a moderation decision:
 ### Support Channels
 - **Discord Community**: https://discord.gg/9hZ9eW8ARk
 - **GitHub Discussions**: https://github.com/Onuronon-lab/Shrutik/discussions
-- **Community Forum**: https://community.shrutik.org
 
-### Educational Resources
-- **Inclusive Language Guide**: https://shrutik.org/inclusive-language
-- **Cultural Sensitivity Training**: https://shrutik.org/cultural-awareness
-- **Technical Writing Guidelines**: https://shrutik.org/writing-guide
 
 ## Recognition
 
@@ -170,9 +165,7 @@ For answers to common questions about this code of conduct, see the FAQ at https
 
 ## Contact Information
 
-* **General Conduct Questions**: conduct@shrutik.org (not there yet, for now contact onuronon.dev@gmail.com)
-* **Appeals**: appeals@shrutik.org (not there yet)
-* **Community Team**: community@shrutik.org (not there yet)
+* **General Conduct Questions**: onuronon.dev@gmail.com
 
 ---
 

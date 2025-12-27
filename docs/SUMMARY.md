@@ -31,3 +31,4 @@
 
 - [Troubleshooting](troubleshooting.md)
 - [FAQ](faq.md)
+- [coming soon](coming-soon.md)

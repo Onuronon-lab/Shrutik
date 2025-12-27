@@ -31,9 +31,6 @@ Yes! Shrutik is free and open-source under the Creative Commons BY-NC-SA 4.0 Lic
 - Redis 6+
 - 8GB RAM recommended
 
-### Can I deploy Shrutik to production?
-
-Yes! Shrutik is production-ready. We recommend using Docker for production deployments. See our deployment guides for detailed instructions.
 
 ### How do I backup my data?
 
@@ -51,17 +48,6 @@ docker-compose exec -T postgres psql -U postgres voice_collection < backup.sql
 # Backup uploads directory
 tar -czf uploads-backup.tar.gz uploads/
 ```
-
-### How do I scale Shrutik for more users?
-
-Shrutik is designed to scale horizontally:
-
-1. **Database**: Use PostgreSQL with read replicas
-2. **Redis**: Use Redis Cluster for high availability
-3. **Backend**: Run multiple backend instances behind a load balancer
-4. **File Storage**: Use cloud storage (S3, MinIO) instead of local storage
-5. **Background Jobs**: Scale Celery workers across multiple machines
-
 ## Usage Questions
 
 ### How do I add a new language?
@@ -208,7 +194,7 @@ Reset your admin password:
 docker-compose exec backend python create_admin.py
 
 # Local development
-python create_admin.py
+python scripts/create_admin.py --name "AdminUser" --email admin@example.com
 ```
 
 This will create a new admin user or update the existing one.
@@ -222,15 +208,27 @@ If your database becomes corrupted:
 3. Or reset the database:
 
 ```bash
-./docker-dev.sh cleanup
-./docker-dev.sh start
-./docker-dev.sh migrate
-python create_admin.py
+# Stop and remove all containers, volumes, and networks
+docker compose down -v --remove-orphans
+
+# Optional: prune unused Docker resources
+docker system prune -f
+
+# Start services (build images if necessary)
+docker compose up -d --build
+
+# Wait a few seconds for Postgres and Redis to be ready
+
+# Run database migrations
+docker compose exec backend alembic upgrade head
+
+# Or use a custom initialization script
+docker compose exec backend python scripts/init-db.py
+
+# Create Admin user
+docker compose exec backend python create_admin.py
 ```
 
-**Note**: This will delete all data!
-
----
 
 ## Still have questions?
 

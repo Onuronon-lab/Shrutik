@@ -17,12 +17,15 @@ The fastest way to get Shrutik running is with Docker:
 git clone https://github.com/Onuronon-lab/Shrutik.git
 cd shrutik
 
-# Copy Docker environment configuration
-cp .env.docker .env
+# Switch to the deployment-dev branch
+git fetch origin
+git switch deployment-dev
 
-# Start all services using our development script
-chmod +x docker-dev.sh
-./docker-dev.sh start
+# Copy Docker environment configuration
+cp .env.example .env
+
+# Build images and start all services
+docker compose up --build -d
 ```
 
 **Access the platform:**
@@ -41,68 +44,42 @@ For development or customization:
 git clone https://github.com/Onuronon-lab/Shrutik.git
 cd shrutik
 
-# Run setup script
-./scripts/setup-local.sh
+# Switch to the deployment-dev branch
+git fetch origin
+git switch deployment-dev
 
-# Start development servers
-./scripts/start-dev.sh
+# Create virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
 ```
+To start backend, frontend, and Celery worker, see the [Local Setup Guide](local-development.md#start-services).
 
-## Initial Configuration
 
-### 1. Environment Variables
+### Verify Setup
 
-Edit the `.env` file with your configuration:
+Once you've successfully started the services using either **Option 1 (Docker)** or **Option 2 (Local Development)**, confirm that everything is running correctly:
 
-```env
-# Database
-DATABASE_URL=postgresql://postgres:password@localhost:5432/voice_collection
-
-# Redis
-REDIS_URL=redis://localhost:6379/0
-
-# Security
-SECRET_KEY=your-super-secret-key-change-this-in-production
-
-# File Storage
-UPLOAD_DIR=uploads
-MAX_FILE_SIZE=104857600  # 100MB
-
-# Optional: CDN Configuration
-CDN_ENABLED=false
-CDN_BASE_URL=
-```
-
-### 2. Create Admin User
+#### Check Backend Health
+The backend provides a simple health endpoint to verify that the FastAPI server is up and running.
 
 ```bash
-# Using Docker
-docker-compose exec backend python create_admin.py
-
-# Local development
-python create_admin.py
-```
-
-Follow the prompts to create your first admin user.
-
-### 3. Verify Setup
-
-```bash
-# Check backend health
 curl http://localhost:8000/health
-
-# Check frontend
+```
+#### Check Frontend
+```bash
 curl http://localhost:3000
 ```
 
 ## First Steps
 
-### For Contributors
+### For Developers
 
 1. **Register an Account**: Visit http://localhost:3000 and create an account
-2. **Choose a Language**: Select the language you want to contribute to
-3. **Start Recording**: Begin with voice recordings or transcriptions
-4. **Track Progress**: Monitor your contributions in the dashboard
+2. **Start Recording**: Begin with voice recordings or transcriptions
+3. **Track Progress**: Monitor your contributions in the dashboard
 
 ### For Administrators
 
@@ -133,24 +110,37 @@ curl http://localhost:3000
 
 **Services won't start:**
 ```bash
-# Check Docker logs
-./docker-dev.sh logs
+# All services
+docker compose logs -f
 
-# Restart services
-./docker-dev.sh restart
+# Specific service (example: backend)
+docker compose logs -f backend
+
+# Restart all services
+docker compose restart
+
+# Restart a single Service
+docker compose restart backend
 
 # Or check status
-./docker-dev.sh status
+docker compose ps
 ```
 
 **Database connection errors:**
 ```bash
-# Reset database and restart
-./docker-dev.sh cleanup
-./docker-dev.sh start
+# Stop services and remove volumes
+docker compose down -v --remove-orphans
+# (Optional) Clean unused Docker resources
+docker system prune -f
+# Rebuild and start all services
+docker compose up -d --build
 
-# Run migrations
-./docker-dev.sh migrate
+# Run migrations inside the backend container
+docker compose exec backend python scripts/init-db.py
+# If that fails, try the fallback
+docker compose exec backend python scripts/simple-init.py
+
+
 ```
 
 **Permission errors:**
@@ -165,7 +155,7 @@ chmod -R 755 uploads/
 - **Documentation**: Check our [comprehensive docs](README.md)
 - **GitHub Issues**: Report bugs and request features
 - **Discord**: Join our community for real-time help
-- **Email**: Contact us at support@shrutik.org
+- **Email**: Contact us at onuronon.dev@gmail.com
 
 ## Next Steps
 

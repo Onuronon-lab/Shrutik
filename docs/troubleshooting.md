@@ -2,6 +2,8 @@
 
 This guide covers common issues and their solutions when working with Shrutik.
 
+
+
 ## Docker Issues
 
 ### Services Won't Start
@@ -12,19 +14,20 @@ This guide covers common issues and their solutions when working with Shrutik.
 
 ```bash
 # Check logs for all services
-./docker-dev.sh logs
+docker compose logs -f
 
-# Check specific service logs
-./docker-dev.sh logs backend
-./docker-dev.sh logs postgres
-./docker-dev.sh logs redis
+# Check logs for a specific service
+docker compose logs -f backend
+docker compose logs -f postgres
+docker compose logs -f redis
 
-# Restart services
-./docker-dev.sh restart
+# Restart all services
+docker compose restart
 
-# Clean restart (removes volumes)
-./docker-dev.sh cleanup
-./docker-dev.sh start
+# Clean restart (removes containers, networks, and volumes)
+docker compose down -v --remove-orphans
+docker system prune -f  # optional: remove unused Docker resources
+docker compose up -d    # start services again
 ```
 
 ### Port Already in Use
@@ -59,12 +62,23 @@ netstat -tulpn | grep :8000
 docker-compose exec postgres pg_isready -U postgres
 
 # Check database logs
-./docker-dev.sh logs postgres
+docker compose logs -f postgres
 
-# Reset database
-./docker-dev.sh cleanup
-./docker-dev.sh start
-./docker-dev.sh migrate
+# Reset database and remove containers, volumes, and networks
+docker compose down -v --remove-orphans
+
+# Optional: prune unused Docker resources
+docker system prune -f
+
+# Start all services
+docker compose up -d
+
+# Run database migrations inside the backend container
+docker compose exec backend alembic upgrade head
+
+# Or use a custom initialization script if you have one
+docker compose exec backend python scripts/init-db.py
+
 ```
 
 ### Redis Connection Issues
@@ -78,31 +92,10 @@ docker-compose exec postgres pg_isready -U postgres
 docker-compose exec redis redis-cli ping
 
 # Check Redis logs
-./docker-dev.sh logs redis
+docker compose logs -f redis
 
 # Restart Redis
-docker-compose restart redis
-```
-
-## Local Development Issues
-
-### Virtual Environment Issues
-
-**Problem**: Python packages not found or import errors.
-
-**Solutions**:
-
-```bash
-# Ensure virtual environment is activated
-source venv/bin/activate
-
-# Reinstall dependencies
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
-
-# Check Python path
-which python
-python --version
+docker compose restart redis
 ```
 
 ### Database Issues
@@ -148,16 +141,28 @@ sudo chown -R $USER:$USER .
 **Problem**: Cannot create admin user or login fails.
 
 **Solutions**:
-
 ```bash
-# Ensure database is migrated
-alembic upgrade head
+# Ensure the database is migrated
+# Local environment
+alembic upgrade head  # see Local Database docs for details.
 
-# Create admin user interactively
-python create_admin.py
+# Docker environment
+docker compose exec backend alembic upgrade head  # see Docker Database docs for details
 
-# Check user in database
-docker-compose exec postgres psql -U postgres -d voice_collection -c "SELECT * FROM users;"
+# Create admin user 
+# Local
+python scripts/create_admin.py --name "AdminUser" --email admin@example.com
+
+# Docker
+docker compose exec backend python scripts/create_admin.py --name "AdminUser" --email admin@example.com
+
+# Check users in database
+# Local
+psql -U postgres -d voice_collection -c "SELECT * FROM users;"
+
+# Docker
+docker compose exec postgres psql -U postgres -d voice_collection -c "SELECT * FROM users;"
+
 ```
 
 ### File Upload Issues
@@ -185,7 +190,7 @@ df -h  # Check disk space
 
 ```bash
 # Check backend logs
-./docker-dev.sh logs backend
+docker compose logs -f backend
 
 # Check API health
 curl http://localhost:8000/health
@@ -205,13 +210,13 @@ curl -X GET http://localhost:8000/api/auth/me \
 
 ```bash
 # Check frontend logs
-./docker-dev.sh logs frontend
+docker compose logs -f frontend
 
 # Verify API connection
 curl http://localhost:8000/health
 
 # Check environment variables
-cat frontend/.env.local
+cat frontend/.env
 ```
 
 ### Build Errors
@@ -247,14 +252,25 @@ LOG_LEVEL=DEBUG
 ### Check Service Health
 
 ```bash
-# Backend health check
+# Backend health check (works for both local and Docker)
 curl http://localhost:8000/health
 
 # Database connection
-docker-compose exec postgres pg_isready -U postgres
+
+# Local PostgreSQL
+pg_isready -U postgres -d voice_collection
+
+# Docker PostgreSQL
+docker-compose exec postgres pg_isready -U postgres -d voice_collection
 
 # Redis connection
+
+# Local Redis
+redis-cli ping
+
+# Docker Redis
 docker-compose exec redis redis-cli ping
+
 ```
 
 ### Monitor Resource Usage
@@ -267,6 +283,43 @@ docker stats
 htop
 df -h
 free -h
+```
+
+## Common Local Issues
+
+**Port already in use:**
+```bash
+# Find and kill process using port 8000
+lsof -ti:8000 | xargs kill -9
+```
+
+**Database connection issues:**
+```bash
+# Check PostgreSQL status
+sudo systemctl status postgresql
+
+# Restart PostgreSQL
+sudo systemctl restart postgresql
+```
+
+**Create database if missing**
+
+```bash
+createdb voice_collection
+```
+
+**Run migrations**
+```bash
+alembic upgrade head
+```
+
+**Redis connection issues:**
+```bash
+# Check Redis status
+redis-cli ping
+
+# Start Redis
+redis-server
 ```
 
 ## Getting Help
@@ -283,39 +336,3 @@ If you're still experiencing issues:
 3. **Join community**: [Discord Server](https://discord.gg/9hZ9eW8ARk)
 4. **Check documentation**: Review relevant sections in this documentation
 
-### Issue Template
-
-When reporting issues, please include:
-
-```
-**Environment:**
-- OS: [e.g., Ubuntu 22.04, macOS 13.0, Windows 11]
-- Docker version: [run `docker --version`]
-- Docker Compose version: [run `docker-compose --version`]
-
-**Problem Description:**
-[Clear description of the issue]
-
-**Steps to Reproduce:**
-1. [First step]
-2. [Second step]
-3. [And so on...]
-
-**Expected Behavior:**
-[What you expected to happen]
-
-**Actual Behavior:**
-[What actually happened]
-
-**Error Messages:**
-```
-[Paste complete error messages here]
-```
-
-**Logs:**
-```
-[Paste relevant log outputs here]
-```
-```
-
-This helps us diagnose and fix issues quickly!
