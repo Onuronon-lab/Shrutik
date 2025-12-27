@@ -1,159 +1,265 @@
-# Mock Test Generator Scripts
+## Mock Test Generator Scripts
 
 This directory contains scripts for generating test data and testing the complete voice collection and export workflow.
 
-## Scripts Overview
 
-### 1. Data Generation Scripts
+## How to Run
+
+You can run the scripts in one of two ways:
+
+-   **Docker (recommended)**  
+    Scripts are executed inside the backend container. No Local configuration is required.
+    
+-   **Local execution**  
+    Scripts are run directly on the host machine. Environment variables must be set manually.
+    
+
+
+###  Cleanup Test Data
+If test data already exists, clean it before starting:
+
+**Docker**
+```
+docker exec -it voice_collection_backend \
+python mock-test-generator-scripts/cleanup_generated_data.py
+```
+**Local**
+```
+python mock-test-generator-scripts/cleanup_generated_data.py
+```
+---
+###  Generate Data
 
 #### `generate_test_data.py`
 
-Generates synthetic voice recordings with TTS (Text-to-Speech).
+Generates synthetic voice recordings using Text-to-Speech (TTS).
 
-- Creates motivational scripts using content library
-- Synthesizes audio using Edge TTS (preferred) or Google TTS (fallback)
-- Stores recordings in database with proper metadata
-- Supports Docker-compatible file paths
+-   Creates motivational scripts
+    
+-   Uses Edge TTS (preferred) or Google TTS (fallback)
+    
+-   Stores recordings and metadata in PostgreSQL
+    
+-   Uses Docker-compatible file paths
+    
 
-**Usage:**
+**Docker:**
+
+```bash
+docker exec -it voice_collection_backend \
+python mock-test-generator-scripts/generate_test_data.py
+
+```
+
+**Local:**
 
 ```bash
 DATABASE_URL=postgresql://postgres:password@localhost:5432/voice_collection \
 python generate_test_data.py
+
+```
+You can now verify in **DBeaver** or  any database viewer:
+```
+Schemas → public → Tables
+- voice_recordings
+- scripts
 ```
 
-#### `trigger_audio_processing.py`
+### Trigger Audio Processing 
+ `trigger_audio_processing.py`
 
-Triggers Celery audio processing tasks for uploaded recordings.
+Triggers Celery tasks to process uploaded recordings into audio chunks.
 
-- Queues recordings for chunking and processing
-- Supports batch processing of multiple recordings
-- Provides processing statistics and monitoring
+-   Queues unprocessed recordings
+    
+-   Supports batch processing
+    
+-   Provides basic processing statistics
+    
 
-**Usage:**
+**Docker:**
+
+```bash
+docker exec -it voice_collection_backend \
+python mock-test-generator-scripts/trigger_audio_processing.py
+
+```
+
+**Local:**
 
 ```bash
 DATABASE_URL=postgresql://postgres:password@localhost:5432/voice_collection \
 python trigger_audio_processing.py
+
 ```
 
-### 2. Transcription Automation Scripts
+When prompted,  select **all unprocessed data** and proceed
+After completion, check:
+```
+Schemas → public → Tables
+- audio_chunks
+
+```
+
+### Generate Mock Transcriptions
 
 #### `generate_mock_transcriptions.py`
 
-Creates realistic transcriptions for processed audio chunks.
+Generates mock transcriptions for processed audio chunks.
 
-- Generates 5-8 transcriptions per chunk (required for consensus)
-- Creates realistic variations with typos, punctuation differences
-- Uses multiple mock users to simulate real transcription workflow
-- Calculates quality and confidence scores
+What this does:
 
-**Features:**
+-   Creates 5–8 transcriptions per chunk
+    
+-   Simulates real users
+    
+-   Adds typos, punctuation, casing variations
+    
+-   Calculates individual quality scores
+    
 
-- Text variation engine with common typos and errors
-- Punctuation and capitalization variations
-- Quality scoring based on similarity to original
-- Automatic consensus calculation triggering
+Database tables affected:
 
-**Usage:**
+-   `transcriptions`
+    
+
+**Docker:**
+
+```bash
+docker exec -it voice_collection_backend \
+python mock-test-generator-scripts/generate_mock_transcriptions.py
+
+```
+
+**Local:**
 
 ```bash
 DATABASE_URL=postgresql://postgres:password@localhost:5432/voice_collection \
 python generate_mock_transcriptions.py
+
+```
+---
+
+### Prepare Export Data 
+
+`prepare_export_data.py`
+
+Calculates transcription consensus and marks chunks ready for export.
+
+-   Requires at least 5 transcriptions per chunk
+    
+-   Applies a quality threshold of 90%
+    
+-   Marks eligible chunks as `ready_for_export`
+    
+
+**Docker:**
+
+```bash
+docker exec -it voice_collection_backend \
+python mock-test-generator-scripts/prepare_export_data.py
+
 ```
 
-#### `prepare_export_data.py`
-
-Calculates consensus for transcribed chunks and marks them ready for export.
-
-- Processes chunks with ≥5 transcriptions
-- Calculates consensus quality scores using similarity algorithms
-- Marks chunks as `ready_for_export` when quality ≥90%
-- Updates chunk metadata for export optimization
-
-**Consensus Algorithm:**
-
-- Pairwise text similarity calculation
-- Individual quality score weighting
-- Length consistency analysis
-- Combined scoring: 60% similarity + 20% quality + 20% consistency
-
-**Usage:**
+**Local:**
 
 ```bash
 DATABASE_URL=postgresql://postgres:password@localhost:5432/voice_collection \
 python prepare_export_data.py
+
 ```
 
-### 3. Export Testing Scripts
+Tables updated:
 
-#### `test_export_workflow.py`
+-   `audio_chunks`
+    
 
-Tests the complete export batch functionality end-to-end.
+### Test Export Workflow 
 
-- Creates export batches with different parameters
-- Tests batch download functionality
-- Verifies export batch contents and metadata
-- Tests download limits and rate limiting
+ `test_export_workflow.py`
 
-**Test Cases:**
+Tests the export workflow end-to-end.
 
-- Small batches (10 chunks)
-- Medium batches (25 chunks)
-- Large batches (50 chunks)
-- Local and R2 storage testing
-- Download authentication and limits
+-   Creates export batches
+    
+-   Validates exported files and metadata
+    
+-   Tests download limits and rate limiting
+    
+-   Supports both local storage and R2 storage
+    
 
-**Usage:**
+**Docker:**
+
+```bash
+docker exec -it voice_collection_backend \
+python mock-test-generator-scripts/test_export_workflow.py
+
+```
+
+**Local:**
 
 ```bash
 DATABASE_URL=postgresql://postgres:password@localhost:5432/voice_collection \
 python test_export_workflow.py
+
 ```
+
+This validates:
+
+-   Export batch creation
+    
+-   File packaging and compression
+    
+-   Download limits and metadata
+    
+-   Local or R2 storage handling
+    
+
+After this step, mock data can be safely discarded.
+
+
+## Download the Data
+
+Once all data has been generated and processed:
+
+1.  Open your browser and go to `http://localhost:3000`.
+    
+2.  Log in as **Admin**.
+    
+3.  Navigate to the **Export Data** section.
+    
+4.  You will see all processed audio chunks marked as ready for export.
+    
+5.  Download the files and test them as needed.
+    
+
+> Note: Ensure the backend container is running while accessing the web interface.
+
 
 ## Complete Workflow
 
-To test the entire voice collection and export pipeline:
+1.  **Generate Test Data**  
+    Create synthetic voice recordings and store them in the database.
+    
+2.  **Process Audio**  
+    Split recordings into audio chunks ready for transcription.
+    
+3.  **Generate Mock Transcriptions**  
+    Simulate user transcriptions for each audio chunk, including small variations and typos.
+    
+4.  **Prepare Export Data**  
+    Calculate consensus for transcriptions and mark chunks as ready for export.
+    
+5.  **Test Export Workflow**  
+    Validate that export batches are correctly packaged, metadata is accurate, and download limits are enforced.
+    
+6.  **Download Data**  
+    Access the exported audio chunks through the web interface (`localhost:3000`) or your preferred storage.
+    
 
-### Step 1: Generate Voice Recordings
+> You can run all these steps either inside Docker (recommended) or locally on your machine with the proper database configuration.
 
-```bash
-# Generate synthetic voice recordings
-DATABASE_URL=postgresql://postgres:password@localhost:5432/voice_collection \
-python generate_test_data.py
-```
-
-### Step 2: Process Audio into Chunks
-
-```bash
-# Trigger audio processing (chunking)
-DATABASE_URL=postgresql://postgres:password@localhost:5432/voice_collection \
-python trigger_audio_processing.py
-```
-
-### Step 3: Generate Transcriptions
-
-```bash
-# Create mock transcriptions for chunks
-DATABASE_URL=postgresql://postgres:password@localhost:5432/voice_collection \
-python generate_mock_transcriptions.py
-```
-
-### Step 4: Calculate Consensus
-
-```bash
-# Calculate consensus and mark chunks ready for export
-DATABASE_URL=postgresql://postgres:password@localhost:5432/voice_collection \
-python prepare_export_data.py
-```
-
-### Step 5: Test Export Functionality
-
-```bash
-# Test export batch creation and download
-DATABASE_URL=postgresql://postgres:password@localhost:5432/voice_collection \
-python test_export_workflow.py
-```
 
 ## Data Flow
 
@@ -173,45 +279,51 @@ The scripts work with the following key tables:
 - `audio_chunks`: Processed audio segments ready for transcription
 - `transcriptions`: User-generated transcriptions of chunks
 - `export_batches`: Packaged chunks ready for download
-- `export_downloads`: Download tracking and rate limiting
+- `export_downloads`: Download tracking and rate limiting    
+
 
 ## Configuration
 
-### Environment Variables
+### Docker
 
-- `DATABASE_URL`: PostgreSQL connection string
-- `REDIS_URL`: Redis connection for Celery (default: redis://localhost:6379/0)
-- `AUDIO_OUTPUT_DIR`: Custom audio output directory (optional)
+When running scripts using `docker exec`:
 
-### Storage Configuration
+-   Database and Redis are configured via Docker Compose
+    
+-   No environment variables need to be set manually
+    
 
-Export functionality supports both local and R2 (Cloudflare) storage:
+### Local
 
-**Local Storage:**
+When running scripts locally, set the following variables:
 
-- Files stored in `uploads/exports/` directory
-- Direct file serving for downloads
+-   `DATABASE_URL` – PostgreSQL connection string
+    
+-   `REDIS_URL` – Redis connection (default: `redis://localhost:6379/0`)
+    
+-   `AUDIO_OUTPUT_DIR` – Optional custom audio output directory
+    
+-   `LOG_LEVEL=DEBUG` – Optional verbose logging
+    
 
-**R2 Storage:**
 
-- Files uploaded to Cloudflare R2 bucket
-- Signed URLs for secure downloads
-- Free tier monitoring and limits
+## Storage
 
-## Quality Metrics
+Export functionality supports:
 
-### Transcription Quality
+**Local Storage**
 
-- **Similarity Score**: Text similarity between transcriptions (0-1)
-- **Individual Quality**: User-provided quality scores
-- **Length Consistency**: Variation in transcription lengths
-- **Consensus Threshold**: 90% quality required for export
+-   Files stored in `uploads/exports/`
+    
+-   Direct file downloads
+    
 
-### Export Readiness
+**R2 (Cloudflare) Storage**
 
-- **Minimum Transcriptions**: 5 transcriptions per chunk
-- **Quality Threshold**: 90% consensus quality
-- **Validation Status**: Automatic validation for high-quality consensus
+-   Files uploaded to R2 buckets
+    
+-   Signed URLs for secure downloads
+    
 
 ## Troubleshooting
 
@@ -289,3 +401,5 @@ The scripts provide comprehensive logging and metrics:
 - Storage usage monitoring (R2 free tier)
 
 Use the output logs to monitor system health and identify bottlenecks in the workflow.
+
+
