@@ -2,6 +2,8 @@
 
 This guide covers common issues and their solutions when working with Shrutik.
 
+
+
 ## Docker Issues
 
 ### Services Won't Start
@@ -94,27 +96,6 @@ docker compose logs -f redis
 
 # Restart Redis
 docker compose restart redis
-```
-
-## Local Development Issues
-
-### Virtual Environment Issues
-
-**Problem**: Python packages not found or import errors.
-
-**Solutions**:
-
-```bash
-# Ensure virtual environment is activated
-source venv/bin/activate
-
-# Reinstall dependencies
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
-
-# Check Python path
-which python
-python --version
 ```
 
 ### Database Issues
@@ -302,6 +283,43 @@ docker stats
 htop
 df -h
 free -h
+```
+
+## Common Local Issues
+
+**Port already in use:**
+```bash
+# Find and kill process using port 8000
+lsof -ti:8000 | xargs kill -9
+```
+
+**Database connection issues:**
+```bash
+# Check PostgreSQL status
+sudo systemctl status postgresql
+
+# Restart PostgreSQL
+sudo systemctl restart postgresql
+```
+
+**Create database if missing**
+
+```bash
+createdb voice_collection
+```
+
+**Run migrations**
+```bash
+alembic upgrade head
+```
+
+**Redis connection issues:**
+```bash
+# Check Redis status
+redis-cli ping
+
+# Start Redis
+redis-server
 ```
 
 ## Getting Help

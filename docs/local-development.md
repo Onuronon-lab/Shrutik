@@ -61,8 +61,14 @@ pip install -r requirements.txt
 sudo systemctl start postgresql  # Linux
 brew services start postgresql   # Mac
 
+# Switch to PostgreSQL user (Linux)
+sudo -i -u postgres
+
 # Create database
 createdb voice_collection
+
+# Exit postgres user shell (Linux)
+exit
 
 # Set environment variables
 cp .env.example .env
