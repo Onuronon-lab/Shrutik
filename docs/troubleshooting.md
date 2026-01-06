@@ -50,6 +50,46 @@ sudo lsof -ti:3000 | xargs kill -9
 # Or use netstat
 netstat -tulpn | grep :8000
 ```
+### Environment Configuration
+**Problem**: Migration fails due to `.env` misconfigurations.
+
+**Solution**:
+
+```bash
+# ❌ Incorrect for Docker
+DATABASE_URL=postgresql://postgres:password@localhost:5432/voice_collection
+
+# ✅ Correct for Docker
+DATABASE_URL=postgresql://postgres:password@postgres:5432/voice_collection
+
+# ❌ Incorrect for Docker
+REDIS_URL=redis://localhost:6379/0
+
+# ✅ Correct for Docker
+REDIS_URL=redis://redis:6379/0
+```
+
+### Database Migrations Not Applied
+
+**Problems**:
+
+- alembic upgrade head was not run or failed.
+
+- Tables such as users, recordings, etc., are missing.
+
+- Application may return errors like: relation "users" does not exist.
+
+
+**Solutions**: 
+
+```bash
+# Run database migrations
+alembic upgrade head
+
+# Verify tables exist
+psql -U postgres -d voice_collection -c "\dt"
+```
+⚠️ Always run migrations after configuring environment variables and before starting the backend or running tests.
 
 ### Database Connection Issues
 
