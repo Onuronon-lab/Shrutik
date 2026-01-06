@@ -73,7 +73,7 @@ REDIS_URL=redis://redis:6379/0
 
 **Problems**:
 
-- alembic upgrade head was not run or failed.
+- alembic upgrade head was not running or failed.
 
 - Tables such as users, recordings, etc., are missing.
 
