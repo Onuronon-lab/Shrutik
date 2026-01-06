@@ -33,6 +33,9 @@ Use the Docker-specific environment file:
 ```bash
 cp .env.example .env
 
+# Update DB host for Docker
+sed -i 's@localhost:5432@postgres:5432@g' .env
+
 ```
 **Available Environment Files:**
 - `.env.example` - Template with all available options
