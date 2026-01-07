@@ -32,11 +32,14 @@ Use the Docker-specific environment file:
 
 ```bash
 cp .env.example .env
-
-# Update DB host for Docker
-sed -i 's@localhost:5432@postgres:5432@g' .env
-
 ```
+Make sure the `DATABASE_URL` is correct in `.env` file
+
+```bash
+DATABASE_URL=postgresql://postgres:password@postgres:5432/voice_collection
+```
+When running inside Docker, services communicate using their Docker Compose service names.
+
 **Available Environment Files:**
 - `.env.example` - Template with all available options
 
