@@ -174,3 +174,7 @@ book/
 
 node_modules*
 exports/
+test.db-shm
+test.db-wal
+test_export.db-journal
+*.db-journal
