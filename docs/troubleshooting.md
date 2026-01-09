@@ -56,16 +56,16 @@ netstat -tulpn | grep :8000
 **Solution**:
 
 ```bash
-# ❌ Incorrect for Docker
+# Incorrect 
 DATABASE_URL=postgresql://postgres:password@localhost:5432/voice_collection
 
-# ✅ Correct for Docker
+# Correct 
 DATABASE_URL=postgresql://postgres:password@postgres:5432/voice_collection
 
-# ❌ Incorrect for Docker
+# Incorrect 
 REDIS_URL=redis://localhost:6379/0
 
-# ✅ Correct for Docker
+# Correct 
 REDIS_URL=redis://redis:6379/0
 ```
 
