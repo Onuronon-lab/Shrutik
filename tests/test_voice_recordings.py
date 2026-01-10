@@ -1,84 +1,78 @@
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
 from app.core.security import get_password_hash
-from app.db.database import Base, get_db
-from app.main import app
 from app.models.language import Language
 from app.models.script import DurationCategory, Script
 from app.models.user import User, UserRole
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test_voice_recordings.db"
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-
-def override_get_db():
-    try:
-        db = TestingSessionLocal()
-        yield db
-    finally:
-        db.close()
-
-
-app.dependency_overrides[get_db] = override_get_db
+def get_auth_headers(client: TestClient, email: str, password: str = "TestPass123!"):
+    """Helper function to get authentication headers."""
+    login_response = client.post(
+        "/api/auth/login",
+        json={"email": email, "password": password}
+    )
+    if login_response.status_code != 200:
+        raise Exception(f"Login failed: {login_response.text}")
+    
+    token = login_response.json()["access_token"]
+    return {"Authorization": f"Bearer {token}"}
 
 
 @pytest.fixture
-def client():
-    Base.metadata.create_all(bind=engine)
-    with TestClient(app) as test_client:
-        yield test_client
-    Base.metadata.drop_all(bind=engine)
+def test_user(db_session):
+    """Create a test user."""
+    user = User(
+        name="Test User",
+        email="test@example.com",
+        password_hash=get_password_hash("TestPass123!"),
+        role=UserRole.CONTRIBUTOR
+    )
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+    return user
 
 
 @pytest.fixture
-def test_language(client):
+def test_language(db_session):
     """Create a test language in the database."""
-    db = TestingSessionLocal()
     language = Language(name="Bangla", code="bn")
-    db.add(language)
-    db.commit()
-    db.refresh(language)
-    db.close()
+    db_session.add(language)
+    db_session.commit()
+    db_session.refresh(language)
     return language
 
 
 @pytest.fixture
-def contributor_user(client):
-    """Create a contributor user and return auth token."""
-    db = TestingSessionLocal()
+def contributor_user(db_session):
+    """Create a contributor user."""
     user = User(
         name="Contributor User",
         email="contributor@example.com",
-        password_hash=get_password_hash("contributorpass123"),
+        password_hash=get_password_hash("TestPass123!"),
         role=UserRole.CONTRIBUTOR,
     )
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    db.close()
-
-    # Login to get token
-    login_response = client.post(
-        "/api/auth/login",
-        json={"email": "contributor@example.com", "password": "contributorpass123"},
-    )
-    return login_response.json()["access_token"]
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+    return user
 
 
 @pytest.fixture
-def admin_user(client):
-    """Create an admin user and return auth token."""
-    db = TestingSessionLocal()
+def admin_user(db_session):
+    """Create an admin user."""
     user = User(
         name="Admin User",
         email="admin@example.com",
-        password_hash=get_password_hash("adminpass123"),
+        password_hash=get_password_hash("TestPass123!"),
+        role=UserRole.ADMIN,
+    )
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+    return user
         role=UserRole.ADMIN,
     )
     db.add(user)
@@ -145,7 +139,7 @@ def test_create_recording_session_invalid_script(client, contributor_user):
     )
 
     assert response.status_code == 404
-    assert "Script not found" in response.json()["detail"]
+    assert "Script not found" in response.json()["error"]["message"]
 
 
 def test_create_recording_session_unauthorized(client, sample_script):
@@ -242,7 +236,7 @@ def test_get_nonexistent_recording(client, contributor_user):
     response = client.get("/api/recordings/999", headers=headers)
 
     assert response.status_code == 404
-    assert "Recording not found" in response.json()["detail"]
+    assert "Recording not found" in response.json()["error"]["message"]
 
 
 def test_get_recording_progress_nonexistent(client, contributor_user):
@@ -252,7 +246,7 @@ def test_get_recording_progress_nonexistent(client, contributor_user):
     response = client.get("/api/recordings/999/progress", headers=headers)
 
     assert response.status_code == 404
-    assert "Recording not found" in response.json()["detail"]
+    assert "Recording not found" in response.json()["error"]["message"]
 
 
 def test_delete_nonexistent_recording(client, contributor_user):
@@ -262,4 +256,4 @@ def test_delete_nonexistent_recording(client, contributor_user):
     response = client.delete("/api/recordings/999", headers=headers)
 
     assert response.status_code == 404
-    assert "Recording not found" in response.json()["detail"]
+    assert "Recording not found" in response.json()["error"]["message"]

@@ -123,7 +123,11 @@ def test_admin_role_required(client, admin_user_data):
 
 def test_register_without_role_creates_contributor(client, test_user_data):
     """Test that public registration always creates contributor role."""
-    response = client.post("/api/auth/register", json=test_user_data)
+    # Use a unique email to avoid conflicts with other tests
+    unique_test_data = test_user_data.copy()
+    unique_test_data["email"] = "unique_contributor@example.com"
+    
+    response = client.post("/api/auth/register", json=unique_test_data)
     assert response.status_code == 201
     data = response.json()
     assert data["role"] == "contributor"

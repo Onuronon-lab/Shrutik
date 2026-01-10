@@ -6,10 +6,8 @@ and validation status management.
 """
 
 import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.orm import Session
 
-from app.db.database import Base
 from app.models.audio_chunk import AudioChunk
 from app.models.language import Language
 from app.models.quality_review import QualityReview, ReviewDecision
@@ -18,20 +16,95 @@ from app.models.transcription import Transcription
 from app.models.user import User, UserRole
 from app.models.voice_recording import RecordingStatus, VoiceRecording
 from app.services.consensus_service import ConsensusService
+from app.core.security import get_password_hash
 
-# Create test database
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test_consensus.db"
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+@pytest.fixture
+def sample_user(db_session: Session):
+    """Create a sample user for testing."""
+    import uuid
+    unique_id = str(uuid.uuid4())[:8]
+    user = User(
+        name=f"Test User {unique_id}", 
+        email=f"test-{unique_id}@example.com", 
+        password_hash=get_password_hash("TestPass123!"),
+        role=UserRole.CONTRIBUTOR
+    )
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+    return user
+
+
+@pytest.fixture
+def sample_language(db_session: Session):
+    """Create a sample language for testing."""
+    import uuid
+    unique_id = str(uuid.uuid4())[:8]
+    language = Language(name=f"English-{unique_id}", code=f"en-{unique_id}")
+    db_session.add(language)
+    db_session.commit()
+    db_session.refresh(language)
+    return language
+
+
+@pytest.fixture
+def sample_script(db_session: Session, sample_language):
+    """Create a sample script for testing."""
+    script = Script(
+        text="This is a test script for voice recording.",
+        language_id=sample_language.id,
+        duration_category=DurationCategory.SHORT,
+        meta_data={}
+    )
+    db_session.add(script)
+    db_session.commit()
+    db_session.refresh(script)
+    return script
+
+
+@pytest.fixture
+def sample_recording(db_session: Session, sample_user, sample_script, sample_language):
+    """Create a sample voice recording for testing."""
+    recording = VoiceRecording(
+        user_id=sample_user.id,
+        script_id=sample_script.id,
+        language_id=sample_language.id,
+        file_path="/test/path/recording.wav",
+        duration=10.5,
+        status=RecordingStatus.CHUNKED,
+        meta_data={}
+    )
+    db_session.add(recording)
+    db_session.commit()
+    db_session.refresh(recording)
+    return recording
+
+
+@pytest.fixture
+def sample_chunk(db_session: Session, sample_recording):
+    """Create a sample audio chunk for testing."""
+    chunk = AudioChunk(
+        recording_id=sample_recording.id,
+        chunk_index=0,
+        file_path="/test/path/chunk_0.wav",
+        start_time=0.0,
+        end_time=5.0,
+        duration=5.0,
+        sentence_hint="Test sentence",
+        meta_data={}
+    )
+    db_session.add(chunk)
+    db_session.commit()
+    db_session.refresh(chunk)
+    return chunk
 
 
 class TestConsensusService:
     """Test cases for the ConsensusService."""
 
     def test_evaluate_chunk_consensus_insufficient_transcriptions(
-        self, db_session: Session, sample_chunk
+        self, db_session: Session, sample_chunk, sample_user, sample_language
     ):
         """Test consensus evaluation with insufficient transcriptions."""
         consensus_service = ConsensusService(db_session)
@@ -39,8 +112,8 @@ class TestConsensusService:
         # Create only one transcription (below minimum)
         transcription = Transcription(
             chunk_id=sample_chunk.id,
-            user_id=1,
-            language_id=1,
+            user_id=sample_user.id,
+            language_id=sample_language.id,
             text="This is a test transcription.",
         )
         db_session.add(transcription)
@@ -172,6 +245,8 @@ class TestConsensusService:
         assert validation_status.is_validated == (not consensus_result.requires_review)
 
         # Check that transcriptions were updated
+        # Refresh the session to get the latest data
+        db_session.expire_all()
         updated_transcriptions = (
             db_session.query(Transcription)
             .filter(Transcription.chunk_id == sample_chunk.id)
@@ -389,85 +464,6 @@ class TestConsensusService:
 
         assert requires_review is True
         assert any("long" in reason.lower() for reason in flagged_reasons)
-
-
-@pytest.fixture(scope="session")
-def db_engine():
-    """Create database engine once per test session."""
-    Base.metadata.create_all(bind=engine)
-    yield engine
-    Base.metadata.drop_all(bind=engine)
-
-
-@pytest.fixture
-def db_session(db_engine):
-    """Create a test database session and rollback after each test."""
-    connection = db_engine.connect()
-    transaction = connection.begin()
-    session = TestingSessionLocal(bind=connection)
-
-    try:
-        yield session
-    finally:
-        session.close()
-        transaction.rollback()
-        connection.close()
-
-
-@pytest.fixture
-def sample_chunk(db_session: Session):
-    """Create a sample audio chunk for testing."""
-    # Create required dependencies
-    user = User(
-        name="Test User",
-        email="test@example.com",
-        password_hash="dummy_hash",
-        role=UserRole.CONTRIBUTOR,
-    )
-    db_session.add(user)
-
-    language = Language(name="English", code="en")
-    db_session.add(language)
-
-    script = Script(
-        language_id=1, text="Test script", duration_category=DurationCategory.SHORT
-    )
-    db_session.add(script)
-    db_session.commit()
-
-    recording = VoiceRecording(
-        user_id=1,
-        script_id=script.id,
-        language_id=1,
-        file_path="/test/path.wav",
-        duration=10.0,
-        status=RecordingStatus.CHUNKED,
-    )
-    db_session.add(recording)
-    db_session.commit()
-
-    chunk = AudioChunk(
-        recording_id=recording.id,
-        chunk_index=0,
-        file_path="/test/chunk.wav",
-        start_time=0.0,
-        end_time=5.0,
-        duration=5.0,
-    )
-    db_session.add(chunk)
-    db_session.commit()
-
-    return chunk
-
-
-@pytest.fixture
-def sample_user(db_session: Session):
-    """Create a sample user for testing."""
-    user = User(name="Reviewer User", email="reviewer@example.com", role=UserRole.ADMIN)
-    db_session.add(user)
-    db_session.commit()
-    return user
-
 
 # ========================================================================
 # Export Optimization Tests
