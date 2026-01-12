@@ -47,6 +47,7 @@ When running inside Docker, services communicate using their Docker Compose serv
 ## **3. Configure Frontend**
 
 ```bash
+cd frontend
 cp .env.example .env
 
 ```
@@ -76,7 +77,7 @@ docker compose ps
 
 ## **5. Initialize the Database**
 
-Run migrations manually:
+Run migrations:
 
 ```bash
 docker compose exec backend alembic upgrade head
