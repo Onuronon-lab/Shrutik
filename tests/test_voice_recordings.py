@@ -23,9 +23,11 @@ def get_auth_headers(client: TestClient, email: str, password: str = "TestPass12
 @pytest.fixture
 def test_user(db_session):
     """Create a test user."""
+    import uuid
+    unique_id = str(uuid.uuid4())[:8]
     user = User(
-        name="Test User",
-        email="test@example.com",
+        name=f"Test User {unique_id}",
+        email=f"test-{unique_id}@example.com",
         password_hash=get_password_hash("TestPass123!"),
         role=UserRole.CONTRIBUTOR
     )
@@ -38,7 +40,9 @@ def test_user(db_session):
 @pytest.fixture
 def test_language(db_session):
     """Create a test language in the database."""
-    language = Language(name="Bangla", code="bn")
+    import uuid
+    unique_id = str(uuid.uuid4())[:8]
+    language = Language(name=f"Bangla-{unique_id}", code=f"bn-{unique_id}")
     db_session.add(language)
     db_session.commit()
     db_session.refresh(language)
@@ -48,9 +52,11 @@ def test_language(db_session):
 @pytest.fixture
 def contributor_user(db_session):
     """Create a contributor user."""
+    import uuid
+    unique_id = str(uuid.uuid4())[:8]
     user = User(
-        name="Contributor User",
-        email="contributor@example.com",
+        name=f"Contributor User {unique_id}",
+        email=f"contributor-{unique_id}@example.com",
         password_hash=get_password_hash("TestPass123!"),
         role=UserRole.CONTRIBUTOR,
     )
@@ -63,9 +69,11 @@ def contributor_user(db_session):
 @pytest.fixture
 def admin_user(db_session):
     """Create an admin user."""
+    import uuid
+    unique_id = str(uuid.uuid4())[:8]
     user = User(
-        name="Admin User",
-        email="admin@example.com",
+        name=f"Admin User {unique_id}",
+        email=f"admin-{unique_id}@example.com",
         password_hash=get_password_hash("TestPass123!"),
         role=UserRole.ADMIN,
     )
@@ -73,41 +81,26 @@ def admin_user(db_session):
     db_session.commit()
     db_session.refresh(user)
     return user
-        role=UserRole.ADMIN,
-    )
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    db.close()
-
-    # Login to get token
-    login_response = client.post(
-        "/api/auth/login",
-        json={"email": "admin@example.com", "password": "adminpass123"},
-    )
-    return login_response.json()["access_token"]
 
 
 @pytest.fixture
-def sample_script(client, test_language):
+def sample_script(db_session, test_language):
     """Create a sample script for testing."""
-    db = TestingSessionLocal()
     script = Script(
         text="এটি একটি নমুনা বাংলা স্ক্রিপ্ট যা পরীক্ষার জন্য ব্যবহৃত হচ্ছে। এই স্ক্রিপ্টটি দুই মিনিটের জন্য উপযুক্ত।",
         duration_category=DurationCategory.SHORT,
         language_id=test_language.id,
         meta_data={"source": "test"},
     )
-    db.add(script)
-    db.commit()
-    db.refresh(script)
-    db.close()
+    db_session.add(script)
+    db_session.commit()
+    db_session.refresh(script)
     return script
 
 
 def test_create_recording_session_success(client, contributor_user, sample_script):
     """Test successful recording session creation."""
-    headers = {"Authorization": f"Bearer {contributor_user}"}
+    headers = get_auth_headers(client, contributor_user.email)
     session_data = {
         "script_id": sample_script.id,
         "language_id": sample_script.language_id,
@@ -129,7 +122,7 @@ def test_create_recording_session_success(client, contributor_user, sample_scrip
 
 def test_create_recording_session_invalid_script(client, contributor_user):
     """Test recording session creation with invalid script ID."""
-    headers = {"Authorization": f"Bearer {contributor_user}"}
+    headers = get_auth_headers(client, contributor_user.email)
     session_data = {
         "script_id": 999,  # Non-existent script
     }
@@ -155,7 +148,7 @@ def test_create_recording_session_unauthorized(client, sample_script):
 
 def test_get_user_recordings_empty(client, contributor_user):
     """Test getting user recordings when none exist."""
-    headers = {"Authorization": f"Bearer {contributor_user}"}
+    headers = get_auth_headers(client, contributor_user.email)
 
     response = client.get("/api/recordings/", headers=headers)
 
@@ -168,7 +161,7 @@ def test_get_user_recordings_empty(client, contributor_user):
 
 def test_get_user_recordings_pagination(client, contributor_user):
     """Test user recordings pagination parameters."""
-    headers = {"Authorization": f"Bearer {contributor_user}"}
+    headers = get_auth_headers(client, contributor_user.email)
 
     response = client.get("/api/recordings/?skip=10&limit=5", headers=headers)
 
@@ -183,7 +176,7 @@ def test_get_user_recordings_pagination(client, contributor_user):
 
 def test_get_recording_statistics_admin(client, admin_user):
     """Test getting recording statistics as admin."""
-    headers = {"Authorization": f"Bearer {admin_user}"}
+    headers = get_auth_headers(client, admin_user.email)
 
     response = client.get("/api/recordings/admin/statistics", headers=headers)
 
@@ -199,7 +192,7 @@ def test_get_recording_statistics_admin(client, admin_user):
 
 def test_get_recording_statistics_contributor_forbidden(client, contributor_user):
     """Test that contributors cannot access recording statistics."""
-    headers = {"Authorization": f"Bearer {contributor_user}"}
+    headers = get_auth_headers(client, contributor_user.email)
 
     response = client.get("/api/recordings/admin/statistics", headers=headers)
 
@@ -208,7 +201,7 @@ def test_get_recording_statistics_contributor_forbidden(client, contributor_user
 
 def test_get_all_recordings_admin(client, admin_user):
     """Test getting all recordings as admin."""
-    headers = {"Authorization": f"Bearer {admin_user}"}
+    headers = get_auth_headers(client, admin_user.email)
 
     response = client.get("/api/recordings/admin/all", headers=headers)
 
@@ -222,7 +215,7 @@ def test_get_all_recordings_admin(client, admin_user):
 
 def test_get_all_recordings_contributor_forbidden(client, contributor_user):
     """Test that contributors cannot access all recordings."""
-    headers = {"Authorization": f"Bearer {contributor_user}"}
+    headers = get_auth_headers(client, contributor_user.email)
 
     response = client.get("/api/recordings/admin/all", headers=headers)
 
@@ -231,7 +224,7 @@ def test_get_all_recordings_contributor_forbidden(client, contributor_user):
 
 def test_get_nonexistent_recording(client, contributor_user):
     """Test getting a recording that doesn't exist."""
-    headers = {"Authorization": f"Bearer {contributor_user}"}
+    headers = get_auth_headers(client, contributor_user.email)
 
     response = client.get("/api/recordings/999", headers=headers)
 
@@ -241,7 +234,7 @@ def test_get_nonexistent_recording(client, contributor_user):
 
 def test_get_recording_progress_nonexistent(client, contributor_user):
     """Test getting progress for a recording that doesn't exist."""
-    headers = {"Authorization": f"Bearer {contributor_user}"}
+    headers = get_auth_headers(client, contributor_user.email)
 
     response = client.get("/api/recordings/999/progress", headers=headers)
 
@@ -251,7 +244,7 @@ def test_get_recording_progress_nonexistent(client, contributor_user):
 
 def test_delete_nonexistent_recording(client, contributor_user):
     """Test deleting a recording that doesn't exist."""
-    headers = {"Authorization": f"Bearer {contributor_user}"}
+    headers = get_auth_headers(client, contributor_user.email)
 
     response = client.delete("/api/recordings/999", headers=headers)
 
