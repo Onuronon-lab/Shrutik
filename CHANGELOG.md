@@ -41,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added comprehensive rate limiting to prevent abuse
 - Implemented secure session management with JWT tokens
 
-## [1.0.0] - 2024-11-01
+## [1.0.0] - 2025-12-01
 
 ### Added
 - Initial release of Shrutik voice data collection platform

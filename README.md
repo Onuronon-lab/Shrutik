@@ -31,7 +31,7 @@ In a world where voice technology is rapidly advancing, millions of speakers of 
 
 ## 📚 Documentation
 
-**📖 [Complete Documentation](https://onuronon-lab.github.io/Shrutik/)** - Comprehensive guides, API reference, and tutorials
+**[Complete Documentation](https://onuronon-lab.github.io/Shrutik/)** - Comprehensive guides, API reference, and tutorials
 
 ### Quick Links
 - **[Getting Started](https://onuronon-lab.github.io/Shrutik/getting-started.html)** - Set up Shrutik in 5 minutes
@@ -45,7 +45,7 @@ In a world where voice technology is rapidly advancing, millions of speakers of 
 
 > 💡 **Tip**: The documentation includes search functionality, mobile-friendly design, and copy-paste code examples!
 
-## ✨ What Makes Shrutik Special
+## What Makes Shrutik Special
 
 ### For Contributors
 - **Intuitive Interface**: Easy-to-use web platform for recording and transcribing voice data
@@ -100,11 +100,11 @@ Join our growing community of contributors:
 
 Shrutik is released under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](LICENSE). This means you can:
 
-- ✅ **Use for learning and education** - Study and understand the code
-- ✅ **Modify and adapt** - Create your own versions and improvements  
-- ✅ **Share for non-commercial purposes** - Use in hobby projects and open source
-- ✅ **Attribution required** - Give credit to the original creator
-- ❌ **No commercial use** - Commercial use requires separate permission
+- **Use for learning and education** - Study and understand the code
+- **Modify and adapt** - Create your own versions and improvements  
+- **Share for non-commercial purposes** - Use in hobby projects and open source
+- **Attribution required** - Give credit to the original creator
+- **No commercial use** - Commercial use requires separate permission
 
 If you modify and distribute this work, you must use the same license and provide attribution.
 

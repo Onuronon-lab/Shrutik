@@ -2,44 +2,28 @@
 
 Thank you to all the amazing people who have contributed to Shrutik (শ্রুতিক)! This project exists because of the collective effort of developers, linguists, designers, and community members from around the world.
 
-## 🏆 Core Team
+## Core Team
 
 ### Project Founders
-- **[Ifrun Kader Ruhin]** - Project Creator & Lead Developer
+- **[Ifrun Kader Ruhin]** - Project Creator & Lead Engineer
   - GitHub: [@ifrunruhin12](https://github.com/ifrunruhin12)
   - Role: Architecture, Backend Development, Project Vision
 
-### Core Maintainers
-- **[Maintainer Name]** - Lead Frontend Developer
-  - GitHub: [@maintainer](https://github.com/maintainer)
-  - Role: Frontend Architecture, UI/UX Design
+### Active Contributors 
+- **[Tanvir Ahmed Tian]** 
+  - Github: [@tanvirtian](https://github.com/tanvirtian)
 
-- **[Maintainer Name]** - DevOps & Infrastructure
-  - GitHub: [@devops](https://github.com/devops)
-  - Role: Deployment, CI/CD, Performance Optimization
-
-## 💻 Code Contributors
-
-### Major Contributors (50+ commits)
-- **[Contributor Name]** - [@username](https://github.com/username)
-  - Contributions: Audio processing pipeline, performance optimizations
-  - Languages: Python, JavaScript
-
-### Regular Contributors (10+ commits)
-- **[Contributor Name]** - [@username](https://github.com/username)
-  - Contributions: API development, database design
-  - Languages: Python, SQL
-
-- **[Contributor Name]** - [@username](https://github.com/username)
-  - Contributions: Frontend components, accessibility improvements
-  - Languages: TypeScript, React
 
 ### First-Time Contributors
 - **[Furqan Ahmed]** - [@furqanRupom](https://github.com/furqanRupom)
   - First contribution: Bug fix in audio validation
   - Date: 2025-11-02
 
-## 🎤 Voice Data Contributors
+
+<html><h1><center> The rest of the content here are just placeholder ready to be filled in </center></h1><html>
+
+
+## Voice Data Contributors
 
 ### Language Champions
 These contributors have made significant voice data contributions in their native languages:
@@ -54,23 +38,14 @@ These contributors have made significant voice data contributions in their nativ
 - **[Reviewer Name]** - 1500+ transcription reviews
 - **[Reviewer Name]** - 1200+ transcription reviews
 
-## 📝 Documentation Contributors
-
-### Documentation Team
-- **[Doc Contributor]** - [@username](https://github.com/username)
-  - Contributions: API documentation, user guides
-  - Specialty: Technical writing
-
-- **[Doc Contributor]** - [@username](https://github.com/username)
-  - Contributions: Deployment guides, troubleshooting
-  - Specialty: DevOps documentation
+## Documentation Contributors
 
 ### Translators
 - **[Translator Name]** - Bengali translation lead
 - **[Translator Name]** - Hindi translation lead
 - **[Translator Name]** - Tamil translation lead
 
-## 🎨 Design Contributors
+## Design Contributors
 
 ### UI/UX Designers
 - **[Designer Name]** - [@username](https://github.com/username)
@@ -86,7 +61,7 @@ These contributors have made significant voice data contributions in their nativ
   - Contributions: Accessibility audits, WCAG compliance
   - Specialty: Screen reader optimization
 
-## 🔬 Research Contributors
+## Research Contributors
 
 ### Academic Researchers
 - **Dr. [Researcher Name]** - [University/Institution]
@@ -107,7 +82,7 @@ These contributors have made significant voice data contributions in their nativ
 - **[Moderator Name]** - Community Moderator
 - **[Moderator Name]** - Technical Support Moderator
 
-## 🏅 Special Recognition
+## Special Recognition
 
 ### Milestone Achievements
 
@@ -140,7 +115,7 @@ These contributors have made significant voice data contributions in their nativ
 #### 🔧 Technical Excellence
 **[Winner Name]** - For innovative solutions and architectural improvements
 
-## 📊 Contribution Statistics
+## Contribution Statistics
 
 ### Overall Stats (as of 2026)
 - **Total Contributors**: x+
@@ -151,7 +126,7 @@ These contributors have made significant voice data contributions in their nativ
 - **Languages Supported**: x
 
 
-## 🎯 Contribution Types
+## Contribution Types
 
 ### Code Contributions
 - **Backend Development**: x contributors
@@ -169,7 +144,7 @@ These contributors have made significant voice data contributions in their nativ
 - **Design**: x contributors
 - **Community Management**: x contributors
 
-## 🚀 How to Join
+## How to Join
 
 Want to see your name here? Here's how you can contribute:
 
@@ -193,7 +168,7 @@ Want to see your name here? Here's how you can contribute:
 2. Contribute to quality metrics and algorithms
 3. Help with linguistic analysis and validation
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 ### Special Thanks
 - **Open Source Community** - For the amazing tools and libraries we build upon
@@ -205,7 +180,7 @@ Want to see your name here? Here's how you can contribute:
 ### Inspiration
 This project is inspired by the belief that technology should serve all communities, regardless of the language they speak. We're grateful to everyone who shares this vision and contributes to making it a reality.
 
-## 📞 Recognition Requests
+## Recognition Requests
 
 If you've contributed to Shrutik but don't see your name here:
 
