@@ -44,7 +44,5 @@ hiredis>=2.2.0
 # Archive compression for export functionality
 zstandard>=0.22.0
 
-# Development dependencies
-pytest>=7.4.0
-pytest-asyncio>=0.21.0
+# HTTP client for production use
 httpx>=0.25.0

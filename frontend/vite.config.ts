@@ -2,13 +2,11 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import compression from 'vite-plugin-compression';
-import { visualizer } from 'rollup-plugin-visualizer';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   const isProduction = mode === 'production';
   const isDevelopment = mode === 'development';
-  const shouldAnalyze = process.env.ANALYZE === 'true';
 
   return {
     plugins: [
@@ -19,20 +17,7 @@ export default defineConfig(({ mode }) => {
         include: '**/*.{jsx,tsx}',
       }),
 
-      // Bundle analyzer - only in analyze mode or production
-      ...(shouldAnalyze || isProduction
-        ? [
-            visualizer({
-              filename: 'build/bundle-analysis.html',
-              open: shouldAnalyze,
-              gzipSize: true,
-              brotliSize: true,
-              template: 'treemap',
-              title: 'Shrutik Frontend Bundle Analysis',
-              sourcemap: true,
-            }) as any,
-          ]
-        : []),
+      // Bundle analyzer removed for production build
 
       // Compression plugins - only in production
       ...(isProduction
