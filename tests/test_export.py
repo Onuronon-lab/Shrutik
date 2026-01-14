@@ -22,6 +22,7 @@ from app.models.voice_recording import RecordingStatus, VoiceRecording
 def contributor_user(db_session):
     """Create a contributor user for testing."""
     import uuid
+
     unique_id = str(uuid.uuid4())[:8]
     user = User(
         name=f"Test Contributor {unique_id}",
@@ -39,6 +40,7 @@ def contributor_user(db_session):
 def sworik_developer_user(db_session):
     """Create a Sworik developer user for testing."""
     import uuid
+
     unique_id = str(uuid.uuid4())[:8]
     user = User(
         name=f"Sworik Developer {unique_id}",
@@ -56,6 +58,7 @@ def sworik_developer_user(db_session):
 def admin_user(db_session):
     """Create an admin user for testing."""
     import uuid
+
     unique_id = str(uuid.uuid4())[:8]
     user = User(
         name=f"Admin User {unique_id}",
@@ -72,12 +75,11 @@ def admin_user(db_session):
 def get_auth_headers(client: TestClient, email: str, password: str = "TestPass123!"):
     """Helper function to get authentication headers."""
     login_response = client.post(
-        "/api/auth/login",
-        json={"email": email, "password": password}
+        "/api/auth/login", json={"email": email, "password": password}
     )
     if login_response.status_code != 200:
         raise Exception(f"Login failed: {login_response.text}")
-    
+
     token = login_response.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
 
@@ -86,8 +88,9 @@ def get_auth_headers(client: TestClient, email: str, password: str = "TestPass12
 def test_data(db_session, contributor_user):
     """Create test data for export testing."""
     import uuid
+
     unique_id = str(uuid.uuid4())[:8]
-    
+
     # Create language with unique code
     language = Language(name=f"Bangla-{unique_id}", code=f"bn-{unique_id}")
     db_session.add(language)
@@ -165,7 +168,9 @@ def test_export_dataset_success(client: TestClient, admin_user, test_data):
         "force_create": True,  # Allow creating batch with any number of chunks
     }
 
-    response = client.post("/api/export/batch/create", json=export_request, headers=headers)
+    response = client.post(
+        "/api/export/batch/create", json=export_request, headers=headers
+    )
     # Expect 400 because the test chunk file doesn't actually exist
     assert response.status_code == 400
 
@@ -183,9 +188,11 @@ def test_export_dataset_access_denied_contributor(
 
     export_request = {"force_create": True}
 
-    response = client.post("/api/export/batch/create", json=export_request, headers=headers)
+    response = client.post(
+        "/api/export/batch/create", json=export_request, headers=headers
+    )
     assert response.status_code == 403
-    
+
     # The 403 response structure might be different, let's check for the error message
     response_data = response.json()
     # Check if it's in a simple string format or nested structure
@@ -273,7 +280,9 @@ def test_export_with_filters(client: TestClient, sworik_developer_user, test_dat
         "force_create": True,
     }
 
-    response = client.post("/api/export/batch/create", json=export_request, headers=headers)
+    response = client.post(
+        "/api/export/batch/create", json=export_request, headers=headers
+    )
     # Expect 400 because test files don't exist
     assert response.status_code == 400
 
@@ -289,7 +298,9 @@ def test_export_audit_logging(
 
     # Try to perform export (will fail due to missing files, but should still log)
     export_request = {"force_create": True}
-    response = client.post("/api/export/batch/create", json=export_request, headers=headers)
+    response = client.post(
+        "/api/export/batch/create", json=export_request, headers=headers
+    )
     # Expect 400 due to missing files, but audit should still happen
     assert response.status_code == 400
 
@@ -345,6 +356,7 @@ def export_batch_service(db_session):
 def ready_chunks(db_session, contributor_user):
     """Create chunks ready for export."""
     import uuid
+
     unique_id = str(uuid.uuid4())[:8]
     language = Language(name=f"Bengali-{unique_id}", code=f"bn-{unique_id}")
     db_session.add(language)
@@ -570,11 +582,11 @@ def test_create_export_batch_excludes_already_exported(
         assert ready_chunks[0].id not in batch.chunk_ids
         assert ready_chunks[1].id not in batch.chunk_ids
         assert ready_chunks[2].id not in batch.chunk_ids
-        
+
         # The new batch should contain at least the remaining chunks from ready_chunks
         assert ready_chunks[3].id in batch.chunk_ids
         assert ready_chunks[4].id in batch.chunk_ids
-        
+
         # The batch should have at least 2 chunks (the remaining ones from ready_chunks)
         assert batch.chunk_count >= 2
 
@@ -721,8 +733,9 @@ def test_get_export_batch(export_batch_service, db_session):
 def test_list_export_batches(export_batch_service, db_session):
     """Test listing export batches with pagination."""
     import uuid
+
     unique_id = str(uuid.uuid4())[:8]
-    
+
     # Create multiple batches
     for i in range(5):
         batch = ExportBatch(
@@ -991,9 +1004,7 @@ def test_celery_task_routing_configuration():
     task_routes = celery_app.conf.task_routes
 
     assert "calculate_consensus_for_chunks_export" in task_routes
-    assert (
-        task_routes["calculate_consensus_for_chunks_export"]["queue"] == "consensus"
-    )
+    assert task_routes["calculate_consensus_for_chunks_export"]["queue"] == "consensus"
 
     assert "create_export_batch" in task_routes
     assert task_routes["create_export_batch"]["queue"] == "export"

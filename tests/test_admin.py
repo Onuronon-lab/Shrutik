@@ -2,8 +2,8 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from app.main import app
 from app.core.dependencies import get_current_user
+from app.main import app
 from app.models.user import UserRole
 from app.schemas.admin import PlatformStatsResponse, SystemHealthResponse
 
@@ -33,13 +33,14 @@ def mock_sworik_user():
 @pytest.fixture
 def authenticated_admin_client(client, mock_admin_user):
     """Client with admin user authentication"""
+
     def override_get_current_user():
         return mock_admin_user
-    
+
     app.dependency_overrides[get_current_user] = override_get_current_user
-    
+
     yield client
-    
+
     # Clean up the override
     if get_current_user in app.dependency_overrides:
         del app.dependency_overrides[get_current_user]
@@ -48,13 +49,14 @@ def authenticated_admin_client(client, mock_admin_user):
 @pytest.fixture
 def authenticated_sworik_client(client, mock_sworik_user):
     """Client with sworik developer user authentication"""
+
     def override_get_current_user():
         return mock_sworik_user
-    
+
     app.dependency_overrides[get_current_user] = override_get_current_user
-    
+
     yield client
-    
+
     # Clean up the override
     if get_current_user in app.dependency_overrides:
         del app.dependency_overrides[get_current_user]
@@ -65,7 +67,9 @@ class TestAdminEndpoints:
 
     def test_get_platform_statistics_admin(self, authenticated_admin_client):
         """Test platform statistics endpoint with admin user"""
-        with patch("app.services.admin_service.AdminService.get_platform_statistics") as mock_get_stats:
+        with patch(
+            "app.services.admin_service.AdminService.get_platform_statistics"
+        ) as mock_get_stats:
             mock_stats = PlatformStatsResponse(
                 total_users=100,
                 total_contributors=80,
@@ -78,8 +82,15 @@ class TestAdminEndpoints:
                 total_quality_reviews=300,
                 avg_recording_duration=120.5,
                 avg_transcription_quality=0.85,
-                recordings_by_status={"uploaded": 100, "processing": 50, "chunked": 350},
-                transcriptions_by_validation_status={"validated": 1200, "unvalidated": 300},
+                recordings_by_status={
+                    "uploaded": 100,
+                    "processing": 50,
+                    "chunked": 350,
+                },
+                transcriptions_by_validation_status={
+                    "validated": 1200,
+                    "unvalidated": 300,
+                },
             )
             mock_get_stats.return_value = mock_stats
 
@@ -93,7 +104,9 @@ class TestAdminEndpoints:
 
     def test_get_platform_statistics_sworik_dev(self, authenticated_sworik_client):
         """Test platform statistics endpoint with sworik developer user"""
-        with patch("app.services.admin_service.AdminService.get_platform_statistics") as mock_get_stats:
+        with patch(
+            "app.services.admin_service.AdminService.get_platform_statistics"
+        ) as mock_get_stats:
             mock_stats = PlatformStatsResponse(
                 total_users=100,
                 total_contributors=80,
@@ -106,8 +119,15 @@ class TestAdminEndpoints:
                 total_quality_reviews=300,
                 avg_recording_duration=120.5,
                 avg_transcription_quality=0.85,
-                recordings_by_status={"uploaded": 100, "processing": 50, "chunked": 350},
-                transcriptions_by_validation_status={"validated": 1200, "unvalidated": 300},
+                recordings_by_status={
+                    "uploaded": 100,
+                    "processing": 50,
+                    "chunked": 350,
+                },
+                transcriptions_by_validation_status={
+                    "validated": 1200,
+                    "unvalidated": 300,
+                },
             )
             mock_get_stats.return_value = mock_stats
 
@@ -139,7 +159,9 @@ class TestAdminEndpoints:
 
     def test_get_users_for_management_admin_only(self, authenticated_admin_client):
         """Test that user management endpoint requires admin role"""
-        with patch("app.services.admin_service.AdminService.get_users_for_management") as mock_get_users:
+        with patch(
+            "app.services.admin_service.AdminService.get_users_for_management"
+        ) as mock_get_users:
             mock_get_users.return_value = []
 
             response = authenticated_admin_client.get("/api/admin/users")
@@ -159,7 +181,9 @@ class TestAdminEndpoints:
 
     def test_get_usage_analytics(self, authenticated_admin_client):
         """Test usage analytics endpoint"""
-        with patch("app.services.admin_service.AdminService.get_usage_analytics") as mock_get_analytics:
+        with patch(
+            "app.services.admin_service.AdminService.get_usage_analytics"
+        ) as mock_get_analytics:
             mock_analytics = {
                 "daily_recordings": [{"date": "2024-01-01", "count": 10}],
                 "daily_transcriptions": [{"date": "2024-01-01", "count": 25}],
@@ -172,7 +196,9 @@ class TestAdminEndpoints:
             }
             mock_get_analytics.return_value = mock_analytics
 
-            response = authenticated_admin_client.get("/api/admin/analytics/usage?days=30")
+            response = authenticated_admin_client.get(
+                "/api/admin/analytics/usage?days=30"
+            )
 
             assert response.status_code == 200
             data = response.json()
@@ -181,7 +207,9 @@ class TestAdminEndpoints:
 
     def test_update_user_role(self, authenticated_admin_client):
         """Test updating user role"""
-        with patch("app.services.admin_service.AdminService.update_user_role") as mock_update_role:
+        with patch(
+            "app.services.admin_service.AdminService.update_user_role"
+        ) as mock_update_role:
             updated_user = Mock()
             updated_user.id = 5
             updated_user.name = "Test User"
@@ -189,7 +217,9 @@ class TestAdminEndpoints:
             updated_user.role = UserRole.ADMIN
             mock_update_role.return_value = updated_user
 
-            response = authenticated_admin_client.put("/api/admin/users/5/role", json={"role": "admin"})
+            response = authenticated_admin_client.put(
+                "/api/admin/users/5/role", json={"role": "admin"}
+            )
 
             assert response.status_code == 200
             data = response.json()
@@ -197,7 +227,9 @@ class TestAdminEndpoints:
 
     def test_create_quality_review(self, authenticated_admin_client):
         """Test creating quality review"""
-        with patch("app.services.admin_service.AdminService.create_quality_review") as mock_create_review:
+        with patch(
+            "app.services.admin_service.AdminService.create_quality_review"
+        ) as mock_create_review:
             mock_review = Mock()
             mock_review.id = 1
             mock_create_review.return_value = mock_review

@@ -10,12 +10,11 @@ from app.models.user import User, UserRole
 def get_auth_headers(client: TestClient, email: str, password: str = "TestPass123!"):
     """Helper function to get authentication headers."""
     login_response = client.post(
-        "/api/auth/login",
-        json={"email": email, "password": password}
+        "/api/auth/login", json={"email": email, "password": password}
     )
     if login_response.status_code != 200:
         raise Exception(f"Login failed: {login_response.text}")
-    
+
     token = login_response.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
 
@@ -24,12 +23,13 @@ def get_auth_headers(client: TestClient, email: str, password: str = "TestPass12
 def test_user(db_session):
     """Create a test user."""
     import uuid
+
     unique_id = str(uuid.uuid4())[:8]
     user = User(
         name=f"Test User {unique_id}",
         email=f"test-{unique_id}@example.com",
         password_hash=get_password_hash("TestPass123!"),
-        role=UserRole.CONTRIBUTOR
+        role=UserRole.CONTRIBUTOR,
     )
     db_session.add(user)
     db_session.commit()
@@ -41,6 +41,7 @@ def test_user(db_session):
 def test_language(db_session):
     """Create a test language in the database."""
     import uuid
+
     unique_id = str(uuid.uuid4())[:8]
     language = Language(name=f"Bangla-{unique_id}", code=f"bn-{unique_id}")
     db_session.add(language)
@@ -53,6 +54,7 @@ def test_language(db_session):
 def contributor_user(db_session):
     """Create a contributor user."""
     import uuid
+
     unique_id = str(uuid.uuid4())[:8]
     user = User(
         name=f"Contributor User {unique_id}",
@@ -70,6 +72,7 @@ def contributor_user(db_session):
 def admin_user(db_session):
     """Create an admin user."""
     import uuid
+
     unique_id = str(uuid.uuid4())[:8]
     user = User(
         name=f"Admin User {unique_id}",
