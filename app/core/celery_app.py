@@ -46,10 +46,12 @@ celery_app.conf.update(
     task_routes={
         "process_audio_recording": {"queue": "audio_processing"},
         "calculate_consensus_for_chunks": {"queue": "consensus"},
+        "calculate_consensus_for_chunks_export": {"queue": "consensus"},
         "batch_process_recordings": {"queue": "batch_processing"},
         "cleanup_orphaned_chunks": {"queue": "maintenance"},
         "reprocess_failed_recordings": {"queue": "maintenance"},
         "recalculate_all_consensus": {"queue": "maintenance"},
+        "create_export_batch": {"queue": "export"},
     },
     # Queue configuration
     task_default_queue="default",
@@ -79,6 +81,16 @@ celery_app.conf.update(
             "exchange_type": "direct",
             "routing_key": "maintenance",
         },
+        "export": {
+            "exchange": "export",
+            "exchange_type": "direct",
+            "routing_key": "export",
+        },
+        "high_priority": {
+            "exchange": "high_priority",
+            "exchange_type": "direct",
+            "routing_key": "high_priority",
+        },
     },
     # Monitoring and events
     worker_send_task_events=True,
@@ -97,6 +109,16 @@ celery_app.conf.update(
             "task": "reprocess_failed_recordings",
             "schedule": 7200.0,  # Run every 2 hours
         },
+        "create-export-batch": {
+            "task": "create_export_batch",
+            "schedule": 86400.0,  # Run daily
+        },
+    },
+    # Task annotations for rate limiting
+    task_annotations={
+        "calculate_consensus_for_chunks_export": {"rate_limit": "10/m"},
+        "create_export_batch": {"rate_limit": "1/h"},
+        "process_audio_recording": {"rate_limit": "100/m"},
     },
 )
 
