@@ -9,12 +9,11 @@ from app.models.user import User, UserRole
 def get_auth_headers(client: TestClient, email: str, password: str = "TestPass123!"):
     """Helper function to get authentication headers."""
     login_response = client.post(
-        "/api/auth/login",
-        json={"email": email, "password": password}
+        "/api/auth/login", json={"email": email, "password": password}
     )
     if login_response.status_code != 200:
         raise Exception(f"Login failed: {login_response.text}")
-    
+
     token = login_response.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
 

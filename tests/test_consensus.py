@@ -8,6 +8,7 @@ and validation status management.
 import pytest
 from sqlalchemy.orm import Session
 
+from app.core.security import get_password_hash
 from app.models.audio_chunk import AudioChunk
 from app.models.language import Language
 from app.models.quality_review import QualityReview, ReviewDecision
@@ -16,19 +17,19 @@ from app.models.transcription import Transcription
 from app.models.user import User, UserRole
 from app.models.voice_recording import RecordingStatus, VoiceRecording
 from app.services.consensus_service import ConsensusService
-from app.core.security import get_password_hash
 
 
 @pytest.fixture
 def sample_user(db_session: Session):
     """Create a sample user for testing."""
     import uuid
+
     unique_id = str(uuid.uuid4())[:8]
     user = User(
-        name=f"Test User {unique_id}", 
-        email=f"test-{unique_id}@example.com", 
+        name=f"Test User {unique_id}",
+        email=f"test-{unique_id}@example.com",
         password_hash=get_password_hash("TestPass123!"),
-        role=UserRole.CONTRIBUTOR
+        role=UserRole.CONTRIBUTOR,
     )
     db_session.add(user)
     db_session.commit()
@@ -40,6 +41,7 @@ def sample_user(db_session: Session):
 def sample_language(db_session: Session):
     """Create a sample language for testing."""
     import uuid
+
     unique_id = str(uuid.uuid4())[:8]
     language = Language(name=f"English-{unique_id}", code=f"en-{unique_id}")
     db_session.add(language)
@@ -55,7 +57,7 @@ def sample_script(db_session: Session, sample_language):
         text="This is a test script for voice recording.",
         language_id=sample_language.id,
         duration_category=DurationCategory.SHORT,
-        meta_data={}
+        meta_data={},
     )
     db_session.add(script)
     db_session.commit()
@@ -73,7 +75,7 @@ def sample_recording(db_session: Session, sample_user, sample_script, sample_lan
         file_path="/test/path/recording.wav",
         duration=10.5,
         status=RecordingStatus.CHUNKED,
-        meta_data={}
+        meta_data={},
     )
     db_session.add(recording)
     db_session.commit()
@@ -92,7 +94,7 @@ def sample_chunk(db_session: Session, sample_recording):
         end_time=5.0,
         duration=5.0,
         sentence_hint="Test sentence",
-        meta_data={}
+        meta_data={},
     )
     db_session.add(chunk)
     db_session.commit()
@@ -464,6 +466,7 @@ class TestConsensusService:
 
         assert requires_review is True
         assert any("long" in reason.lower() for reason in flagged_reasons)
+
 
 # ========================================================================
 # Export Optimization Tests
