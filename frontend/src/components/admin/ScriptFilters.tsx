@@ -45,9 +45,7 @@ const ScriptFilters: React.FC<ScriptFiltersProps> = ({
         </select>
       </div>
 
-      <Button onClick={onCreateNew}>
-        + Add Script
-      </Button>
+      <Button onClick={onCreateNew}>+ Add Script</Button>
     </div>
   );
 };

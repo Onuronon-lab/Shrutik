@@ -240,16 +240,16 @@
   }
 
   /* Apply glassmorphism to all card-like elements */
-  [class*="shadow"],
-  [class*="rounded"],
-  [class*="border"] {
+  [class*='shadow'],
+  [class*='rounded'],
+  [class*='border'] {
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
   }
 
   /* Specific targeting for common UI patterns */
   .bg-card,
-  [style*="background"] {
+  [style*='background'] {
     backdrop-filter: blur(10px) !important;
     -webkit-backdrop-filter: blur(10px) !important;
   }
