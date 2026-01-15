@@ -93,10 +93,7 @@ export const SettingsMenu: React.FC<SettingsMenuProps> = ({
       {open && (
         <>
           {/* Backdrop */}
-          <div 
-            className="fixed inset-0 z-[9998]" 
-            onClick={() => setOpen(false)}
-          />
+          <div className="fixed inset-0 z-[9998]" onClick={() => setOpen(false)} />
           {/* Dropdown */}
           <div
             className={cn(
@@ -104,78 +101,78 @@ export const SettingsMenu: React.FC<SettingsMenuProps> = ({
               align === 'right' ? 'right-4 top-16' : 'left-4 top-16'
             )}
           >
-          <div>
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-secondary-foreground mb-2">
-              <SunIcon className="h-4 w-4 text-primary" />
-              <span>Theme</span>
-            </div>
-            <div className="flex gap-2">
-              {themeOptions.map(option => {
-                const Icon = option.icon;
-                const isActive = theme === option.value;
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => handleThemeChange(option.value)}
-                    className={cn(
-                      'flex-1 flex items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition-colors',
-                      isActive
-                        ? 'border-primary bg-primary/10 text-primary'
-                        : 'border-border text-secondary-foreground hover:border-primary/60'
-                    )}
-                  >
-                    <Icon className="h-4 w-4" />
-                    {option.label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div>
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-secondary-foreground mb-2">
-              <GlobeAltIcon className="h-4 w-4 text-primary" />
-              <span>Language</span>
-            </div>
-            <div className="flex gap-2">
-              {languageOptions.map(option => {
-                const isActive = i18n.language === option.value;
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => handleLanguageChange(option.value)}
-                    className={cn(
-                      'flex-1 rounded-xl border px-3 py-2 text-sm font-semibold transition-colors',
-                      isActive
-                        ? 'border-primary bg-primary/10 text-primary'
-                        : 'border-border text-secondary-foreground hover:border-primary/60'
-                    )}
-                  >
-                    <div className="text-base">{option.short}</div>
-                    <div className="text-[10px] font-normal uppercase tracking-widest text-secondary-foreground">
+            <div>
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-secondary-foreground mb-2">
+                <SunIcon className="h-4 w-4 text-primary" />
+                <span>Theme</span>
+              </div>
+              <div className="flex gap-2">
+                {themeOptions.map(option => {
+                  const Icon = option.icon;
+                  const isActive = theme === option.value;
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => handleThemeChange(option.value)}
+                      className={cn(
+                        'flex-1 flex items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition-colors',
+                        isActive
+                          ? 'border-primary bg-primary/10 text-primary'
+                          : 'border-border text-secondary-foreground hover:border-primary/60'
+                      )}
+                    >
+                      <Icon className="h-4 w-4" />
                       {option.label}
-                    </div>
-                  </button>
-                );
-              })}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
 
-          {isAuthenticated && (
-            <div className="border-t border-border pt-4">
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="w-full flex items-center justify-center gap-2 rounded-xl border border-destructive/30 bg-destructive/10 text-destructive py-2 text-sm font-semibold hover:bg-destructive/20 transition-colors"
-              >
-                <ArrowRightOnRectangleIcon className="h-4 w-4" />
-                Logout
-              </button>
+            <div>
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-secondary-foreground mb-2">
+                <GlobeAltIcon className="h-4 w-4 text-primary" />
+                <span>Language</span>
+              </div>
+              <div className="flex gap-2">
+                {languageOptions.map(option => {
+                  const isActive = i18n.language === option.value;
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => handleLanguageChange(option.value)}
+                      className={cn(
+                        'flex-1 rounded-xl border px-3 py-2 text-sm font-semibold transition-colors',
+                        isActive
+                          ? 'border-primary bg-primary/10 text-primary'
+                          : 'border-border text-secondary-foreground hover:border-primary/60'
+                      )}
+                    >
+                      <div className="text-base">{option.short}</div>
+                      <div className="text-[10px] font-normal uppercase tracking-widest text-secondary-foreground">
+                        {option.label}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          )}
-        </div>
+
+            {isAuthenticated && (
+              <div className="border-t border-border pt-4">
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="w-full flex items-center justify-center gap-2 rounded-xl border border-destructive/30 bg-destructive/10 text-destructive py-2 text-sm font-semibold hover:bg-destructive/20 transition-colors"
+                >
+                  <ArrowRightOnRectangleIcon className="h-4 w-4" />
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
         </>
       )}
     </div>
