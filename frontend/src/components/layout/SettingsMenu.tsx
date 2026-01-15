@@ -77,7 +77,7 @@ export const SettingsMenu: React.FC<SettingsMenuProps> = ({
   };
 
   return (
-    <div className={cn('relative', className)} ref={menuRef}>
+    <div className={cn('relative z-[100]', className)} ref={menuRef}>
       <button
         type="button"
         aria-label="Open settings"
@@ -91,12 +91,19 @@ export const SettingsMenu: React.FC<SettingsMenuProps> = ({
       </button>
 
       {open && (
-        <div
-          className={cn(
-            'absolute z-50 mt-2 w-60 rounded-2xl border border-border bg-card/95 backdrop-blur shadow-xl p-4 space-y-4',
-            align === 'right' ? 'right-0' : 'left-0'
-          )}
-        >
+        <>
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 z-[9998]" 
+            onClick={() => setOpen(false)}
+          />
+          {/* Dropdown */}
+          <div
+            className={cn(
+              'fixed z-[9999] mt-2 w-60 rounded-2xl border border-border bg-card backdrop-blur-xl shadow-2xl p-4 space-y-4',
+              align === 'right' ? 'right-4 top-16' : 'left-4 top-16'
+            )}
+          >
           <div>
             <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-secondary-foreground mb-2">
               <SunIcon className="h-4 w-4 text-primary" />
@@ -169,6 +176,7 @@ export const SettingsMenu: React.FC<SettingsMenuProps> = ({
             </div>
           )}
         </div>
+        </>
       )}
     </div>
   );
