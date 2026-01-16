@@ -58,7 +58,7 @@ export function useBatchData({ enabled, onError, defaultErrorMessage }: UseBatch
     } finally {
       setLoading(false);
     }
-  }, [enabled, page, statusFilter, defaultErrorMessage, onError]);
+  }, [enabled, page, statusFilter, defaultErrorMessage]); // Removed onError from dependencies
 
   useEffect(() => {
     loadBatches();
