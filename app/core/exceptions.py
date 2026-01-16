@@ -190,7 +190,12 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
         },
     )
 
-    # Create standardized error response
+    # Check if detail is already a structured error (dict with error_key)
+    if isinstance(exc.detail, dict):
+        # Return the structured error directly
+        return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+
+    # Create standardized error response for simple string details
     error_response = ErrorResponse(
         message=str(exc.detail),
         error_code="HTTP_ERROR",

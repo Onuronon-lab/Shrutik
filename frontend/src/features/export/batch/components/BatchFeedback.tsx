@@ -5,39 +5,25 @@ import {
   InformationCircleIcon,
   LightBulbIcon,
 } from '@heroicons/react/24/outline';
-
-interface StructuredError {
-  error: string;
-  details?: {
-    available_chunks?: number;
-    required_chunks?: number;
-    user_role?: string;
-    downloads_today?: number;
-    daily_limit?: number;
-    reset_time?: string;
-    hours_until_reset?: number;
-    suggestions?: string[];
-    [key: string]: any;
-  };
-}
+import { TranslatedError } from '../../../../types/errors';
 
 interface BatchFeedbackProps {
-  error?: string | StructuredError | null;
+  error?: TranslatedError | null;
   success?: string | null;
 }
-
-const isStructuredError = (error: any): error is StructuredError => {
-  return error && typeof error === 'object' && 'error' in error;
-};
 
 export const BatchFeedback: React.FC<BatchFeedbackProps> = ({ error, success }) => {
   if (!error && !success) return null;
 
   if (success) {
     return (
-      <div className="border rounded-lg p-4 mb-6 bg-success border-success-border text-success-foreground">
+      <div
+        className="border rounded-lg p-4 mb-6 bg-success border-success-border text-success-foreground"
+        role="alert"
+        aria-live="polite"
+      >
         <div className="flex items-center">
-          <CheckCircleIcon className="h-5 w-5 mr-2" />
+          <CheckCircleIcon className="h-5 w-5 mr-2" aria-hidden="true" />
           <p>{success}</p>
         </div>
       </div>
@@ -45,90 +31,123 @@ export const BatchFeedback: React.FC<BatchFeedbackProps> = ({ error, success }) 
   }
 
   if (error) {
-    const isStructured = isStructuredError(error);
-    const errorMessage = isStructured ? error.error : String(error);
-    const details = isStructured ? error.details : null;
-
     return (
-      <div className="border rounded-lg p-4 mb-6 bg-destructive border-destructive-border text-destructive-foreground">
+      <div
+        className="border rounded-lg p-4 mb-6 bg-destructive border-destructive-border text-destructive-foreground"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+      >
         <div className="flex items-start">
-          <ExclamationTriangleIcon className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
+          <ExclamationTriangleIcon
+            className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0"
+            aria-hidden="true"
+          />
           <div className="flex-1">
-            <p className="font-medium">{errorMessage}</p>
+            {/* Error Title */}
+            <p className="font-medium" aria-label="Error message">
+              {error.title}
+            </p>
 
-            {/* Display error context */}
-            {details && (
+            {/* Optional Error Message */}
+            {error.message && <p className="mt-2 text-sm">{error.message}</p>}
+
+            {/* Error Details */}
+            {error.details && Object.keys(error.details).length > 0 && (
               <div className="mt-3 space-y-2">
                 {/* Insufficient chunks context */}
-                {details.available_chunks !== undefined &&
-                  details.required_chunks !== undefined && (
-                    <div className="bg-destructive/10 border border-destructive/20 rounded p-3">
+                {error.details.available_chunks !== undefined &&
+                  error.details.required_chunks !== undefined && (
+                    <div
+                      className="bg-destructive/10 border border-destructive/20 rounded p-3"
+                      role="region"
+                      aria-label="Error context"
+                    >
                       <div className="flex items-center mb-2">
-                        <InformationCircleIcon className="h-4 w-4 mr-1" />
+                        <InformationCircleIcon className="h-4 w-4 mr-1" aria-hidden="true" />
                         <span className="text-sm font-medium">Context:</span>
                       </div>
                       <div className="text-sm space-y-1">
                         <div>
                           Available chunks:{' '}
-                          <span className="font-medium">{details.available_chunks}</span>
+                          <span className="font-medium">{error.details.available_chunks}</span>
                         </div>
                         <div>
-                          Required for {details.user_role}:{' '}
-                          <span className="font-medium">{details.required_chunks}</span>
+                          Required chunks:{' '}
+                          <span className="font-medium">{error.details.required_chunks}</span>
                         </div>
+                        {error.details.user_role && (
+                          <div>
+                            Your role:{' '}
+                            <span className="font-medium">{error.details.user_role}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
 
                 {/* Quota exhaustion context */}
-                {details.downloads_today !== undefined && details.daily_limit !== undefined && (
-                  <div className="bg-destructive/10 border border-destructive/20 rounded p-3">
-                    <div className="flex items-center mb-2">
-                      <InformationCircleIcon className="h-4 w-4 mr-1" />
-                      <span className="text-sm font-medium">Quota Status:</span>
-                    </div>
-                    <div className="text-sm space-y-1">
-                      <div>
-                        Downloads today:{' '}
-                        <span className="font-medium">
-                          {details.downloads_today}/{details.daily_limit}
-                        </span>
+                {error.details.downloads_today !== undefined &&
+                  error.details.daily_limit !== undefined && (
+                    <div
+                      className="bg-destructive/10 border border-destructive/20 rounded p-3"
+                      role="region"
+                      aria-label="Quota status"
+                    >
+                      <div className="flex items-center mb-2">
+                        <InformationCircleIcon className="h-4 w-4 mr-1" aria-hidden="true" />
+                        <span className="text-sm font-medium">Quota Status:</span>
                       </div>
-                      {details.reset_time && (
+                      <div className="text-sm space-y-1">
                         <div>
-                          Resets at:{' '}
+                          Downloads today:{' '}
                           <span className="font-medium">
-                            {new Date(details.reset_time).toLocaleString()}
+                            {error.details.downloads_today}/{error.details.daily_limit}
                           </span>
                         </div>
-                      )}
-                      {details.hours_until_reset && (
-                        <div>
-                          Time remaining:{' '}
-                          <span className="font-medium">{details.hours_until_reset} hours</span>
-                        </div>
-                      )}
+                        {error.details.reset_time && (
+                          <div>
+                            Resets at:{' '}
+                            <span className="font-medium">
+                              {new Date(error.details.reset_time).toLocaleString()}
+                            </span>
+                          </div>
+                        )}
+                        {error.details.hours_until_reset !== undefined && (
+                          <div>
+                            Time remaining:{' '}
+                            <span className="font-medium">
+                              {error.details.hours_until_reset} hours
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+              </div>
+            )}
 
-                {/* Suggestions */}
-                {details.suggestions && details.suggestions.length > 0 && (
-                  <div className="bg-blue-50 border border-blue-200 rounded p-3">
-                    <div className="flex items-center mb-2">
-                      <LightBulbIcon className="h-4 w-4 mr-1 text-blue-600" />
-                      <span className="text-sm font-medium text-blue-800">Suggestions:</span>
-                    </div>
-                    <ul className="text-sm text-blue-800 space-y-1">
-                      {details.suggestions.map((suggestion, index) => (
-                        <li key={index} className="flex items-start">
-                          <span className="mr-2">•</span>
-                          <span>{suggestion}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+            {/* Suggestions */}
+            {error.suggestions && error.suggestions.length > 0 && (
+              <div
+                className="mt-3 bg-info/10 border border-info/20 rounded p-3"
+                role="region"
+                aria-label="Suggestions to resolve error"
+              >
+                <div className="flex items-center mb-2">
+                  <LightBulbIcon className="h-4 w-4 mr-1 text-info" aria-hidden="true" />
+                  <span className="text-sm font-medium text-info">Suggestions:</span>
+                </div>
+                <ul className="text-sm text-info-foreground space-y-1.5" role="list">
+                  {error.suggestions.map((suggestion: string, index: number) => (
+                    <li key={index} className="flex items-start">
+                      <span className="mr-2 mt-0.5" aria-hidden="true">
+                        •
+                      </span>
+                      <span>{suggestion}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
           </div>

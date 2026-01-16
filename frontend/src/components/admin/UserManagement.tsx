@@ -131,7 +131,7 @@ const UserManagement: React.FC = () => {
           <div className="flex items-center">
             <XCircleIcon className="h-5 w-5 text-destructive-foreground mr-2" />
             <p className="text-destructive-foreground">
-              {typeof error === 'string' ? error : error.error}
+              {typeof error === 'string' ? error : error.title}
             </p>
           </div>
         </div>

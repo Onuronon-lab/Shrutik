@@ -1,5 +1,5 @@
 import React from 'react';
-import { MagnifyingGlassIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { Button } from '../ui';
 
 interface ScriptFiltersProps {

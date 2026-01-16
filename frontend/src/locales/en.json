@@ -7,6 +7,8 @@
   "transcribe-audio-description": "Listen to audio clips and provide accurate transcriptions",
   "admin-dashboard": "Admin Dashboard",
   "admin-dashboard-description": "Manage users, scripts, and monitor platform activity",
+  "export-data": "Export Data",
+  "export-data-description": "Download validated datasets for AI training",
   "contribution-stat-title": "Your Contribution Stats",
   "contribution-voice-recording": " Voice Recordings",
   "contribution-transcription": "Transcriptions",
@@ -22,6 +24,13 @@
   "recordPage-10-minutes": "10 Minutes",
   "record-control": "Recording Controls",
   "record-upload-success": "Recording uploaded successfully! It will be processed for transcription.",
+
+  "error-no-scripts-available": "No scripts available at this moment. Please come back later or contact an admin.",
+  "error-try-again": "Try Again",
+  "error-contact-admin": "Contact Admin",
+  "error-server-error": "Something went wrong on our end. Please try again later or contact support.",
+  "error-network-error": "Unable to connect to the server. Please check your internet connection and try again.",
+  "error-unknown-error": "An unexpected error occurred. Please try again or contact support if the problem persists.",
 
   "transcriptionPage-start": "Start Transcription",
   "transcriptionPage-title": "Audio Transcription",
@@ -249,5 +258,186 @@
   "signupPage-passwords-mismatch": "Passwords do not match",
 
   "registration_success": "Registration successful. Please log in.",
-  "registration_failed": "Registration failed. Try again with valid details."
+  "registration_failed": "Registration failed. Try again with valid details.",
+
+  "_comment_errors": "=== ERROR MESSAGES (Structured Error Handling) ===",
+  "errors": {
+    "generic": {
+      "unknown": "An unexpected error occurred",
+      "network": "Unable to connect to the server",
+      "server": "Something went wrong on our end"
+    },
+    "export": {
+      "insufficient_chunks": {
+        "title": "Insufficient chunks for batch creation",
+        "message": "Not enough audio chunks are available to create an export batch.",
+        "detail": {
+          "available": "Available chunks: {{count}}",
+          "required": "Required chunks: {{count}}",
+          "role": "Your role: {{role}}"
+        },
+        "suggestion": {
+          "wait": "Wait for more chunks to be processed (check back in a few hours)",
+          "admin": "Contact an admin who can create batches with fewer chunks",
+          "filters": "Try adjusting your date range or duration filters to find more chunks"
+        }
+      },
+      "quota_exceeded": {
+        "title": "Daily download limit exceeded",
+        "message": "You have reached your daily download limit.",
+        "detail": {
+          "usage": "Downloads today: {{used}}/{{limit}}",
+          "reset_time": "Resets at: {{time}}",
+          "hours_remaining": "Time remaining: {{hours}} hours"
+        },
+        "suggestion": {
+          "wait": "Wait until {{time}} when your quota resets",
+          "admin": "Contact an admin if you need urgent access to more downloads"
+        }
+      },
+      "batch_not_found": {
+        "title": "Export batch not found",
+        "message": "The requested export batch could not be found.",
+        "suggestion": {
+          "refresh": "Refresh the page to see the latest batches",
+          "create_new": "Create a new export batch"
+        }
+      },
+      "download_failed": {
+        "title": "Download failed",
+        "message": "Failed to download the export batch.",
+        "suggestion": {
+          "retry": "Try downloading again",
+          "check_connection": "Check your internet connection",
+          "contact_support": "Contact support if the problem persists"
+        }
+      },
+      "processing_failed": {
+        "title": "Batch processing failed",
+        "message": "The export batch failed to process.",
+        "suggestion": {
+          "retry": "Try creating a new batch",
+          "contact_support": "Contact support if this continues to happen"
+        }
+      },
+      "invalid_filters": {
+        "title": "Invalid filter parameters",
+        "message": "The provided filter parameters are invalid.",
+        "suggestion": {
+          "check_dates": "Ensure date range is valid (start date before end date)",
+          "check_duration": "Ensure duration range is valid (min less than max)",
+          "reset_filters": "Reset filters and try again"
+        }
+      },
+      "access_denied": {
+        "title": "Access denied",
+        "message": "You do not have permission to perform this action.",
+        "suggestion": {
+          "contact_admin": "Contact an admin to request access",
+          "check_role": "Verify your account role and permissions"
+        }
+      }
+    },
+    "transcription": {
+      "load_failed": {
+        "title": "Failed to load audio chunks",
+        "message": "Unable to load audio chunks for transcription.",
+        "suggestion": {
+          "retry": "Try again",
+          "check_connection": "Check your internet connection",
+          "contact_support": "Contact support if the problem persists"
+        }
+      },
+      "submit_failed": {
+        "title": "Failed to submit transcription",
+        "message": "Your transcription could not be submitted.",
+        "suggestion": {
+          "retry": "Try submitting again",
+          "save_work": "Save your transcription text before retrying",
+          "contact_support": "Contact support if the problem persists"
+        }
+      },
+      "no_chunks": {
+        "title": "No audio chunks available",
+        "message": "There are no audio chunks available for transcription at this time.",
+        "suggestion": {
+          "wait": "Check back later when more audio is available",
+          "contact_admin": "Contact an admin if this persists"
+        }
+      },
+      "audio_load_failed": {
+        "title": "Failed to load audio",
+        "message": "The audio file could not be loaded.",
+        "suggestion": {
+          "skip": "Skip this chunk and try the next one",
+          "refresh": "Refresh the page and try again",
+          "contact_support": "Contact support if this happens frequently"
+        }
+      }
+    },
+    "recording": {
+      "no_scripts": {
+        "title": "No scripts available",
+        "message": "There are no scripts available for recording at this time.",
+        "suggestion": {
+          "wait": "Check back later when more scripts are available",
+          "contact_admin": "Contact an admin if this persists"
+        }
+      },
+      "upload_failed": {
+        "title": "Failed to upload recording",
+        "message": "Your recording could not be uploaded.",
+        "suggestion": {
+          "retry": "Try uploading again",
+          "check_connection": "Check your internet connection",
+          "check_file_size": "Ensure your recording is not too large",
+          "contact_support": "Contact support if the problem persists"
+        }
+      },
+      "microphone_access": {
+        "title": "Microphone access denied",
+        "message": "Unable to access your microphone.",
+        "suggestion": {
+          "grant_permission": "Grant microphone permission in your browser settings",
+          "check_device": "Ensure your microphone is connected and working",
+          "try_different_browser": "Try using a different browser"
+        }
+      }
+    },
+    "auth": {
+      "login_failed": {
+        "title": "Login failed",
+        "message": "Unable to log in with the provided credentials.",
+        "suggestion": {
+          "check_credentials": "Check your email and password",
+          "reset_password": "Reset your password if you've forgotten it",
+          "contact_support": "Contact support if you need help"
+        }
+      },
+      "registration_failed": {
+        "title": "Registration failed",
+        "message": "Unable to create your account.",
+        "suggestion": {
+          "check_details": "Verify all required fields are filled correctly",
+          "try_different_email": "Try using a different email address",
+          "contact_support": "Contact support if the problem persists"
+        }
+      },
+      "session_expired": {
+        "title": "Session expired",
+        "message": "Your session has expired. Please log in again.",
+        "suggestion": {
+          "login": "Log in to continue"
+        }
+      },
+      "unauthorized": {
+        "title": "Unauthorized",
+        "message": "You are not authorized to access this resource.",
+        "suggestion": {
+          "login": "Log in to access this feature",
+          "contact_admin": "Contact an admin if you believe you should have access"
+        }
+      }
+    }
+  }
 }

@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useScriptStore } from '../stores/scriptStore';
 import { useSessionStore } from '../stores/sessionStore';
 import { recordingService } from '../services/recording.service';
@@ -26,6 +27,8 @@ export interface UseScriptManagerReturn {
 }
 
 export function useScriptManager(): UseScriptManagerReturn {
+  const { t } = useTranslation();
+
   const {
     loadingState,
     selectedDuration,
@@ -65,24 +68,39 @@ export function useScriptManager(): UseScriptManagerReturn {
       } catch (err: any) {
         console.error('Load script error:', err);
 
-        let errorMessage = 'Failed to load script';
+        // Map technical errors to user-friendly translated messages
+        let errorMessage: string;
+
         if (err.response?.status === 401) {
           errorMessage = 'Please log in to access recording features';
+        } else if (err.response?.status === 404) {
+          // No scripts available - use translated message
+          errorMessage = t('error-no-scripts-available');
+        } else if (err.response?.status === 500 || err.response?.status === 503) {
+          // Server error - use translated message
+          errorMessage = t('error-server-error');
+        } else if (err.code === 'ERR_NETWORK' || err.message?.includes('Network Error')) {
+          // Network error - use translated message
+          errorMessage = t('error-network-error');
         } else if (err.response?.data?.detail) {
+          // Use backend error if it's user-friendly
           errorMessage = err.response.data.detail;
         } else if (err.message) {
-          errorMessage = err.message;
+          // For other errors, use unknown error message
+          errorMessage = t('error-unknown-error');
+        } else {
+          errorMessage = t('error-unknown-error');
         }
 
         setLoadingState({
           status: 'error',
-          error: typeof errorMessage === 'string' ? errorMessage : 'Failed to load script',
+          error: errorMessage,
           retryCount: 0,
         });
         throw new Error(errorMessage);
       }
     },
-    [setLoadingState]
+    [setLoadingState, t]
   );
 
   // Create recording session
@@ -103,22 +121,26 @@ export function useScriptManager(): UseScriptManagerReturn {
       } catch (err: any) {
         console.error('Create session error:', err);
 
-        let errorMessage = 'Failed to create recording session';
-        if (err.response?.data?.detail) {
+        // Map technical errors to user-friendly translated messages
+        let errorMessage: string;
+
+        if (err.response?.status === 500 || err.response?.status === 503) {
+          errorMessage = t('error-server-error');
+        } else if (err.code === 'ERR_NETWORK' || err.message?.includes('Network Error')) {
+          errorMessage = t('error-network-error');
+        } else if (err.response?.data?.detail) {
           errorMessage = err.response.data.detail;
-        } else if (err.message) {
-          errorMessage = err.message;
+        } else {
+          errorMessage = t('error-unknown-error');
         }
 
-        setSessionError(
-          typeof errorMessage === 'string' ? errorMessage : 'Failed to create recording session'
-        );
+        setSessionError(errorMessage);
         throw new Error(errorMessage);
       } finally {
         setCreating(false);
       }
     },
-    [setCreating, setSessionError, setRecordingSession]
+    [setCreating, setSessionError, setRecordingSession, t]
   );
 
   // Select duration and load script + create session
