@@ -136,7 +136,6 @@ const DataExport: React.FC = () => {
       });
       refreshHistoryLater();
     } catch (err: any) {
-      console.error('Dataset export error:', err);
       setFeedback({
         type: 'error',
         message: err.response?.data?.detail || t('dataset_export_failed'),
@@ -168,7 +167,6 @@ const DataExport: React.FC = () => {
       });
       refreshHistoryLater();
     } catch (err: any) {
-      console.error('Metadata export error:', err);
       setFeedback({
         type: 'error',
         message: err.response?.data?.detail || t('metadata_export_failed'),

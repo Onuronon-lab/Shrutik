@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { PlayIcon, PauseIcon, ArrowPathIcon } from '@heroicons/react/24/solid';
+import { useTranslation } from 'react-i18next';
 
 interface AudioPlayerProps {
   audioUrl: string;
@@ -8,6 +9,7 @@ interface AudioPlayerProps {
 }
 
 const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioUrl, onLoadError, className = '' }) => {
+  const { t } = useTranslation();
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -39,7 +41,9 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioUrl, onLoadError, classN
     };
 
     const handleError = () => {
-      const errorMsg = 'Failed to load audio file';
+      const errorMsg = t('errors.transcription.audio_load_failed.title', {
+        defaultValue: 'Failed to load audio file',
+      });
       setError(errorMsg);
       setIsLoading(false);
       onLoadError?.(errorMsg);

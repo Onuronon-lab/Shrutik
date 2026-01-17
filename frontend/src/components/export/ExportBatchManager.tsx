@@ -122,7 +122,6 @@ const ExportBatchManager: React.FC = () => {
       refreshBatches();
     } catch (err: any) {
       handleError(err);
-      console.error('Create batch error:', err);
     } finally {
       setCreateLoading(false);
     }
@@ -178,7 +177,6 @@ const ExportBatchManager: React.FC = () => {
       setSuccess(t('export.success.download_started'));
     } catch (err: any) {
       handleError(err);
-      console.error('Download error:', err);
     }
   };
 

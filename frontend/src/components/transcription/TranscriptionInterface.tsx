@@ -64,7 +64,6 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
         setError(t('transcription-error-no-chunks'));
       }
     } catch (err: any) {
-      console.error('Error loading chunks:', err);
       setError(t('transcription-error-load-chunks'));
     } finally {
       setIsLoading(false);
@@ -76,7 +75,6 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
       const audioUrl = await transcriptionService.getChunkAudio(chunkId);
       setAudioUrl(audioUrl);
     } catch (err: any) {
-      console.error('Error loading audio:', err);
       setError(t('transcription-error-load-audio'));
     }
   };
@@ -105,8 +103,6 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
       setCompletedCount(prev => prev + 1);
       moveToNext();
     } catch (err: any) {
-      console.error('Error submitting transcription:', err);
-
       // If session is invalid, try to reload chunks to get a new session
       if (err.response?.data?.detail?.includes('session')) {
         setError(t('transcription-error-session-expired'));
@@ -130,7 +126,6 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
       setSkippedCount(prev => prev + 1);
       moveToNext();
     } catch (err: any) {
-      console.error('Error skipping chunk:', err);
       // Continue anyway since skip is not critical
       setSkippedCount(prev => prev + 1);
       moveToNext();

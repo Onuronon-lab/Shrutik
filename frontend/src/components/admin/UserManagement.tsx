@@ -33,7 +33,6 @@ const UserManagement: React.FC = () => {
       const data = await adminService.getUsersForManagement(roleFilter || undefined);
       setUsers(data);
     } catch (err) {
-      console.error('Failed to load users:', err);
       handleError(err);
     } finally {
       setLoading(false);
@@ -59,7 +58,6 @@ const UserManagement: React.FC = () => {
       setEditingUser(null);
       setNewRole('');
     } catch (err) {
-      console.error('Failed to update user role:', err);
       handleError(err);
     } finally {
       setUpdating(false);
@@ -77,7 +75,6 @@ const UserManagement: React.FC = () => {
       await adminService.deleteUser(userId);
       setUsers(users.filter(user => user.id !== userId));
     } catch (err) {
-      console.error('Failed to delete user:', err);
       handleError(err);
     }
   };

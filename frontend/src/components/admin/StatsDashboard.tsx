@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ChartBarIcon } from '@heroicons/react/24/outline';
+import { useTranslation } from 'react-i18next';
 import { adminService } from '../../services/admin.service';
 import { PlatformStats, UsageAnalytics, UserStats } from '../../types/api';
 import LoadingSpinner from '../common/LoadingSpinner';
@@ -8,6 +9,7 @@ import UsageChart from './UsageChart';
 import TopContributors from './TopContributors';
 
 const StatsDashboard: React.FC = () => {
+  const { t } = useTranslation();
   const [platformStats, setPlatformStats] = useState<PlatformStats | null>(null);
   const [usageAnalytics, setUsageAnalytics] = useState<UsageAnalytics | null>(null);
   const [userStats, setUserStats] = useState<UserStats[]>([]);
@@ -30,8 +32,12 @@ const StatsDashboard: React.FC = () => {
       setUsageAnalytics(analyticsData);
       setUserStats(usersData);
     } catch (err) {
-      console.error('Failed to load analytics data:', err);
-      setError('Failed to load analytics data. Please try again.');
+      // Analytics loading failed, will show error state
+      setError(
+        t('errors.generic.server', {
+          defaultValue: 'Failed to load analytics data. Please try again.',
+        })
+      );
     } finally {
       setLoading(false);
     }

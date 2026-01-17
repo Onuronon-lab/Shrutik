@@ -52,11 +52,6 @@ export function useErrorHandler(): UseErrorHandlerReturn {
    * @returns {StructuredError | null} Structured error or null if extraction fails
    */
   const extractStructuredError = useCallback((error: any): StructuredError | null => {
-    // Debug logging
-    console.log('extractStructuredError - Full error:', error);
-    console.log('extractStructuredError - error.response:', error?.response);
-    console.log('extractStructuredError - error.response.data:', error?.response?.data);
-
     // FastAPI format: error_key in detail object (most common for our backend)
     if (
       error?.response?.data?.detail &&
@@ -64,9 +59,7 @@ export function useErrorHandler(): UseErrorHandlerReturn {
       !Array.isArray(error.response.data.detail)
     ) {
       const detail = error.response.data.detail;
-      console.log('extractStructuredError - Checking detail object:', detail);
       if (detail.error_key) {
-        console.log('extractStructuredError - Found error_key in detail object');
         return {
           error_key: detail.error_key,
           error_message: detail.error_message || 'An error occurred',
@@ -78,7 +71,6 @@ export function useErrorHandler(): UseErrorHandlerReturn {
 
     // New format: error_key-based structured error directly in response.data
     if (error?.response?.data?.error_key) {
-      console.log('extractStructuredError - Found error_key in response.data');
       return {
         error_key: error.response.data.error_key,
         error_message: error.response.data.error_message || 'An error occurred',
@@ -149,16 +141,12 @@ export function useErrorHandler(): UseErrorHandlerReturn {
    */
   const translateError = useCallback(
     (structuredError: StructuredError): TranslatedError => {
-      console.log('translateError - Input:', structuredError);
-
       // Translate error title using error_key, fallback to error_message
       const title = structuredError.error_key
         ? t(structuredError.error_key, {
             defaultValue: structuredError.error_message,
           })
         : structuredError.error_message;
-
-      console.log('translateError - Translated title:', title);
 
       // Translate suggestions if present
       const suggestions = structuredError.suggestions?.map((suggestion: ErrorSuggestion) => {
@@ -171,8 +159,6 @@ export function useErrorHandler(): UseErrorHandlerReturn {
         return suggestion.message;
       });
 
-      console.log('translateError - Translated suggestions:', suggestions);
-
       const translatedError: TranslatedError = {
         title,
       };
@@ -184,8 +170,6 @@ export function useErrorHandler(): UseErrorHandlerReturn {
       if (suggestions && suggestions.length > 0) {
         translatedError.suggestions = suggestions;
       }
-
-      console.log('translateError - Final translated error:', translatedError);
 
       return translatedError;
     },

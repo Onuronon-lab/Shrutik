@@ -31,7 +31,7 @@ const HomePage: React.FC = () => {
       const stats = await authService.getCurrentUserStats();
       setUserStats(stats);
     } catch (error) {
-      console.error('Failed to load user stats:', error);
+      // Stats loading failed, will show default state
     } finally {
       setStatsLoading(false);
     }
