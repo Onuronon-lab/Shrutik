@@ -12,7 +12,7 @@ class ApiClient {
       },
     });
 
-    // Request interceptor to add auth token
+    // Request interceptor: Attach token to every request
     this.api.interceptors.request.use(config => {
       const token = localStorage.getItem('auth_token');
       if (token) {
@@ -21,10 +21,15 @@ class ApiClient {
       return config;
     });
 
-    // Response interceptor for error handling
+    // Response interceptor: Global error handling
     this.api.interceptors.response.use(
       (response: AxiosResponse) => response,
       error => {
+        if (axios.isCancel(error)) {
+          return Promise.reject(error);
+        }
+
+        // Only redirect on a 401 (Unauthorized) from the server
         if (error.response?.status === 401) {
           const hasToken = localStorage.getItem('auth_token');
           const isLoginPage = window.location.pathname === '/login';
@@ -62,17 +67,13 @@ class ApiClient {
 
   async postFormData<T>(url: string, formData: FormData): Promise<T> {
     const response = await this.api.post<T>(url, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+      headers: { 'Content-Type': 'multipart/form-data' },
     });
     return response.data;
   }
 
   async getBlob(url: string): Promise<Blob> {
-    const response = await this.api.get(url, {
-      responseType: 'blob',
-    });
+    const response = await this.api.get(url, { responseType: 'blob' });
     return response.data;
   }
 }
