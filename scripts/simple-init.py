@@ -27,8 +27,8 @@ def simple_init():
         Base.metadata.create_all(bind=engine)
         print("✅ Database tables created")
 
-        # Create default language
-        print("🔄 Creating default Bengali language...")
+        # Create default languages
+        print("🔄 Creating default languages...")
         db = SessionLocal()
         try:
             # Check if Bengali language exists
@@ -40,6 +40,16 @@ def simple_init():
                 print("✅ Default Bengali language created")
             else:
                 print("✅ Bengali language already exists")
+
+            # Check if English language exists
+            english = db.query(Language).filter(Language.code == "en").first()
+            if not english:
+                english = Language(code="en", name="English")
+                db.add(english)
+                db.commit()
+                print("✅ Default English language created")
+            else:
+                print("✅ English language already exists")
         finally:
             db.close()
 

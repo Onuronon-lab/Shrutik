@@ -15,7 +15,7 @@ const durationCategorySchema = z.custom<DurationCategory>(
 export const scriptSchema = z.object({
   text: z.string().min(1, 'Script text is required').trim(),
   duration_category: durationCategorySchema,
-  language_id: z.number().int().positive().default(1),
+  language_id: z.coerce.number().int().positive().default(1),
   meta_data: z.record(z.string(), z.any()).default({}),
 });
 
