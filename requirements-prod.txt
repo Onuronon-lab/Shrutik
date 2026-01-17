@@ -1,0 +1,48 @@
+# Production requirements for Shrutik Voice Collection Platform
+# Development dependencies (pytest, httpx) are excluded
+
+# FastAPI and web framework dependencies
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6
+
+# Database dependencies
+sqlalchemy>=2.0.0
+alembic>=1.12.0
+psycopg2-binary>=2.9.0
+
+# Authentication and security
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+bcrypt>=4.0.0,<4.2.0
+
+# Configuration management
+pydantic-settings>=2.0.0
+pydantic[email]>=2.0.0
+
+# Test generation dependencies
+tqdm >= 4.67.1
+aiohttp>=3.8.0
+gtts>=2.3.0
+edge-tts>=6.1.0
+
+# Audio processing dependencies
+librosa>=0.10.0
+pydub>=0.25.0
+soundfile>=0.12.0
+numpy>=1.24.0
+scipy>=1.11.0
+
+# Background job processing
+celery>=5.3.0
+redis>=5.0.0
+flower>=2.0.0
+
+# System monitoring
+psutil>=5.9.0
+
+# Performance and caching
+hiredis>=2.2.0
+
+# Archive compression for export functionality
+zstandard>=0.22.0

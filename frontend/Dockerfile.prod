@@ -1,0 +1,54 @@
+# Production Dockerfile for Shrutik Frontend
+FROM node:20-alpine as builder
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY package-prod.json ./package.json
+
+# Install dependencies (including devDependencies for build)
+RUN npm ci --only=production=false
+
+# Copy source code
+COPY . .
+
+# Copy production vite config
+COPY vite.prod.config.ts ./vite.config.ts
+
+# Build the application
+RUN npm run build
+
+# Production stage
+FROM nginx:alpine
+
+# Create non-root user
+RUN addgroup -g 1001 -S shrutik && \
+    adduser -S shrutik -u 1001
+
+# Copy built application from builder stage
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copy custom nginx configuration (will be created in next task)
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Create log directory with proper permissions
+RUN mkdir -p /var/log/nginx && \
+    chown -R shrutik:shrutik /var/log/nginx /usr/share/nginx/html
+
+# Remove default nginx config
+RUN rm -f /etc/nginx/conf.d/default.conf
+
+# Switch to non-root user for the application files
+# Note: nginx master process still runs as root, but worker processes will run as nginx user
+USER nginx
+
+# Expose port
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
