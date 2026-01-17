@@ -14,8 +14,9 @@ from datetime import datetime, timezone
 from difflib import SequenceMatcher
 from typing import Any, Dict, List, Optional, Tuple
 
-from sqlalchemy import and_, func
+from sqlalchemy import Boolean, and_, func
 from sqlalchemy.orm import Session
+from sqlalchemy.orm.attributes import flag_modified
 
 from app.core.export_metrics import consensus_metrics_collector
 from app.core.redis_client import redis_client
@@ -190,11 +191,18 @@ class ConsensusService:
                 }
             )
 
+            # Explicitly mark the JSON field as modified for SQLAlchemy
+            flag_modified(transcription, "meta_data")
+
         # Create quality review record if flagged
         if consensus_result.requires_review:
             self._create_automatic_quality_review(consensus_result)
 
         self.db.commit()
+
+        # Refresh transcriptions to get updated data from database
+        for transcription in transcriptions:
+            self.db.refresh(transcription)
 
         validation_status = ValidationStatus(
             chunk_id=chunk_id,
@@ -226,16 +234,17 @@ class ConsensusService:
             List of chunk information requiring review
         """
         # Find chunks with transcriptions requiring review
+        # Explicitly specify the join condition to avoid ambiguous foreign key error
         query = (
             self.db.query(AudioChunk)
-            .join(Transcription)
+            .join(Transcription, AudioChunk.id == Transcription.chunk_id)
             .filter(
                 and_(
                     Transcription.is_validated == False,
-                    Transcription.meta_data.op("->>")("consensus_evaluation").op("->>")(
-                        "requires_review"
-                    )
-                    == "true",
+                    Transcription.meta_data.op("->>")("consensus_evaluation")
+                    .op("->>")("requires_review")
+                    .cast(Boolean)
+                    == True,
                 )
             )
             .distinct()
@@ -390,31 +399,34 @@ class ConsensusService:
         Returns:
             Dictionary with validation statistics
         """
-        # Total chunks with transcriptions
+        # Total chunks with transcriptions - explicitly specify join condition
         total_chunks_with_transcriptions = (
-            self.db.query(AudioChunk.id).join(Transcription).distinct().count()
+            self.db.query(AudioChunk.id)
+            .join(Transcription, AudioChunk.id == Transcription.chunk_id)
+            .distinct()
+            .count()
         )
 
-        # Validated chunks
+        # Validated chunks - explicitly specify join condition
         validated_chunks = (
             self.db.query(AudioChunk.id)
-            .join(Transcription)
+            .join(Transcription, AudioChunk.id == Transcription.chunk_id)
             .filter(Transcription.is_validated == True)
             .distinct()
             .count()
         )
 
-        # Chunks requiring review
+        # Chunks requiring review - explicitly specify join condition
         chunks_requiring_review = (
             self.db.query(AudioChunk.id)
-            .join(Transcription)
+            .join(Transcription, AudioChunk.id == Transcription.chunk_id)
             .filter(
                 and_(
                     Transcription.is_validated == False,
-                    Transcription.meta_data.op("->>")("consensus_evaluation").op("->>")(
-                        "requires_review"
-                    )
-                    == "true",
+                    Transcription.meta_data.op("->>")("consensus_evaluation")
+                    .op("->>")("requires_review")
+                    .cast(Boolean)
+                    == True,
                 )
             )
             .distinct()

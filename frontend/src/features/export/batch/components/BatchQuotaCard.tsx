@@ -10,13 +10,6 @@ interface BatchQuotaCardProps {
 }
 
 export const BatchQuotaCard: React.FC<BatchQuotaCardProps> = ({ quota, userRole, t }) => {
-  // Debug logging to help troubleshoot the issue
-  console.log('BatchQuotaCard Debug:', {
-    quota,
-    userRole,
-    shouldHide: !quota || userRole === 'admin' || quota?.daily_limit === -1,
-  });
-
   // Hide quota card for admin users (unlimited downloads)
   if (!quota || userRole === 'admin' || quota.daily_limit === -1 || quota.is_unlimited) return null;
 
@@ -38,7 +31,6 @@ export const BatchQuotaCard: React.FC<BatchQuotaCardProps> = ({ quota, userRole,
         resetTime = null;
       }
     } catch (e) {
-      console.error('Invalid reset_time:', quota.reset_time, e);
       resetTime = null;
     }
   }

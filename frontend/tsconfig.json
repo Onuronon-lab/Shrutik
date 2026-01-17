@@ -33,7 +33,7 @@
       "@/*": ["./src/*"]
     },
 
-    "types": ["vite/client"]
+    "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom"]
   },
   "include": ["src", "vite.config.ts"],
   "exclude": ["node_modules", "build", "dist"]

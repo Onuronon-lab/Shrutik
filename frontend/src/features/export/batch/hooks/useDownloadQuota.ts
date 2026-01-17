@@ -18,7 +18,7 @@ export function useDownloadQuota({ enabled }: UseDownloadQuotaOptions) {
       const quotaData = await exportService.getDownloadQuota();
       setQuota(quotaData);
     } catch (error) {
-      console.error('Failed to load quota:', error);
+      // Quota loading failed, will show default state
     } finally {
       setLoading(false);
     }

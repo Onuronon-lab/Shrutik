@@ -64,8 +64,6 @@ export function useDurationSelector(): UseDurationSelectorReturn {
     (duration: DurationOption) => {
       if (isValidDuration(duration)) {
         setSelectedDuration(duration);
-      } else {
-        console.warn('Invalid duration option:', duration);
       }
     },
     [setSelectedDuration]

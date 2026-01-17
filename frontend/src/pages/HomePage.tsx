@@ -31,7 +31,7 @@ const HomePage: React.FC = () => {
       const stats = await authService.getCurrentUserStats();
       setUserStats(stats);
     } catch (error) {
-      console.error('Failed to load user stats:', error);
+      // Stats loading failed, will show default state
     } finally {
       setStatsLoading(false);
     }
@@ -78,8 +78,8 @@ const HomePage: React.FC = () => {
 
   if (user?.role === 'sworik_developer') {
     features.push({
-      name: 'Export Data',
-      description: 'Download validated datasets for AI training',
+      name: t('export-data'),
+      description: t('export-data-description'),
       icon: ArrowDownTrayIcon,
       href: '/export',
       bgcolor: 'bg-info',
