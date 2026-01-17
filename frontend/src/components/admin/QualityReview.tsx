@@ -105,14 +105,8 @@ const QualityReview: React.FC = () => {
 
     try {
       setSubmittingReview(true);
-      // TODO: Implement submitQualityReview in adminService
-      console.log('Submitting review:', {
-        transcriptionId: reviewingItem.transcription_id,
-        decision: reviewForm.decision,
-        rating: reviewForm.rating,
-        comment: reviewForm.comment,
-      });
-
+      // Note: Quality review submission functionality needs to be implemented in adminService
+      // For now, we'll just reload the data to simulate the review being processed
       await loadData();
       closeReviewModal();
     } catch (err) {

@@ -66,8 +66,6 @@ export function useScriptManager(): UseScriptManagerReturn {
         setLoadingState({ status: 'loaded', script, loadTime: Date.now() });
         return script;
       } catch (err: any) {
-        console.error('Load script error:', err);
-
         // Map technical errors to user-friendly translated messages
         let errorMessage: string;
 
@@ -119,8 +117,6 @@ export function useScriptManager(): UseScriptManagerReturn {
         setRecordingSession(session);
         return session;
       } catch (err: any) {
-        console.error('Create session error:', err);
-
         // Map technical errors to user-friendly translated messages
         let errorMessage: string;
 
@@ -161,7 +157,6 @@ export function useScriptManager(): UseScriptManagerReturn {
         await createSession(script.id);
       } catch (error) {
         // Error handling is done in individual functions
-        console.error('Error in selectDuration:', error);
       }
     },
     [

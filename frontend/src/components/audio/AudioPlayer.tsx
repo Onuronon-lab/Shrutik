@@ -45,7 +45,6 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
 
     const handleError = () => {
       setIsLoading(false);
-      console.error('Audio loading error');
     };
 
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
