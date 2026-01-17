@@ -50,4 +50,8 @@ export const adminService = {
   async getUsageAnalytics(days = 30): Promise<any> {
     return apiClient.get(`/admin/analytics/usage?days=${days}`);
   },
+
+  async getLanguages(): Promise<Array<{ id: number; name: string; code: string }>> {
+    return apiClient.get('/admin/languages');
+  },
 };

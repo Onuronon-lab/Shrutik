@@ -47,11 +47,11 @@ async def get_random_script(
         duration_category=duration_category, language_id=language_id
     )
 
-    script = script_service.get_random_script(request)
+    script = script_service.get_random_script(request, user_id=current_user.id)
     if not script:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"No scripts found for duration category '{duration_category.value}'",
+            detail=f"No unrecorded scripts found for duration category '{duration_category.value}'. You may have recorded all available scripts in this category.",
         )
 
     return script

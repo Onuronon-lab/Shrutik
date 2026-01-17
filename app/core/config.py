@@ -68,7 +68,8 @@ class StorageConfig:
 
 
 class Settings(BaseSettings):
-    model_config = ConfigDict(env_file=".env", case_sensitive=True)
+    # model_config = ConfigDict(env_file=".env", case_sensitive=True)
+    model_config = ConfigDict(env_file=".env", case_sensitive=True, extra="ignore")
 
     APP_NAME: str = "Shrutik (শ্রুতিক)"
     DEBUG: bool = False
@@ -153,6 +154,19 @@ class Settings(BaseSettings):
         5  # Generous limit for developers
     )
     EXPORT_DAILY_DOWNLOAD_LIMIT_ADMIN: int = -1  # Unlimited downloads for admins
+
+    # mail setting
+
+    MAIL_USERNAME: str = ""
+    MAIL_PASSWORD: str = ""
+    MAIL_FROM: str = "noreply@shrutik.com"
+    MAIL_PORT: int = 587
+    MAIL_SERVER: str = "smtp.gmail.com"
+    MAIL_FROM_NAME: str = "Shrutik Platform"
+    MAIL_STARTTLS: bool = True
+    MAIL_SSL_TLS: bool = False
+    FRONTEND_URL: str = "http://localhost:3000"
+    BACKEND_URL: str = "http://localhost:8000"
 
     def __init__(self, **kwargs):
         """Initialize settings with validation."""

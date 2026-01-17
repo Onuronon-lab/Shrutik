@@ -1,9 +1,16 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { UseFormRegister, FieldErrors, UseFormWatch } from 'react-hook-form';
 import { CheckCircleIcon, XCircleIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { ScriptValidation } from '../../types/api';
 import { ScriptFormData } from '../../schemas/script.schema';
 import { FormTextarea, FormSelect, Button } from '../ui';
+import { adminService } from '../../services/admin.service';
+
+interface Language {
+  id: number;
+  name: string;
+  code: string;
+}
 
 interface ScriptFormProps {
   register: UseFormRegister<ScriptFormData>;
@@ -27,6 +34,25 @@ const ScriptForm: React.FC<ScriptFormProps> = ({
   onSubmit,
 }) => {
   const formText = watch('text');
+  const [languages, setLanguages] = useState<Language[]>([]);
+
+  useEffect(() => {
+    const fetchLanguages = async () => {
+      try {
+        const data = await adminService.getLanguages();
+        setLanguages(data);
+      } catch (error) {
+        console.error('Failed to fetch languages:', error);
+        // Fallback to default languages if API fails
+        setLanguages([
+          { id: 1, name: 'English', code: 'en' },
+          { id: 2, name: 'Bengali', code: 'bn' },
+        ]);
+      }
+    };
+
+    fetchLanguages();
+  }, []);
 
   return (
     <form onSubmit={onSubmit} className="space-y-6">
@@ -56,8 +82,11 @@ const ScriptForm: React.FC<ScriptFormProps> = ({
 
       <div>
         <FormSelect register={register} errors={errors} name="language_id" label="Language">
-          <option value={1}>English</option>
-          <option value={2}>Bengali</option>
+          {languages.map(language => (
+            <option key={language.id} value={language.id}>
+              {language.name}
+            </option>
+          ))}
         </FormSelect>
       </div>
 

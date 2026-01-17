@@ -9,23 +9,14 @@ from app.core.config import settings
 from app.models.user import UserRole
 
 try:
-    # Try bcrypt first with a simple test
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=12)
-    pwd_context.hash("test"[:72])  # Ensure test password is within bcrypt limits
+    pwd_context.hash("test"[:72])
 except Exception:
-    try:
-        # Fallback to argon2
-        pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
-        pwd_context.hash("test")
-    except Exception:
-        # Final fallback to pbkdf2 (always available)
-        pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
+    pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verify a plain password against its hash."""
     try:
-        # Truncate password if too long for bcrypt (72 bytes limit)
         if len(plain_password.encode("utf-8")) > 72:
             plain_password = plain_password[:72]
         return pwd_context.verify(plain_password, hashed_password)
@@ -34,59 +25,71 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 
 def get_password_hash(password: str) -> str:
-    """Generate password hash."""
     if len(password.encode("utf-8")) > 72:
         password = password.encode("utf-8")[:72].decode("utf-8", errors="ignore")
     return pwd_context.hash(password)
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
-    """Create JWT access token."""
     to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta
-    else:
-        expire = datetime.now(timezone.utc) + timedelta(
-            minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
-        )
-
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(
-        to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM
+    expire = datetime.now(timezone.utc) + (
+        expires_delta or timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     )
-    return encoded_jwt
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+
+
+def create_task_token(
+    email: str, scope: str, expires_minutes: int, data: dict = None
+) -> str:
+    """Create a token that can optionally carry extra data (like name/password)."""
+    to_encode = {
+        "sub": email,
+        "scope": scope,
+        "exp": datetime.utcnow() + timedelta(minutes=expires_minutes),
+    }
+    if data:
+        to_encode.update({"extra_data": data})  # Pack name/password here
+    return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
 
 def verify_token(token: str) -> dict:
-    """Verify and decode JWT token."""
+    try:
+        return jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
+        )
+
+
+def verify_task_token_with_data(token: str, expected_scope: str) -> dict:
+    """Verify the token and return the full dictionary of data."""
     try:
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
         )
-        return payload
-    except JWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        if payload.get("scope") != expected_scope:
+            return None
+
+        # Return everything needed to create the user
+        return {
+            "email": payload.get("sub"),
+            "name": payload.get("extra_data", {}).get("name"),
+            "password": payload.get("extra_data", {}).get("password"),
+        }
+    except jwt.JWTError:
+        return None
 
 
 class PermissionChecker:
-    """Role-based permission checker."""
-
     ROLE_PERMISSIONS = {
-        UserRole.CONTRIBUTOR: {
-            "record_voice",
-            "transcribe_audio",
-            "view_own_data",
-        },
+        UserRole.CONTRIBUTOR: {"record_voice", "transcribe_audio", "view_own_data"},
         UserRole.ADMIN: {
             "record_voice",
             "transcribe_audio",
             "view_own_data",
-            "manage_users",  # Only admins manage users
-            "manage_scripts",  # Only admins manage scripts
+            "manage_users",
+            "manage_scripts",
             "view_all_data",
             "quality_review",
             "view_statistics",
@@ -96,38 +99,42 @@ class PermissionChecker:
             "record_voice",
             "transcribe_audio",
             "view_own_data",
-            "view_all_data",  # Can view data for research
-            "quality_review",  # Can review quality
-            "view_statistics",  # Can view stats
-            "export_data",  # Can export for research
-            "access_raw_data",  # Can access raw data for development
+            "view_all_data",
+            "quality_review",
+            "view_statistics",
+            "export_data",
+            "access_raw_data",
         },
     }
 
     @classmethod
     def has_permission(cls, user_role: UserRole, permission: str) -> bool:
-        """Check if a user role has a specific permission."""
         return permission in cls.ROLE_PERMISSIONS.get(user_role, set())
 
     @classmethod
     def require_permission(cls, user_role: UserRole, permission: str) -> None:
-        """Raise exception if user doesn't have required permission."""
         if not cls.has_permission(user_role, permission):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Insufficient permissions. Required: {permission}",
-            )
+            raise HTTPException(status_code=403, detail="Insufficient permissions")
 
     @classmethod
     def require_role(
         cls, user_role: UserRole, required_roles: Union[UserRole, list[UserRole]]
     ) -> None:
-        """Raise exception if user doesn't have required role."""
-        if isinstance(required_roles, UserRole):
-            required_roles = [required_roles]
+        roles = (
+            [required_roles] if isinstance(required_roles, UserRole) else required_roles
+        )
+        if user_role not in roles:
+            raise HTTPException(status_code=403, detail="Insufficient role")
 
-        if user_role not in required_roles:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Insufficient role. Required one of: {[role.value for role in required_roles]}",
-            )
+
+def verify_task_token(token: str, expected_scope: str) -> Optional[str]:
+    """Verify the token scope and return the email (sub)."""
+    try:
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        )
+        if payload.get("scope") != expected_scope:
+            return None
+        return payload.get("sub")
+    except (jwt.JWTError, AttributeError):
+        return None

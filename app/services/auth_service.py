@@ -17,10 +17,8 @@ class AuthService:
         self.db = db
 
     def create_user(self, user_data: UserCreate) -> User:
-        """Create a new user with hashed password (public registration - always CONTRIBUTOR)."""
-        existing_user = (
-            self.db.query(User).filter(User.email == user_data.email).first()
-        )
+        """Create a new user. For this workflow, they are verified by default."""
+        existing_user = self.get_user_by_email(user_data.email)
         if existing_user:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -32,7 +30,8 @@ class AuthService:
             name=user_data.name,
             email=user_data.email,
             password_hash=hashed_password,
-            role=UserRole.CONTRIBUTOR,  # Always CONTRIBUTOR for public registration
+            role=UserRole.CONTRIBUTOR,
+            is_verified=True,  # CHANGED: They just verified via the token link!
         )
 
         self.db.add(db_user)
@@ -57,6 +56,7 @@ class AuthService:
             email=user_data.email,
             password_hash=hashed_password,
             role=user_data.role,  # Use specified role (admin operation)
+            is_verified=True,
         )
 
         self.db.add(db_user)
@@ -85,6 +85,13 @@ class AuthService:
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
+        # --- Verification Check ---
+        if not user.is_verified:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Email address not verified. Please check your inbox.",
+            )
+
         access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
             data={"sub": user.email, "user_id": user.id, "role": user.role.value},
@@ -92,6 +99,16 @@ class AuthService:
         )
 
         return user, access_token
+
+    def update_password(self, user: User, new_password: str) -> User:
+        """Update user password (used for password reset flow)."""
+        user.password_hash = get_password_hash(new_password)
+        # Often a password reset should also ensure the user is verified
+        user.is_verified = True
+
+        self.db.commit()
+        self.db.refresh(user)
+        return user
 
     def get_user_by_email(self, email: str) -> Optional[User]:
         """Get user by email."""

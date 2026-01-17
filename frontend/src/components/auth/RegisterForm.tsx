@@ -1,3 +1,4 @@
+import { authService } from '../../services/auth.service';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,6 +10,7 @@ import { SettingsMenu } from '../layout/SettingsMenu';
 import { registerSchema, type RegisterFormData } from '../../schemas/auth.schema';
 import { FormInput, FormError } from '../ui/form';
 import { cn } from '../../utils/cn';
+import axios from 'axios';
 
 const RegisterForm: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -73,29 +75,31 @@ const RegisterForm: React.FC = () => {
   );
 
   const onSubmit = async (data: RegisterFormData) => {
-    try {
-      setIsLoading(true);
-      const success = await registerUser(data.name, data.email, data.password);
-      if (success.user) {
-        setIsLoading(false);
-        navigate('/login', {
-          state: {
-            message: t('registration_success'),
-          },
-        });
-      }
-    } catch (error: any) {
-      setIsLoading(false);
+    setIsLoading(true);
 
-      if (error.response) {
-        setFormError('root', {
-          message: error.response.data?.error.message || 'Server returned an error',
-        });
-      } else if (error.request) {
-        setFormError('root', { message: 'No response from server. It might be offline.' });
-      } else {
-        setFormError('root', { message: error.message || 'Network Error' });
-      }
+    try {
+      //verify your authService.ts has the correct baseURL
+      await authService.register({
+        email: data.email,
+        password: data.password,
+        name: data.name,
+      });
+
+      console.log('Registration successful');
+      navigate('/login', {
+        state: {
+          message: 'Registration successful! Please check your email to verify your account.',
+        },
+      });
+    } catch (error: any) {
+      // Extract the specific error message from the backend (e.g., "Email already registered")
+      const errorMessage =
+        error.response?.data?.detail ||
+        (error.code === 'ERR_NETWORK' ? 'Cannot connect to server' : t('register-error-generic'));
+
+      setFormError('root', { message: errorMessage });
+    } finally {
+      setIsLoading(false);
     }
   };
 

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, AuthContextType, AuthResponse } from '../types/auth';
+import { User, AuthContextType } from '../types/auth';
 import { authService } from '../services/auth.service';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -11,65 +11,49 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true); // Always start as true to prevent premature redirects
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('auth_token');
-    if (storedToken) {
-      setToken(storedToken);
-      validateStoredToken();
-    } else {
-      setIsLoading(false);
-    }
-  }, []);
+    const initializeAuth = async () => {
+      const storedToken = localStorage.getItem('auth_token');
 
-  const validateStoredToken = async () => {
-    try {
-      const response = await authService.validateToken();
-
-      if (response.token) {
-        localStorage.setItem('auth_token', response.token);
-        setToken(response.token);
+      if (storedToken) {
+        setToken(storedToken);
+        try {
+          // Validate the token and fetch user data immediately
+          const response = await authService.validateToken();
+          const userData = response.user || response;
+          setUser(userData);
+        } catch (error) {
+          // If validation fails, clear the stale data
+          localStorage.removeItem('auth_token');
+          setToken(null);
+          setUser(null);
+        }
       }
 
-      setUser(response.user || response);
-    } catch (error) {
-      localStorage.removeItem('auth_token');
-      setToken(null);
-      setUser(null);
-    } finally {
+      // Stop loading ONLY after we've confirmed the token status
       setIsLoading(false);
+    };
+
+    initializeAuth();
+  }, []);
+
+  const login = async (email: string, password: string) => {
+    const result = await authService.login({ email, password });
+
+    if (result.token && result.user) {
+      localStorage.setItem('auth_token', result.token);
+      setToken(result.token);
+      setUser(result.user);
+      return result;
     }
   };
 
-  const login = async (email: string, password: string): Promise<AuthResponse> => {
+  const register = async (name: string, email: string, password: string): Promise<any> => {
     try {
       setIsLoading(true);
-
-      const res = await authService.login({ email, password });
-
-      setUser(res.user);
-      setToken(res.token);
-      localStorage.setItem('auth_token', res.token);
-
-      return res;
-    } catch (error) {
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const register = async (name: string, email: string, password: string): Promise<AuthResponse> => {
-    try {
-      setIsLoading(true);
-
       const res = await authService.register({ name, email, password });
-
-      setUser(res.user);
-      setToken(res.token);
-      localStorage.setItem('auth_token', res.token);
-
       return res;
     } catch (error) {
       throw error;
@@ -82,6 +66,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUser(null);
     setToken(null);
     localStorage.removeItem('auth_token');
+    localStorage.removeItem('user');
   };
 
   const value: AuthContextType = {
