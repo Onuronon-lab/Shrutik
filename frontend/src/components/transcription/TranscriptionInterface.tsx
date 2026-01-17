@@ -64,7 +64,6 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
         setError(t('transcription-error-no-chunks'));
       }
     } catch (err: any) {
-      console.error('Error loading chunks:', err);
       setError(t('transcription-error-load-chunks'));
     } finally {
       setIsLoading(false);
@@ -76,7 +75,6 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
       const audioUrl = await transcriptionService.getChunkAudio(chunkId);
       setAudioUrl(audioUrl);
     } catch (err: any) {
-      console.error('Error loading audio:', err);
       setError(t('transcription-error-load-audio'));
     }
   };
@@ -105,8 +103,6 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
       setCompletedCount(prev => prev + 1);
       moveToNext();
     } catch (err: any) {
-      console.error('Error submitting transcription:', err);
-
       // If session is invalid, try to reload chunks to get a new session
       if (err.response?.data?.detail?.includes('session')) {
         setError(t('transcription-error-session-expired'));
@@ -130,7 +126,6 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
       setSkippedCount(prev => prev + 1);
       moveToNext();
     } catch (err: any) {
-      console.error('Error skipping chunk:', err);
       // Continue anyway since skip is not critical
       setSkippedCount(prev => prev + 1);
       moveToNext();
@@ -157,8 +152,8 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
     return (
       <div className={`flex items-center justify-center py-12 ${className}`}>
         <div className="text-center">
-          <div className="w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">{t('transcription-loading-chunks')}</p>
+          <div className="w-8 h-8 border-4 border-success border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">{t('transcription-loading-chunks')}</p>
         </div>
       </div>
     );
@@ -166,22 +161,24 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
 
   if (error) {
     return (
-      <div className={`bg-red-50 border border-red-200 rounded-lg p-6 ${className}`}>
+      <div className={`bg-destructive/10 border border-destructive rounded-lg p-6 ${className}`}>
         <div className="flex items-center mb-4">
-          <ExclamationTriangleIcon className="w-6 h-6 text-red-600 mr-2" />
-          <h3 className="text-lg font-semibold text-red-800">{t('transcription-error-title')}</h3>
+          <ExclamationTriangleIcon className="w-6 h-6 text-destructive mr-2" />
+          <h3 className="text-lg font-semibold text-destructive">
+            {t('transcription-error-title')}
+          </h3>
         </div>
-        <p className="text-red-700 mb-4">{error}</p>
+        <p className="text-destructive-foreground mb-4">{error}</p>
         <div className="flex space-x-3">
           <button
             onClick={loadChunks}
-            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors"
+            className="px-4 py-2 bg-destructive hover:bg-destructive-hover text-destructive-foreground rounded-md transition-colors"
           >
             {t('transcription-try-again')}
           </button>
           <button
             onClick={onBack}
-            className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition-colors"
+            className="px-4 py-2 bg-secondary hover:bg-secondary-hover text-secondary-foreground rounded-md transition-colors"
           >
             {t('transcription-go-back')}
           </button>
@@ -192,39 +189,41 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
 
   if (sessionComplete) {
     return (
-      <div
-        className={`bg-green-50 border border-green-200 rounded-lg p-8 text-center ${className}`}
-      >
-        <CheckCircleIcon className="w-16 h-16 text-green-600 mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-green-800 mb-4">
+      <div className={`bg-card border border-border rounded-lg p-8 text-center ${className}`}>
+        <CheckCircleIcon className="w-16 h-16 text-success mx-auto mb-4" />
+        <h2 className="text-2xl font-bold text-foreground mb-4">
           {t('transcription-session-complete-title')}
         </h2>
 
-        <div className="bg-white rounded-lg p-6 mb-6 inline-block">
+        <div className="bg-muted rounded-lg p-6 mb-6 inline-block">
           <div className="grid grid-cols-2 gap-6 text-center">
             <div>
-              <div className="text-3xl font-bold text-green-600 mb-1">{completedCount}</div>
-              <div className="text-sm text-gray-600">{t('transcription-session-completed')}</div>
+              <div className="text-3xl font-bold text-success mb-1">{completedCount}</div>
+              <div className="text-sm text-muted-foreground">
+                {t('transcription-session-completed')}
+              </div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-orange-600 mb-1">{skippedCount}</div>
-              <div className="text-sm text-gray-600">{t('transcription-session-skipped')}</div>
+              <div className="text-3xl font-bold text-warning mb-1">{skippedCount}</div>
+              <div className="text-sm text-muted-foreground">
+                {t('transcription-session-skipped')}
+              </div>
             </div>
           </div>
         </div>
 
-        <p className="text-green-700 mb-6">{t('transcription-session-thanks')}</p>
+        <p className="text-foreground mb-6">{t('transcription-session-thanks')}</p>
 
         <div className="flex justify-center space-x-4">
           <button
             onClick={handleStartNewSession}
-            className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors"
+            className="px-6 py-3 bg-success hover:bg-success-hover text-success-foreground rounded-md transition-colors"
           >
             {t('transcription-do-more')}
           </button>
           <button
             onClick={onComplete}
-            className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition-colors"
+            className="px-6 py-3 bg-secondary hover:bg-secondary-hover text-secondary-foreground rounded-md transition-colors"
           >
             {t('transcription-finish')}
           </button>
@@ -237,8 +236,8 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
     return (
       <div className={`flex items-center justify-center py-12 ${className}`}>
         <div className="text-center">
-          <div className="w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">{t('transcription-loading-audio')}</p>
+          <div className="w-8 h-8 border-4 border-success border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">{t('transcription-loading-audio')}</p>
         </div>
       </div>
     );
@@ -255,17 +254,17 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
       />
 
       {/* Current Chunk Info */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <div className="bg-info/10 border border-info rounded-lg p-4">
         <div className="flex justify-between items-center">
           <div>
-            <h3 className="font-semibold text-blue-800">চাঙ্ক #{currentIndex + 1}</h3>
-            <p className="text-sm text-blue-600">
+            <h3 className="font-semibold text-info">চাঙ্ক #{currentIndex + 1}</h3>
+            <p className="text-sm text-info-foreground">
               {t('transcription-chunk-duration')} {currentChunk.duration.toFixed(1)} {t('seconds')}
             </p>
           </div>
           <button
             onClick={onBack}
-            className="px-3 py-1 text-sm bg-blue-100 hover:bg-blue-200 text-blue-800 rounded transition-colors"
+            className="px-3 py-1 text-sm bg-secondary hover:bg-secondary-hover text-secondary-foreground rounded transition-colors"
           >
             {t('transcription-go-back')}
           </button>

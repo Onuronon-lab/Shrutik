@@ -561,7 +561,7 @@ class VoiceRecordingService:
                 os.remove(recording.file_path)
             except OSError as e:
                 # Log error but don't fail the deletion
-                print(f"Warning: Could not delete file {recording.file_path}: {e}")
+                logger.warning(f"Could not delete file {recording.file_path}: {e}")
 
         # Delete database record
         self.db.delete(recording)
@@ -576,15 +576,15 @@ class VoiceRecordingService:
                 self._trigger_celery_processing(recording_id)
             else:
                 # Fall back to synchronous processing
-                print(
-                    "Celery not available, processing recording {recording_id} synchronously..."
+                logger.info(
+                    f"Celery not available, processing recording {recording_id} synchronously"
                 )
                 self._process_audio_synchronously(recording_id)
 
-        except Exception:
+        except Exception as e:
             # Log error but don't fail the upload
-            print(
-                "Warning: Failed to trigger audio processing for recording {recording_id}: {e}"
+            logger.warning(
+                f"Failed to trigger audio processing for recording {recording_id}: {e}"
             )
 
     def _is_celery_available(self) -> bool:
@@ -622,7 +622,9 @@ class VoiceRecordingService:
             recording.meta_data["processing_mode"] = "celery"
             self.db.commit()
 
-        print(f"Queued audio processing task {task.id} for recording {recording_id}")
+        logger.info(
+            f"Queued audio processing task {task.id} for recording {recording_id}"
+        )
 
     def _process_audio_synchronously(self, recording_id: int) -> None:
         """Process audio synchronously when Celery is not available."""
@@ -636,7 +638,7 @@ class VoiceRecordingService:
                 raise Exception("Recording {recording_id} not found")
 
             if recording.status != RecordingStatus.UPLOADED:
-                print(
+                logger.info(
                     f"Recording {recording_id} status is {recording.status}, skipping processing"
                 )
                 return
@@ -651,7 +653,9 @@ class VoiceRecordingService:
             ).isoformat()
             self.db.commit()
 
-            print(f"Starting synchronous audio processing for recording {recording_id}")
+            logger.info(
+                f"Starting synchronous audio processing for recording {recording_id}"
+            )
 
             # Process the recording
             audio_chunks = audio_chunking_service.process_recording(
@@ -666,7 +670,7 @@ class VoiceRecordingService:
             recording.meta_data["chunks_created"] = len(audio_chunks)
             self.db.commit()
 
-            print(
+            logger.info(
                 f"Successfully processed recording {recording_id} into {len(audio_chunks)} chunks"
             )
 
@@ -683,7 +687,7 @@ class VoiceRecordingService:
                 ).isoformat()
                 self.db.commit()
 
-            print(f"Failed to process recording {recording_id}: {e}")
+            logger.error(f"Failed to process recording {recording_id}: {e}")
             raise
 
     def get_processing_task_status(self, recording_id: int) -> Optional[Dict[str, Any]]:
@@ -711,5 +715,5 @@ class VoiceRecordingService:
             }
 
         except Exception as e:
-            print(f"Error getting task status for recording {recording_id}: {e}")
+            logger.error(f"Error getting task status for recording {recording_id}: {e}")
             return None

@@ -193,34 +193,53 @@ async def create_export_batch(
                     current_user.role.value
                 )
 
-                # Generate role-specific suggestions
+                # Generate role-specific suggestions with translation keys
                 suggestions = []
                 if current_user.role.value == "sworik_developer":
                     suggestions.extend(
                         [
-                            "Wait for more chunks to be processed (check back in a few hours)",
-                            "Contact an admin who can create batches with as few as 10 chunks",
-                            "Try adjusting your date range or duration filters to find more chunks",
+                            {
+                                "key": "errors.export.insufficient_chunks.suggestion.wait",
+                                "message": "Wait for more chunks to be processed (check back in a few hours)",
+                            },
+                            {
+                                "key": "errors.export.insufficient_chunks.suggestion.admin",
+                                "message": "Contact an admin who can create batches with as few as 10 chunks",
+                            },
+                            {
+                                "key": "errors.export.insufficient_chunks.suggestion.filters",
+                                "message": "Try adjusting your date range or duration filters to find more chunks",
+                            },
                         ]
                     )
                 elif current_user.role.value == "admin":
                     suggestions.extend(
                         [
-                            "Wait for more chunks to be processed",
-                            "Try adjusting your date range or duration filters",
-                            "Use force_create=true to create a batch with any available chunk count",
+                            {
+                                "key": "errors.export.insufficient_chunks.suggestion.wait",
+                                "message": "Wait for more chunks to be processed",
+                            },
+                            {
+                                "key": "errors.export.insufficient_chunks.suggestion.filters",
+                                "message": "Try adjusting your date range or duration filters",
+                            },
+                            {
+                                "key": "errors.export.insufficient_chunks.suggestion.force_create",
+                                "message": "Use force_create=true to create a batch with any available chunk count",
+                            },
                         ]
                     )
 
-                # Create structured error response
+                # Create structured error response with translation key
                 error_details = {
-                    "error": "Insufficient chunks for batch creation",
+                    "error_key": "errors.export.insufficient_chunks.title",
+                    "error_message": "Insufficient chunks for batch creation",
                     "details": {
                         "available_chunks": available_chunks,
                         "required_chunks": required_chunks,
                         "user_role": current_user.role.value,
-                        "suggestions": suggestions,
                     },
+                    "suggestions": suggestions,
                 }
 
                 raise HTTPException(
@@ -231,19 +250,29 @@ async def create_export_batch(
                 logger.error(
                     f"Error parsing insufficient chunks details: {parse_error}"
                 )
-                # Fallback to simple error message
+                # Fallback to simple error message with translation key
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail={
-                        "error": "Insufficient chunks for batch creation",
+                        "error_key": "errors.export.insufficient_chunks.title",
+                        "error_message": "Insufficient chunks for batch creation",
                         "details": {
                             "user_role": current_user.role.value,
-                            "suggestions": [
-                                "Wait for more chunks to be processed",
-                                "Contact an admin if you need urgent access",
-                                "Try adjusting your filters to find more chunks",
-                            ],
                         },
+                        "suggestions": [
+                            {
+                                "key": "errors.export.insufficient_chunks.suggestion.wait",
+                                "message": "Wait for more chunks to be processed",
+                            },
+                            {
+                                "key": "errors.export.insufficient_chunks.suggestion.admin",
+                                "message": "Contact an admin if you need urgent access",
+                            },
+                            {
+                                "key": "errors.export.insufficient_chunks.suggestion.filters",
+                                "message": "Try adjusting your filters to find more chunks",
+                            },
+                        ],
                     },
                 )
         else:
@@ -251,14 +280,21 @@ async def create_export_batch(
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail={
-                    "error": error_message,
+                    "error_key": "errors.export.validation_error",
+                    "error_message": error_message,
                     "details": {
                         "user_role": current_user.role.value,
-                        "suggestions": [
-                            "Check your request parameters",
-                            "Contact support if the issue persists",
-                        ],
                     },
+                    "suggestions": [
+                        {
+                            "key": "errors.export.validation_error.suggestion.check_params",
+                            "message": "Check your request parameters",
+                        },
+                        {
+                            "key": "errors.export.validation_error.suggestion.contact_support",
+                            "message": "Contact support if the issue persists",
+                        },
+                    ],
                 },
             )
 
@@ -270,13 +306,18 @@ async def create_export_batch(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={
-                "error": "Export batch creation failed",
-                "details": {
-                    "suggestions": [
-                        "Try again in a few minutes",
-                        "Contact support if the issue persists",
-                    ]
-                },
+                "error_key": "errors.export.creation_failed",
+                "error_message": "Export batch creation failed",
+                "suggestions": [
+                    {
+                        "key": "errors.export.creation_failed.suggestion.retry",
+                        "message": "Try again in a few minutes",
+                    },
+                    {
+                        "key": "errors.export.creation_failed.suggestion.contact_support",
+                        "message": "Contact support if the issue persists",
+                    },
+                ],
             },
         )
 
@@ -534,30 +575,43 @@ async def download_export_batch(
                         0, int((reset_time - now).total_seconds() / 3600)
                     )
 
-                # Generate role-specific suggestions
+                # Generate role-specific suggestions with translation keys
                 suggestions = []
                 if current_user.role.value == "sworik_developer":
                     suggestions.extend(
                         [
-                            f"Wait until midnight UTC when your quota resets (in {hours_until_reset} hours)",
-                            "Contact an admin if you need urgent access to more downloads",
+                            {
+                                "key": "errors.export.quota_exceeded.suggestion.wait",
+                                "message": f"Wait until midnight UTC when your quota resets (in {hours_until_reset} hours)",
+                                "params": {"hours": hours_until_reset},
+                            },
+                            {
+                                "key": "errors.export.quota_exceeded.suggestion.admin",
+                                "message": "Contact an admin if you need urgent access to more downloads",
+                            },
                         ]
                     )
                 elif current_user.role.value == "admin":
                     suggestions.extend(
-                        ["This should not happen for admin users - contact support"]
+                        [
+                            {
+                                "key": "errors.export.quota_exceeded.suggestion.admin_error",
+                                "message": "This should not happen for admin users - contact support",
+                            }
+                        ]
                     )
 
                 error_details = {
-                    "error": "Daily download limit exceeded",
+                    "error_key": "errors.export.quota_exceeded.title",
+                    "error_message": "Daily download limit exceeded",
                     "details": {
                         "downloads_today": downloads_today,
                         "daily_limit": daily_limit,
                         "reset_time": reset_time.isoformat() if reset_time else None,
                         "hours_until_reset": hours_until_reset,
                         "user_role": current_user.role.value,
-                        "suggestions": suggestions,
                     },
+                    "suggestions": suggestions,
                 }
 
                 raise HTTPException(
@@ -566,18 +620,25 @@ async def download_export_batch(
 
             except Exception as parse_error:
                 logger.error(f"Error parsing quota exceeded details: {parse_error}")
-                # Fallback error response
+                # Fallback error response with translation key
                 raise HTTPException(
                     status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                     detail={
-                        "error": "Daily download limit exceeded",
+                        "error_key": "errors.export.quota_exceeded.title",
+                        "error_message": "Daily download limit exceeded",
                         "details": {
                             "user_role": current_user.role.value,
-                            "suggestions": [
-                                "Wait until midnight UTC when your quota resets",
-                                "Contact an admin if you need urgent access",
-                            ],
                         },
+                        "suggestions": [
+                            {
+                                "key": "errors.export.quota_exceeded.suggestion.wait",
+                                "message": "Wait until midnight UTC when your quota resets",
+                            },
+                            {
+                                "key": "errors.export.quota_exceeded.suggestion.admin",
+                                "message": "Contact an admin if you need urgent access",
+                            },
+                        ],
                     },
                 )
 
@@ -585,14 +646,22 @@ async def download_export_batch(
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail={
-                    "error": f"Export batch {batch_id} not found",
-                    "details": {
-                        "suggestions": [
-                            "Check the batch ID is correct",
-                            "Verify the batch exists in your batch list",
-                            "Contact support if you believe this is an error",
-                        ]
-                    },
+                    "error_key": "errors.export.batch_not_found",
+                    "error_message": f"Export batch {batch_id} not found",
+                    "suggestions": [
+                        {
+                            "key": "errors.export.batch_not_found.suggestion.check_id",
+                            "message": "Check the batch ID is correct",
+                        },
+                        {
+                            "key": "errors.export.batch_not_found.suggestion.verify_exists",
+                            "message": "Verify the batch exists in your batch list",
+                        },
+                        {
+                            "key": "errors.export.batch_not_found.suggestion.contact_support",
+                            "message": "Contact support if you believe this is an error",
+                        },
+                    ],
                 },
             )
 
@@ -600,14 +669,22 @@ async def download_export_batch(
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail={
-                    "error": f"Export batch {batch_id} is not ready for download",
-                    "details": {
-                        "suggestions": [
-                            "Wait for the batch to complete processing",
-                            "Check the batch status in your batch list",
-                            "Contact support if the batch appears stuck",
-                        ]
-                    },
+                    "error_key": "errors.export.batch_not_ready",
+                    "error_message": f"Export batch {batch_id} is not ready for download",
+                    "suggestions": [
+                        {
+                            "key": "errors.export.batch_not_ready.suggestion.wait",
+                            "message": "Wait for the batch to complete processing",
+                        },
+                        {
+                            "key": "errors.export.batch_not_ready.suggestion.check_status",
+                            "message": "Check the batch status in your batch list",
+                        },
+                        {
+                            "key": "errors.export.batch_not_ready.suggestion.contact_support",
+                            "message": "Contact support if the batch appears stuck",
+                        },
+                    ],
                 },
             )
         else:
@@ -615,13 +692,18 @@ async def download_export_batch(
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail={
-                    "error": error_message,
-                    "details": {
-                        "suggestions": [
-                            "Check your request parameters",
-                            "Contact support if the issue persists",
-                        ]
-                    },
+                    "error_key": "errors.export.download_validation_error",
+                    "error_message": error_message,
+                    "suggestions": [
+                        {
+                            "key": "errors.export.download_validation_error.suggestion.check_params",
+                            "message": "Check your request parameters",
+                        },
+                        {
+                            "key": "errors.export.download_validation_error.suggestion.contact_support",
+                            "message": "Contact support if the issue persists",
+                        },
+                    ],
                 },
             )
 
@@ -635,13 +717,18 @@ async def download_export_batch(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={
-                "error": "Download failed due to system error",
-                "details": {
-                    "suggestions": [
-                        "Try again in a few minutes",
-                        "Contact support if the issue persists",
-                    ]
-                },
+                "error_key": "errors.export.download_failed",
+                "error_message": "Download failed due to system error",
+                "suggestions": [
+                    {
+                        "key": "errors.export.download_failed.suggestion.retry",
+                        "message": "Try again in a few minutes",
+                    },
+                    {
+                        "key": "errors.export.download_failed.suggestion.contact_support",
+                        "message": "Contact support if the issue persists",
+                    },
+                ],
             },
         )
 
@@ -788,12 +875,17 @@ async def get_download_quota(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={
-                "error": "Failed to get download quota",
-                "details": {
-                    "suggestions": [
-                        "Try again in a few minutes",
-                        "Contact support if the issue persists",
-                    ]
-                },
+                "error_key": "errors.export.quota_check_failed",
+                "error_message": "Failed to get download quota",
+                "suggestions": [
+                    {
+                        "key": "errors.export.quota_check_failed.suggestion.retry",
+                        "message": "Try again in a few minutes",
+                    },
+                    {
+                        "key": "errors.export.quota_check_failed.suggestion.contact_support",
+                        "message": "Contact support if the issue persists",
+                    },
+                ],
             },
         )

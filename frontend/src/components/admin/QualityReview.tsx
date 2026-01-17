@@ -105,14 +105,8 @@ const QualityReview: React.FC = () => {
 
     try {
       setSubmittingReview(true);
-      // TODO: Implement submitQualityReview in adminService
-      console.log('Submitting review:', {
-        transcriptionId: reviewingItem.transcription_id,
-        decision: reviewForm.decision,
-        rating: reviewForm.rating,
-        comment: reviewForm.comment,
-      });
-
+      // Note: Quality review submission functionality needs to be implemented in adminService
+      // For now, we'll just reload the data to simulate the review being processed
       await loadData();
       closeReviewModal();
     } catch (err) {
@@ -140,7 +134,7 @@ const QualityReview: React.FC = () => {
       {error && (
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
           <p className="text-red-600 dark:text-red-400">
-            {typeof error === 'string' ? error : error.error}
+            {typeof error === 'string' ? error : error.title}
           </p>
         </div>
       )}

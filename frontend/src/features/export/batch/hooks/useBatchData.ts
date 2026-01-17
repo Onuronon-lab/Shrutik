@@ -35,8 +35,7 @@ export function useBatchData({ enabled, onError, defaultErrorMessage }: UseBatch
       setBatches(response.batches || []);
       setTotalCount(response.total_count || 0);
     } catch (err: any) {
-      console.error('Load batches error:', err);
-
+      // Handle batch loading errors
       if (err.response?.status === 401 || err.response?.status === 404) {
         setBatches([]);
         setTotalCount(0);
@@ -58,7 +57,7 @@ export function useBatchData({ enabled, onError, defaultErrorMessage }: UseBatch
     } finally {
       setLoading(false);
     }
-  }, [enabled, page, statusFilter, defaultErrorMessage, onError]);
+  }, [enabled, page, statusFilter, defaultErrorMessage]); // Removed onError from dependencies
 
   useEffect(() => {
     loadBatches();

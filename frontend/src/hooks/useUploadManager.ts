@@ -74,13 +74,6 @@ export function useUploadManager(): UseUploadManagerReturn {
           bit_depth: metadata.bit_depth || 16,
         };
 
-        console.log('Upload data:', uploadData);
-        console.log('Audio file:', {
-          name: audioFile.name,
-          type: audioFile.type,
-          size: audioFile.size,
-        });
-
         // Simulate progress updates (since we don't have real progress from the API)
         const progressInterval = setInterval(() => {
           const currentState = useUploadStore.getState().state;
@@ -106,8 +99,6 @@ export function useUploadManager(): UseUploadManagerReturn {
               sessionError.response?.data?.detail?.includes('session')) ||
             sessionError.response?.status === 403
           ) {
-            console.log('Session expired, attempting to create new session...');
-
             // This would require access to script manager to create a new session
             // For now, we'll just throw the error and let the caller handle it
             throw new Error('Session expired. Please try recording again.');
@@ -117,10 +108,6 @@ export function useUploadManager(): UseUploadManagerReturn {
           throw sessionError;
         }
       } catch (err: any) {
-        console.error('Upload error:', err);
-        console.error('Error response:', err.response?.data);
-        console.error('Error status:', err.response?.status);
-
         let errorMessage = 'Failed to upload recording';
         if (err.response?.data?.detail) {
           errorMessage = err.response.data.detail;
@@ -138,7 +125,6 @@ export function useUploadManager(): UseUploadManagerReturn {
   // Retry last upload
   const retryUpload = useCallback(async (): Promise<VoiceRecording | null> => {
     if (!lastUploadParams) {
-      console.warn('No previous upload to retry');
       return null;
     }
 

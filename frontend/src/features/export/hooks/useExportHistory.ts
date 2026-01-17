@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { exportService } from '../../../services/export.service';
 import { ExportHistoryResponse } from '../../../types/export';
 import { ExportHistoryFilters } from '../types';
@@ -15,6 +16,7 @@ const initialFilters: ExportHistoryFilters = {
 };
 
 export function useExportHistory({ isActive, refreshToken }: UseExportHistoryOptions) {
+  const { t } = useTranslation();
   const [filters, setFiltersState] = useState<ExportHistoryFilters>(initialFilters);
   const [page, setPage] = useState(1);
   const [history, setHistory] = useState<ExportHistoryResponse | null>(null);
@@ -39,7 +41,11 @@ export function useExportHistory({ isActive, refreshToken }: UseExportHistoryOpt
       setHistory(response);
     } catch (err) {
       console.error('Failed to load export history:', err);
-      setError('Failed to load export history');
+      setError(
+        t('errors.generic.server', {
+          defaultValue: 'Failed to load export history',
+        })
+      );
     } finally {
       setLoading(false);
     }

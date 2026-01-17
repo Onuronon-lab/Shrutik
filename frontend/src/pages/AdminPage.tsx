@@ -9,6 +9,7 @@ import {
   XCircleIcon,
   ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline';
+import { useTranslation } from 'react-i18next';
 import { adminService } from '../services/admin.service';
 import { PlatformStats, SystemHealth } from '../types/api';
 import { useAuth } from '../contexts/AuthContext';
@@ -20,6 +21,7 @@ type TabType = 'overview' | 'users' | 'scripts' | 'quality' | 'stats' | 'export'
 
 const AdminPage: React.FC = () => {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [platformStats, setPlatformStats] = useState<PlatformStats | null>(null);
   const [systemHealth, setSystemHealth] = useState<SystemHealth | null>(null);
@@ -41,8 +43,11 @@ const AdminPage: React.FC = () => {
       setPlatformStats(statsData);
       setSystemHealth(healthData);
     } catch (err) {
-      console.error('Failed to load admin overview data:', err);
-      setError('Failed to load dashboard data. Please try again.');
+      setError(
+        t('errors.generic.server', {
+          defaultValue: 'Failed to load dashboard data. Please try again.',
+        })
+      );
     } finally {
       setLoading(false);
     }

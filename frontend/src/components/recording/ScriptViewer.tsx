@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { DocumentTextIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { Script } from '../../types/api';
 import LoadingSpinner from '../common/LoadingSpinner';
@@ -25,6 +26,8 @@ const ScriptViewer: React.FC<ScriptViewerProps> = ({
   className = '',
   'data-testid': testId,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <div
       className={`bg-card rounded-lg shadow-md p-6 border border-border ${className}`}
@@ -69,7 +72,7 @@ const ScriptViewer: React.FC<ScriptViewerProps> = ({
             className="mt-2 text-sm text-destructive-foreground hover:text-destructive-foreground hover:underline"
             data-testid="retry-button"
           >
-            Try Again
+            {t('error-try-again')}
           </button>
         </div>
       ) : null}

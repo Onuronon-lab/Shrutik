@@ -12,9 +12,9 @@
     --background: hsl(0 0% 100%);
     --foreground: hsl(235 36% 15%);
 
-    --card: hsl(0 0% 100%);
+    --card: hsla(0, 0%, 100%, 0.65);
     --card-foreground: hsl(235 36% 15%);
-    --popover: hsl(0 0% 100%);
+    --popover: hsla(0, 0%, 100%, 0.7);
     --popover-foreground: hsl(235 36% 15%);
 
     --primary: hsl(265 85% 60%);
@@ -76,10 +76,10 @@
     --background: hsl(250 28% 10%);
     --foreground: hsl(0 0% 98%);
 
-    --card: hsl(250 28% 12%);
+    --card: hsla(250, 28%, 12%, 0.65);
     --card-foreground: hsl(0 0% 98%);
 
-    --popover: hsl(250 28% 12%);
+    --popover: hsla(250, 28%, 12%, 0.7);
     --popover-foreground: hsl(0 0% 98%);
 
     --primary: hsl(265 85% 65%);
@@ -137,22 +137,46 @@
     --ring: hsl(265 85% 65%);
   }
 
+  html {
+    background: transparent;
+  }
+
   body {
-    background-color: var(--background);
+    background-color: var(--background) !important;
+    background-image: url('/assets/light-theme.png') !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-attachment: fixed !important;
     color: var(--foreground);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     transition:
       background-color 0.25s ease,
+      background-image 0.25s ease,
       color 0.25s ease;
+  }
+
+  .dark body {
+    background-image: url('/assets/dark-theme.png') !important;
+  }
+
+  /* Ensure root div doesn't override body background */
+  #root {
+    background: transparent !important;
+    min-height: 100vh;
   }
 
   .card {
     background: var(--card);
     color: var(--card-foreground);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
   .popover {
     background: var(--popover);
     color: var(--popover-foreground);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 
   input,
@@ -167,6 +191,83 @@
     font-family: 'Noto Sans Bengali', 'Segoe UI', sans-serif;
     line-height: 1.8;
     font-size: 1.1em;
+  }
+
+  /* Glassmorphism effect for cards and containers */
+  .bg-white,
+  .bg-gray-800,
+  .dark\:bg-gray-800 {
+    background: rgba(255, 255, 255, 0.65) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+  }
+
+  .dark .bg-white,
+  .dark .bg-gray-800,
+  .dark .dark\:bg-gray-800 {
+    background: rgba(30, 30, 46, 0.65) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+  }
+
+  /* Glassmorphism for navbar and main containers */
+  nav,
+  header {
+    background: rgba(255, 255, 255, 0.75) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+  }
+
+  .dark nav,
+  .dark header {
+    background: rgba(30, 30, 46, 0.75) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+
+  /* Fix search input alignment */
+  .search-input {
+    line-height: 1.2 !important;
+    display: flex !important;
+    align-items: center !important;
+    height: 40px !important;
+  }
+
+  .search-input::placeholder {
+    line-height: 1.2 !important;
+  }
+
+  /* Apply glassmorphism to all card-like elements */
+  [class*='shadow'],
+  [class*='rounded'],
+  [class*='border'] {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  /* Specific targeting for common UI patterns */
+  .bg-card,
+  [style*='background'] {
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+  }
+}
+
+/* Override any Tailwind utilities that might set background */
+@layer utilities {
+  body {
+    background-color: var(--background) !important;
+    background-image: url('/assets/light-theme.png') !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-attachment: fixed !important;
+  }
+
+  .dark body {
+    background-image: url('/assets/dark-theme.png') !important;
   }
 }
 

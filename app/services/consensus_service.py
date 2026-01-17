@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 from difflib import SequenceMatcher
 from typing import Any, Dict, List, Optional, Tuple
 
-from sqlalchemy import and_, func, Boolean
+from sqlalchemy import Boolean, and_, func
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.attributes import flag_modified
 
@@ -190,7 +190,7 @@ class ConsensusService:
                     }
                 }
             )
-            
+
             # Explicitly mark the JSON field as modified for SQLAlchemy
             flag_modified(transcription, "meta_data")
 
@@ -199,7 +199,7 @@ class ConsensusService:
             self._create_automatic_quality_review(consensus_result)
 
         self.db.commit()
-        
+
         # Refresh transcriptions to get updated data from database
         for transcription in transcriptions:
             self.db.refresh(transcription)
@@ -241,9 +241,9 @@ class ConsensusService:
             .filter(
                 and_(
                     Transcription.is_validated == False,
-                    Transcription.meta_data.op("->>")("consensus_evaluation").op("->>")(
-                        "requires_review"
-                    ).cast(Boolean)
+                    Transcription.meta_data.op("->>")("consensus_evaluation")
+                    .op("->>")("requires_review")
+                    .cast(Boolean)
                     == True,
                 )
             )
@@ -423,9 +423,9 @@ class ConsensusService:
             .filter(
                 and_(
                     Transcription.is_validated == False,
-                    Transcription.meta_data.op("->>")("consensus_evaluation").op("->>")(
-                        "requires_review"
-                    ).cast(Boolean)
+                    Transcription.meta_data.op("->>")("consensus_evaluation")
+                    .op("->>")("requires_review")
+                    .cast(Boolean)
                     == True,
                 )
             )

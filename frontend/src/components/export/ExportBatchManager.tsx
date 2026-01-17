@@ -50,7 +50,13 @@ const ExportBatchManager: React.FC = () => {
     refresh: refreshBatches,
   } = useBatchData({
     enabled: hasAccess,
-    onError: setError,
+    onError: (message: string | null) => {
+      if (message) {
+        setError({ title: message });
+      } else {
+        setError(null);
+      }
+    },
     defaultErrorMessage: t('export.error.load_batches'),
   });
 
@@ -116,7 +122,6 @@ const ExportBatchManager: React.FC = () => {
       refreshBatches();
     } catch (err: any) {
       handleError(err);
-      console.error('Create batch error:', err);
     } finally {
       setCreateLoading(false);
     }
@@ -131,20 +136,21 @@ const ExportBatchManager: React.FC = () => {
           ? Math.ceil((resetTime.getTime() - new Date().getTime()) / (1000 * 60 * 60))
           : 0;
 
+        // Use the new error structure - handleError will translate it
         setError({
-          error: t('export.error.quota_exceeded_title'),
+          title: t('export.error.quota_exceeded_title'),
           details: {
             downloads_today: quota.downloads_today,
             daily_limit: quota.daily_limit,
             reset_time: quota.reset_time,
             hours_until_reset: hoursUntilReset,
-            suggestions: [
-              resetTime
-                ? t('export.error.quota_suggestion_wait', { resetTime: resetTime.toLocaleString() })
-                : 'Contact admin for assistance',
-              t('export.error.quota_suggestion_admin'),
-            ],
           },
+          suggestions: [
+            resetTime
+              ? t('export.error.quota_suggestion_wait', { resetTime: resetTime.toLocaleString() })
+              : 'Contact admin for assistance',
+            t('export.error.quota_suggestion_admin'),
+          ],
         });
         return;
       }
@@ -171,7 +177,6 @@ const ExportBatchManager: React.FC = () => {
       setSuccess(t('export.success.download_started'));
     } catch (err: any) {
       handleError(err);
-      console.error('Download error:', err);
     }
   };
 
