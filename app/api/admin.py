@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.core.dependencies import require_admin, require_admin_or_sworik
 from app.db.database import get_db
+from app.models.language import Language
 from app.models.user import User, UserRole
 from app.schemas.admin import (
     FlaggedTranscriptionResponse,
@@ -159,6 +160,16 @@ async def get_usage_analytics(
     """Get usage analytics for the specified period."""
     admin_service = AdminService(db)
     return admin_service.get_usage_analytics(days=days)
+
+
+@router.get("/languages")
+async def get_languages(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    """Get all available languages for admin forms."""
+    languages = db.query(Language).order_by(Language.name).all()
+    return [{"id": lang.id, "name": lang.name, "code": lang.code} for lang in languages]
 
 
 @router.get("/system/health")

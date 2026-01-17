@@ -191,8 +191,10 @@ class ScriptService:
         self.db.commit()
         return True
 
-    def get_random_script(self, request: RandomScriptRequest) -> Optional[Script]:
-        """Get a random script based on duration category and language."""
+    def get_random_script(
+        self, request: RandomScriptRequest, user_id: Optional[int] = None
+    ) -> Optional[Script]:
+        """Get a random script based on duration category and language, excluding scripts already recorded by the user."""
         # Default to Bangla if no language specified
         language_id = request.language_id
         if language_id is None:
@@ -200,27 +202,55 @@ class ScriptService:
             if bangla_lang:
                 language_id = bangla_lang.id
             else:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Bangla language not found and no language_id specified",
-                )
+                # Try to create the Bengali language if it doesn't exist
+                try:
+                    bangla_lang = Language(code="bn", name="Bengali")
+                    self.db.add(bangla_lang)
+                    self.db.commit()
+                    self.db.refresh(bangla_lang)
+                    language_id = bangla_lang.id
+                except Exception as e:
+                    raise HTTPException(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        detail=f"Failed to create Bengali language: {str(e)}",
+                    )
 
-        # Query for scripts matching criteria
-        scripts = (
-            self.db.query(Script)
-            .filter(
-                and_(
-                    Script.duration_category == request.duration_category,
-                    Script.language_id == language_id,
-                )
+        # Validate that the language exists
+        language = self.db.query(Language).filter(Language.id == language_id).first()
+        if not language:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Language with ID {language_id} not found",
             )
-            .all()
+
+        # Base query for scripts matching criteria
+        scripts_query = self.db.query(Script).filter(
+            and_(
+                Script.duration_category == request.duration_category,
+                Script.language_id == language_id,
+            )
         )
+
+        # If user_id is provided, exclude scripts already recorded by this user
+        if user_id is not None:
+            from app.models.voice_recording import VoiceRecording
+
+            # Get script IDs that this user has already recorded
+            recorded_script_ids = (
+                self.db.query(VoiceRecording.script_id)
+                .filter(VoiceRecording.user_id == user_id)
+                .distinct()
+            )
+
+            # Exclude already recorded scripts
+            scripts_query = scripts_query.filter(~Script.id.in_(recorded_script_ids))
+
+        scripts = scripts_query.all()
 
         if not scripts:
             return None
 
-        # Return random script
+        # Return random script from available unrecorded scripts
         return random.choice(scripts)
 
     def validate_script_content(

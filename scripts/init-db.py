@@ -127,8 +127,8 @@ def run_alembic_migrations():
         return False
 
 
-def create_default_language():
-    """Create default Bengali language if it doesn't exist."""
+def create_default_languages():
+    """Create default Bengali and English languages if they don't exist."""
     try:
         from app.models.language import Language
 
@@ -144,13 +144,25 @@ def create_default_language():
                 logger.info("✅ Default Bengali language created")
             else:
                 logger.info("✅ Bengali language already exists")
+
+            # Check if English language exists
+            english = db.query(Language).filter(Language.code == "en").first()
+            if not english:
+                logger.info("🔄 Creating default English language...")
+                english = Language(code="en", name="English")
+                db.add(english)
+                db.commit()
+                logger.info("✅ Default English language created")
+            else:
+                logger.info("✅ English language already exists")
+
             return True
 
         finally:
             db.close()
 
     except Exception as e:
-        logger.error(f"❌ Error creating default language: {e}")
+        logger.error(f"❌ Error creating default languages: {e}")
         return False
 
 
@@ -184,8 +196,8 @@ def main():
         logger.info("⏭️  Skipping Alembic migrations (tables already exist)")
 
     # Step 4: Create default data
-    if not create_default_language():
-        logger.warning("⚠️  Could not create default language, but continuing...")
+    if not create_default_languages():
+        logger.warning("⚠️  Could not create default languages, but continuing...")
 
     # Step 5: Final verification
     if check_tables_exist():
