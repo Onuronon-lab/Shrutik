@@ -1,11 +1,7 @@
-# Shrutik Voice Collection Platform - Production Docker Compose Configuration
+# Shrutik Voice Collection Platform - Production Docker Compose Configuration (Docker Hub Images)
 #
-# Production optimizations:
-# - No development volume mounts
-# - Production environment variables
-# - Proper restart policies
-# - Resource limits and health checks
-# - Logging configuration
+# This version uses pre-built images from Docker Hub instead of building locally
+# Use this when you want to deploy without building on the EC2 instance
 #
 version: '3.8'
 
@@ -70,9 +66,8 @@ services:
       - shrutik_network
 
   backend:
-    build:
-      context: .
-      dockerfile: Dockerfile.prod
+    # Replace 'your-dockerhub-username' with your actual Docker Hub username
+    image: ${DOCKER_IMAGE:-your-dockerhub-username/shrutik:latest}
     container_name: shrutik_backend_prod
     environment:
       - DATABASE_URL=${DATABASE_URL}
@@ -121,9 +116,8 @@ services:
       - shrutik_network
 
   celery:
-    build:
-      context: .
-      dockerfile: Dockerfile.prod
+    # Same image as backend
+    image: ${DOCKER_IMAGE:-your-dockerhub-username/shrutik:latest}
     container_name: shrutik_celery_prod
     environment:
       - DATABASE_URL=${DATABASE_URL}
@@ -167,9 +161,8 @@ services:
       - shrutik_network
 
   celery-beat:
-    build:
-      context: .
-      dockerfile: Dockerfile.prod
+    # Same image as backend
+    image: ${DOCKER_IMAGE:-your-dockerhub-username/shrutik:latest}
     container_name: shrutik_celery_beat_prod
     environment:
       - DATABASE_URL=${DATABASE_URL}
@@ -208,9 +201,8 @@ services:
       - shrutik_network
 
   celery-flower:
-    build:
-      context: .
-      dockerfile: Dockerfile.prod
+    # Same image as backend
+    image: ${DOCKER_IMAGE:-your-dockerhub-username/shrutik:latest}
     container_name: shrutik_flower_prod
     environment:
       - DATABASE_URL=${DATABASE_URL}
@@ -239,6 +231,8 @@ services:
       - shrutik_network
 
   frontend:
+    # You'll need to build and push frontend image separately
+    # For now, keeping the build context - you can change this later
     build:
       context: ./frontend
       dockerfile: Dockerfile.prod
