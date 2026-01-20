@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from 'react-i18next';
@@ -19,7 +19,8 @@ const LoginForm: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || '/';
+
+  const from = location.state?.from?.pathname || '/dashboard';
 
   const {
     register,
@@ -30,7 +31,6 @@ const LoginForm: React.FC = () => {
     resolver: zodResolver(loginSchema),
   });
 
-  // Show success message from registration redirect
   useEffect(() => {
     if (location.state?.message) {
       setSuccessMessage(location.state.message);
@@ -40,25 +40,35 @@ const LoginForm: React.FC = () => {
 
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
+    setSuccessMessage('');
 
     try {
-      const success = await login(data.email, data.password);
+      const result = await login(data.email, data.password);
 
-      if (success.user) {
-        navigate(from, { replace: true });
+      if (result && result.user) {
+        const targetPath = from === '/' || !from ? '/dashboard' : from;
+        navigate(targetPath, { replace: true });
       } else {
-        setFormError('root', { message: 'Invalid email or password' });
+        setFormError('root', {
+          message: 'Login successful, but user profile could not be loaded.',
+        });
       }
     } catch (error: any) {
-      // Axios Error Parsing
-      if (error.response) {
+      const errorMessage = error.response?.data?.detail;
+
+      if (error.response?.status === 422) {
+        setFormError('root', { message: 'Server configuration error: Invalid data format.' });
+      } else if (error.response?.status === 403) {
         setFormError('root', {
-          message: error.response.data?.error.message || 'Server returned an error',
+          message: errorMessage || 'Account not verified. Please check your email inbox.',
         });
-      } else if (error.request) {
-        setFormError('root', { message: 'No response from server. It might be offline.' });
+      } else if (error.response?.status === 401) {
+        setFormError('root', { message: 'Invalid email or password' });
       } else {
-        setFormError('root', { message: error.message || 'Network Error' });
+        setFormError('root', {
+          message:
+            typeof errorMessage === 'string' ? errorMessage : 'An unexpected error occurred.',
+        });
       }
     } finally {
       setIsLoading(false);
@@ -67,12 +77,13 @@ const LoginForm: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative">
-      <div className="max-w-md w-full space-y-8">
+      <div className="max-w-md w-full space-y-8 relative z-10">
         <div className="absolute top-4 right-4">
           <SettingsMenu />
         </div>
+
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-foreground">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
             {t('login-title')}
           </h2>
           <p className="mt-2 text-center text-sm text-secondary-foreground">
@@ -81,8 +92,8 @@ const LoginForm: React.FC = () => {
         </div>
 
         {successMessage && (
-          <div className="bg-success border border-success-forground text-success-forground px-4 py-3 rounded-md text-sm text-center">
-            {successMessage}
+          <div className="bg-success/20 border border-success text-success-foreground px-4 py-3 rounded-md text-sm text-center">
+            {t(successMessage) || successMessage}
           </div>
         )}
 
@@ -96,7 +107,7 @@ const LoginForm: React.FC = () => {
               autoComplete="email"
               placeholder={t('login-email')}
               label={t('login-email')}
-              className={cn('rounded-t-md')}
+              className={cn('rounded-t-md bg-white/5 border-white/10 text-white')}
             />
 
             <div className="relative">
@@ -108,11 +119,11 @@ const LoginForm: React.FC = () => {
                 autoComplete="current-password"
                 placeholder={t('login-password')}
                 label={t('login-password')}
-                className={cn('rounded-b-md pr-10')}
+                className={cn('rounded-b-md pr-10 bg-white/5 border-white/10 text-white')}
               />
               <button
                 type="button"
-                className="absolute inset-y-0 right-0 flex items-center px-3 bg-input border-l border-border rounded-r-md text-secondary-foreground hover:text-foreground hover:bg-input/90 transition-colors"
+                className="absolute inset-y-0 right-0 flex items-center px-3 bg-transparent text-secondary-foreground hover:text-white transition-colors"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? (
@@ -124,13 +135,22 @@ const LoginForm: React.FC = () => {
             </div>
           </div>
 
+          <div className="flex justify-end -mt-2">
+            <Link
+              to="/forgot-password"
+              className="text-xs font-medium text-primary hover:text-primary-hover hover:underline"
+            >
+              {t('forgotPassword')}
+            </Link>
+          </div>
+
           <FormError error={errors.root?.message} />
 
           <div>
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-primary-foreground bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-md text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               {isLoading ? t('login-signingIn') : t('login-signin')}
             </button>

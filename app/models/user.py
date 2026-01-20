@@ -1,6 +1,6 @@
 import enum
 
-from sqlalchemy import JSON, Column, DateTime, Enum, Integer, String
+from sqlalchemy import JSON, Boolean, Column, DateTime, Enum, Integer, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -23,6 +23,8 @@ class User(Base):
     role = Column(
         Enum(UserRole), default=UserRole.CONTRIBUTOR, nullable=False, index=True
     )
+    is_verified = Column(Boolean, default=False, nullable=False)
+
     meta_data = Column(JSON, default=dict)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(

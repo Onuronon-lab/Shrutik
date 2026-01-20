@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Layout from './components/layout/Layout';
@@ -7,7 +7,12 @@ import LoginForm from './components/auth/LoginForm';
 import RegisterForm from './components/auth/RegisterForm';
 import LoadingSpinner from './components/common/LoadingSpinner';
 
-// Lazy load pages for better performance
+// Auth Pages
+import { VerifyEmail } from './pages/VerifyEmail';
+import { ResetPassword } from './pages/ResetPassword';
+import { ForgotPasswordRequest } from './pages/ForgotPasswordRequest';
+
+// Lazy load pages
 const HomePage = lazy(() => import('./pages/HomePage'));
 const RecordPage = lazy(() => import('./pages/RecordPage'));
 const TranscribePage = lazy(() => import('./pages/TranscribePage'));
@@ -20,8 +25,13 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
+          {/* Public Auth Routes */}
           <Route path="/login" element={<LoginForm />} />
           <Route path="/register" element={<RegisterForm />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/forgot-password" element={<ForgotPasswordRequest />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+
           <Route
             path="/unauthorized"
             element={
@@ -30,9 +40,14 @@ function App() {
               </Suspense>
             }
           />
+
+          {/* Protected Application Routes */}
           <Route path="/" element={<Layout />}>
+            {}
+            <Route index element={<Navigate to="/dashboard" replace />} />
+
             <Route
-              index
+              path="dashboard"
               element={
                 <ProtectedRoute>
                   <Suspense fallback={<LoadingSpinner />}>
@@ -41,8 +56,9 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
             <Route
-              path="/record"
+              path="record"
               element={
                 <ProtectedRoute>
                   <Suspense fallback={<LoadingSpinner />}>
@@ -52,7 +68,7 @@ function App() {
               }
             />
             <Route
-              path="/transcribe"
+              path="transcribe"
               element={
                 <ProtectedRoute>
                   <Suspense fallback={<LoadingSpinner />}>
@@ -62,7 +78,7 @@ function App() {
               }
             />
             <Route
-              path="/admin"
+              path="admin"
               element={
                 <ProtectedRoute requiredRole="admin">
                   <Suspense fallback={<LoadingSpinner />}>
@@ -72,7 +88,7 @@ function App() {
               }
             />
             <Route
-              path="/export"
+              path="export"
               element={
                 <ProtectedRoute requiredRole={['admin', 'sworik_developer']}>
                   <Suspense fallback={<LoadingSpinner />}>
@@ -81,6 +97,8 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Route>
         </Routes>
       </Router>
