@@ -231,23 +231,22 @@ services:
       - shrutik_network
 
   frontend:
-    # You'll need to build and push frontend image separately
-    # For now, keeping the build context - you can change this later
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.prod
+    # Use the same Docker Hub image that includes the built frontend
+    image: ${DOCKER_IMAGE:-your-dockerhub-username/shrutik:latest}
     container_name: shrutik_frontend_prod
     environment:
       - NODE_ENV=production
+    # Override the command to serve frontend files via a simple HTTP server
+    command: ["python", "-m", "http.server", "3000", "--directory", "/app/static"]
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          memory: 512M
-          cpus: '0.5'
-        reservations:
           memory: 256M
           cpus: '0.25'
+        reservations:
+          memory: 128M
+          cpus: '0.1'
     logging:
       driver: "json-file"
       options:

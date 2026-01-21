@@ -1,0 +1,98 @@
+# Multi-stage Production Dockerfile for Shrutik (Backend + Frontend)
+# This builds both backend and frontend in a single image
+
+# Stage 1: Build Frontend
+FROM node:18-alpine as frontend-builder
+
+WORKDIR /app/frontend
+
+# Copy frontend package files
+COPY frontend/package*.json ./
+COPY frontend/yarn.lock* ./
+
+# Install frontend dependencies
+RUN npm ci --only=production --silent
+
+# Copy frontend source code
+COPY frontend/ ./
+
+# Build frontend for production
+RUN npm run build
+
+# Stage 2: Build Backend Dependencies
+FROM python:3.11-slim as backend-builder
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies for building
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements and install Python dependencies
+COPY requirements.txt .
+
+# Create requirements-prod.txt without development dependencies
+RUN grep -v -E "(pytest|httpx)" requirements.txt > requirements-prod.txt
+
+# Install Python dependencies
+RUN pip install --upgrade pip && \
+    pip config set global.timeout 1000 && \
+    pip config set global.retries 5 && \
+    pip install --no-cache-dir --default-timeout=1000 \
+        numpy>=1.24.0 scipy>=1.11.0 && \
+    pip install --no-cache-dir --default-timeout=1000 \
+        librosa>=0.10.0 && \
+    pip install --no-cache-dir --default-timeout=1000 \
+        -r requirements-prod.txt
+
+# Stage 3: Production Runtime
+FROM python:3.11-slim
+
+# Create non-root user
+RUN groupadd -r shrutik && useradd -r -g shrutik shrutik
+
+# Set working directory
+WORKDIR /app
+
+# Install runtime system dependencies
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    libsndfile1 \
+    curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Copy Python dependencies from builder stage
+COPY --from=backend-builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=backend-builder /usr/local/bin /usr/local/bin
+
+# Copy application code
+COPY --chown=shrutik:shrutik . .
+
+# Copy built frontend from frontend-builder stage
+COPY --from=frontend-builder --chown=shrutik:shrutik /app/frontend/build ./static
+
+# Create necessary directories with proper permissions
+RUN mkdir -p uploads exports logs && \
+    chown -R shrutik:shrutik uploads exports logs static
+
+# Remove development files and test directories
+RUN rm -rf tests/ .pytest_cache/ __pycache__/ frontend/node_modules/ frontend/src/ \
+    && find . -name "*.pyc" -delete \
+    && find . -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
+
+# Switch to non-root user
+USER shrutik
+
+# Expose port
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Run the application
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
