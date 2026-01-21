@@ -5,12 +5,14 @@ Thank you for your interest in contributing to Shrutik! This guide will help you
 ## Ways to Contribute
 
 ### Voice Data Contribution
+
 - **Record Voice Samples**: Contribute voice recordings in your native language
 - **Transcribe Audio**: Help transcribe audio clips to improve dataset quality
 - **Quality Review**: Review and validate transcriptions from other contributors
 - **Language Support**: Help add support for new languages and dialects
 
 ### Code Contribution
+
 - **Bug Fixes**: Fix reported issues and improve stability
 - **Feature Development**: Implement new features and enhancements
 - **Performance Optimization**: Improve system performance and scalability
@@ -18,12 +20,14 @@ Thank you for your interest in contributing to Shrutik! This guide will help you
 - **Documentation**: Improve code documentation and API references
 
 ### Documentation
+
 - **User Guides**: Improve setup and usage documentation
 - **Developer Docs**: Enhance technical documentation
 - **Translations**: Translate documentation to other languages
 - **Tutorials**: Create tutorials and examples
 
 ### Design & UX
+
 - **UI/UX Improvements**: Enhance user interface and experience
 - **Accessibility**: Improve accessibility features
 - **Mobile Responsiveness**: Optimize for mobile devices
@@ -60,13 +64,15 @@ git remote add upstream https://github.com/Onuronon-lab/Shrutik.git
 
 **Important:** All PRs must be submitted to the `deployment-dev` branch, not `master`.
 
+Before starting development, please review our [Engineering Conventions](conventions.md) for branch naming, commit messages, and coding standards.
+
 ```bash
 # Update deployment-dev branch
 git checkout deployment-dev
 git pull origin deployment-dev
 
-# Create a feature branch
-git checkout -b feature/your-feature-name
+# Create a feature branch following our naming convention
+git checkout -b feat/your-feature-name
 # or for bug fixes
 git checkout -b fix/issue-number-description
 ```
@@ -80,11 +86,13 @@ git checkout -b fix/issue-number-description
 
 ### 3. Commit Changes
 
+Follow our [Engineering Conventions](conventions.md) for commit message format.
+
 ```bash
 # Stage your changes
 git add .
 
-# Commit with a descriptive message
+# Commit with a descriptive message following conventional commits
 git commit -m "feat: add voice recording validation
 
 - Add audio quality validation
@@ -105,6 +113,7 @@ git push origin feature/your-feature-name
 ```
 
 **PR Guidelines:**
+
 - Target the `deployment-dev` branch (not master!)
 - Fill out the PR template completely
 - Ensure all CI checks pass
@@ -202,15 +211,16 @@ git commit --no-verify -m "emergency fix"
 
 ### Troubleshooting
 
-| Problem | Solution |
-|---------|----------|
-| Tools not found | `pip install black isort flake8` |
-| Prettier not found | `cd frontend && npm install` |
-| Hooks not running | `pre-commit install` |
+| Problem            | Solution                         |
+| ------------------ | -------------------------------- |
+| Tools not found    | `pip install black isort flake8` |
+| Prettier not found | `cd frontend && npm install`     |
+| Hooks not running  | `pre-commit install`             |
 
 ### Style Guidelines
 
 #### Python
+
 ```python
 # ✅ Good (Black formatted)
 def calculate_total(items: list[dict], tax_rate: float = 0.1) -> float:
@@ -220,6 +230,7 @@ def calculate_total(items: list[dict], tax_rate: float = 0.1) -> float:
 ```
 
 #### TypeScript/React
+
 ```typescript
 // ✅ Good (Prettier formatted)
 const UserCard = ({ name, email }: UserCardProps) => {
@@ -235,6 +246,7 @@ const UserCard = ({ name, email }: UserCardProps) => {
 ---
 
 **Benefits:**
+
 - ✅ Zero formatting conflicts in PRs
 - ✅ Faster code reviews (focus on logic)
 - ✅ Consistent codebase
@@ -244,7 +256,7 @@ For more details, see [docs/FORMATTING.md](docs/FORMATTING.md)
 
 ## Commit Message Guidelines
 
-We follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
+We follow the [Conventional Commits](https://www.conventionalcommits.org/) specification as outlined in our [Engineering Conventions](conventions.md):
 
 ```
 <type>[optional scope]: <description>
@@ -334,6 +346,8 @@ test('renders voice recorder component', () => {
 
 ## Coding Standards
 
+Please refer to our [Engineering Conventions](conventions.md) for detailed coding standards and philosophy. The following sections provide specific implementation guidelines.
+
 ### Python (Backend)
 
 #### Code Style
@@ -362,11 +376,11 @@ from sqlalchemy.orm import Session
 def get_user_by_email(db: Session, email: str) -> Optional[User]:
     """
     Retrieve user by email address.
-    
+
     Args:
         db: Database session
         email: User email address
-        
+
     Returns:
         User object if found, None otherwise
     """
@@ -418,9 +432,9 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   maxDuration = 60
 }) => {
   const [isRecording, setIsRecording] = useState(false);
-  
+
   // Component logic here
-  
+
   return (
     <div className="voice-recorder">
       {/* JSX here */}
@@ -446,7 +460,7 @@ from alembic import op
 import sqlalchemy as sa
 
 def upgrade():
-    op.add_column('transcriptions', 
+    op.add_column('transcriptions',
         sa.Column('quality_score', sa.Float, nullable=True))
 
 def downgrade():
@@ -490,15 +504,18 @@ def downgrade():
 
 ```markdown
 ## Description
+
 Brief description of changes
 
 ## Type of Change
+
 - [ ] Bug fix
 - [ ] New feature
 - [ ] Breaking change
 - [ ] Documentation update
 
 ## Testing
+
 - [ ] Unit tests pass
 - [ ] Integration tests pass
 - [ ] Manual testing completed
@@ -506,6 +523,7 @@ Brief description of changes
 ## Screenshots (if applicable)
 
 ## Checklist
+
 - [ ] Code follows style guidelines
 - [ ] Self-review completed
 - [ ] Documentation updated

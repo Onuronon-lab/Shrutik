@@ -24,6 +24,7 @@
 # Contributing
 
 - [Contributing Guide](contributing.md)
+- [Engineering Conventions](conventions.md)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Contributors](CONTRIBUTORS.md)
 

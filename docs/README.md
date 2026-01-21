@@ -9,6 +9,7 @@ Welcome to the comprehensive documentation for **Shrutik** (শ্রুতি�
 This documentation is built with [mdBook](https://rust-lang.github.io/mdBook/) and provides comprehensive guides, API references, and tutorials for users, developers, and administrators.
 
 ### Enhanced Features
+
 - **Interactive Mermaid Diagrams**: Zoom, pan, and view complex flowcharts in fullscreen
 - **Professional Styling**: Custom theme with Shrutik branding and improved readability
 - **Responsive Design**: Optimized experience on desktop and mobile devices
@@ -16,6 +17,7 @@ This documentation is built with [mdBook](https://rust-lang.github.io/mdBook/) a
 - **Enhanced Navigation**: Improved sidebar, search, and user experience
 
 ### Interactive Diagram Controls
+
 - **Zoom**: Use mouse wheel or +/- buttons to zoom in/out
 - **Pan**: Drag to move around when zoomed in
 - **Reset**: Double-click or press '0' to reset view
@@ -25,20 +27,25 @@ This documentation is built with [mdBook](https://rust-lang.github.io/mdBook/) a
 ## Documentation Overview
 
 ### Getting Started
+
 - **[Getting Started Guide](getting-started.md)** - Quick setup and first steps
 - **[Docker Local Setup](docker-local-setup.md)** - Complete Docker development guide
 - **[Local Development](local-development.md)** - Native development environment setup
 
 ### Architecture & Design
+
 - **[System Architecture](architecture.md)** - Complete system design overview
 - **[API Reference](api-reference.md)** - Comprehensive API documentation
 - **[Flowcharts](flowcharts/)** - Visual system flow documentation
 
 ### Contributing
+
 - **[Contributing Guide](contributing.md)** - How to contribute to Shrutik
+- **[Engineering Conventions](conventions.md)** - Development standards and philosophy
 - **[Code of Conduct](../CODE_OF_CONDUCT.md)** - Community guidelines
 
 ### Additional Resources
+
 - **[Audio Processing Modes](AUDIO_PROCESSING_MODES.md)** - Audio processing capabilities
 - **[Troubleshooting](troubleshooting.md)** - Common issues and solutions
 - **[FAQ](faq.md)** - Frequently asked questions
@@ -46,11 +53,13 @@ This documentation is built with [mdBook](https://rust-lang.github.io/mdBook/) a
 ## Quick Navigation
 
 ### For New Users
+
 1. **[Getting Started](getting-started.md)** - Set up Shrutik in minutes
 2. **[Docker Local Setup](docker-local-setup.md)** - Run everything with Docker
 3. **[User Guide](getting-started.md#first-steps)** - Learn how to contribute voice data
 
 ### For Developers
+
 1. **[Docker Local Setup](docker-local-setup.md)** - Quick Docker development setup
 2. **[Local Development](local-development.md)** - Native development environment
 3. **[Architecture Overview](architecture.md)** - Understand the system design
@@ -58,11 +67,13 @@ This documentation is built with [mdBook](https://rust-lang.github.io/mdBook/) a
 5. **[Contributing Guide](contributing.md)** - Contribute code and features
 
 ### For System Administrators
+
 1. **[Docker Local Setup](docker-local-setup.md)** - Deploy with Docker
 2. **[Deployment Guide](deployment-guide.md)** - Production deployment strategies
 3. **[Monitoring & Health Checks](docker-deployment.md#monitoring-and-logging)** - System monitoring
 
 ### For Researchers & Data Scientists
+
 1. **[API Reference](api-reference.md#export-api)** - Export datasets
 2. **[Architecture](architecture.md#data-architecture)** - Understand data structure
 3. **[Quality Control](architecture.md#consensus-algorithm)** - Data quality processes
@@ -70,11 +81,13 @@ This documentation is built with [mdBook](https://rust-lang.github.io/mdBook/) a
 ## Visual Documentation
 
 ### System Flows
+
 - **[System Architecture](flowcharts/system-architecture.md)** - High-level system overview
 - **[Voice Recording Flow](flowcharts/voice-recording-flow.md)** - Complete recording process
 - **[Transcription Workflow](flowcharts/transcription-workflow.md)** - Transcription and consensus
 
 ### Technical Diagrams
+
 - **[API Request Flow](flowcharts/api-request-flow.md)** - API request lifecycle
 - **[Database Operations](flowcharts/database-operations.md)** - Data flow patterns
 - **[Caching Strategy](flowcharts/caching-strategy.md)** - Performance optimization
@@ -82,53 +95,58 @@ This documentation is built with [mdBook](https://rust-lang.github.io/mdBook/) a
 ## Development Resources
 
 ### Setup & Configuration
+
 - **[Environment Setup](local-development.md#setup-instructions)** - Development environment
 - **[Configuration Guide](local-development.md#development-configuration)** - Environment variables
 - **[Testing Guide](contributing.md#testing-guidelines)** - Testing strategies
 
 ### Code Standards
+
+- **[Engineering Conventions](conventions.md)** - Development philosophy and standards
 - **[Coding Standards](contributing.md#coding-standards)** - Code style guidelines
 - **[API Design](architecture.md#api-design)** - RESTful API principles
 - **[Database Design](architecture.md#data-architecture)** - Schema and patterns
 
-
 ## Deployment Options
 
-| Option | Complexity | Use Case | Documentation |
-|--------|------------|----------|---------------|
-| **Docker Compose** | Low | Development, Small Teams | [Docker Deployment](coming-soon.md) |
-| **Kubernetes** | High | Production, Enterprise | [Deployment Guide](coming-soon.md) |
-| **Cloud Platforms** | Medium | Managed Services | [Deployment Guide](coming-soon.md) |
-| **Bare Metal** | Medium | On-Premises | [Deployment Guide](coming-soon.md) |
-
+| Option              | Complexity | Use Case                 | Documentation                       |
+| ------------------- | ---------- | ------------------------ | ----------------------------------- |
+| **Docker Compose**  | Low        | Development, Small Teams | [Docker Deployment](coming-soon.md) |
+| **Kubernetes**      | High       | Production, Enterprise   | [Deployment Guide](coming-soon.md)  |
+| **Cloud Platforms** | Medium     | Managed Services         | [Deployment Guide](coming-soon.md)  |
+| **Bare Metal**      | Medium     | On-Premises              | [Deployment Guide](coming-soon.md)  |
 
 ## Community & Support
 
 ### Get Help
+
 - **[Discord Community](https://discord.gg/9hZ9eW8ARk)** - Real-time community support
 - **[GitHub Issues](https://github.com/Onuronon-lab/Shrutik/issues)** - Bug reports and feature requests
 - **[GitHub Discussions](https://github.com/Onuronon-lab/Shrutik/discussions)** - Community discussions
 
 ### Contribute
+
 - **[Voice Data](contributing.md#voice-data-contribution)** - Contribute recordings and transcriptions
 - **[Code](contributing.md#code-contribution)** - Develop features and fix bugs
 - **[Documentation](contributing.md#documentation)** - Improve guides and tutorials
 - **[Translation](contributing.md#internationalization)** - Translate to new languages
 
 ### Stay Updated
+
 - **[GitHub Repository](https://github.com/Onuronon-lab/Shrutik)** - Source code and releases
 - **[Twitter](https://x.com/OnurononAI)** - Latest updates and announcements
-
 
 ## Additional Resources
 
 ### External Links
+
 - **[FastAPI Documentation](https://fastapi.tiangolo.com/)** - Backend framework
 - **[React Documentation](https://reactjs.org/)** - Frontend framework
 - **[PostgreSQL Documentation](https://www.postgresql.org/docs/)** - Database
 - **[Redis Documentation](https://redis.io/documentation)** - Caching and queues
 
 ### Research Papers
+
 - **[Voice Data Collection Best Practices](coming-soon.md)** - Academic research
 - **[Crowdsourcing for Language Technology](coming-soon.md)** - Methodology
 - **[Quality Control in Voice Datasets](coming-soon.md)** - Quality assurance
@@ -136,12 +154,14 @@ This documentation is built with [mdBook](https://rust-lang.github.io/mdBook/) a
 ## What's New
 
 ### Recent Updates
+
 - **Performance Optimization** - Added comprehensive caching and rate limiting
 - **CDN Integration** - Optimized audio delivery with CDN support
 - **Enhanced Monitoring** - Real-time performance metrics and dashboards
 - **Security Improvements** - Advanced authentication and authorization
 
 ### Coming Soon
+
 - **Mobile App** - Native mobile applications for iOS and Android
 - **AI Assistance** - ML-powered transcription assistance
 - **Multi-language UI** - Interface translations for global accessibility

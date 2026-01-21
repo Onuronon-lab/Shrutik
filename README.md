@@ -24,7 +24,7 @@ In a world where voice technology is rapidly advancing, millions of speakers of 
 **Shrutik changes this narrative by:**
 
 - **Empowering Communities**: Enabling native speakers to contribute voice data in their own languages
-- **Preserving Linguistic Diversity**: Capturing the rich variations, dialects, and accents within languages  
+- **Preserving Linguistic Diversity**: Capturing the rich variations, dialects, and accents within languages
 - **Democratizing AI**: Making voice technology accessible to underrepresented communities
 - **Open Source**: Ensuring the tools and data remain community-owned and accessible
 - **Educational**: Teaching communities about AI while they contribute to its development
@@ -34,12 +34,14 @@ In a world where voice technology is rapidly advancing, millions of speakers of 
 **[Complete Documentation](https://onuronon-lab.github.io/Shrutik/)** - Comprehensive guides, API reference, and tutorials
 
 ### Quick Links
+
 - **[Getting Started](https://onuronon-lab.github.io/Shrutik/getting-started.html)** - Set up Shrutik in 5 minutes
 - **[Docker Setup](https://onuronon-lab.github.io/Shrutik/docker-local-setup.html)** - Run with Docker (recommended)
 - **[Local Development](https://onuronon-lab.github.io/Shrutik/local-development.html)** - Native development setup
 - **[Architecture](https://onuronon-lab.github.io/Shrutik/architecture.html)** - System design and components
 - **[API Reference](https://onuronon-lab.github.io/Shrutik/api-reference.html)** - Complete API documentation
 - **[Contributing](https://onuronon-lab.github.io/Shrutik/contributing.html)** - How to contribute
+- **[Engineering Conventions](https://onuronon-lab.github.io/Shrutik/conventions.html)** - Development standards
 - **[FAQ](https://onuronon-lab.github.io/Shrutik/faq.html)** - Frequently asked questions
 - **[Troubleshooting](https://onuronon-lab.github.io/Shrutik/troubleshooting.html)** - Common issues and solutions
 
@@ -48,18 +50,21 @@ In a world where voice technology is rapidly advancing, millions of speakers of 
 ## What Makes Shrutik Special
 
 ### For Contributors
+
 - **Intuitive Interface**: Easy-to-use web platform for recording and transcribing voice data
 - **Quality Assurance**: Built-in consensus mechanisms ensure high-quality datasets
 - **Gamification**: Engaging experience with progress tracking and community leaderboards
 - **Multilingual Support**: Native support for multiple languages and scripts
 
 ### For Researchers & Developers
+
 - **Production-Ready**: Scalable architecture built with FastAPI and React
 - **Comprehensive API**: RESTful APIs for integration with external systems
 - **Advanced Analytics**: Real-time monitoring and quality metrics
 - **Export Capabilities**: Multiple format support for dataset export
 
 ### For Organizations
+
 - **Self-Hosted**: Complete control over your data and infrastructure
 - **Customizable**: Modular design allows easy customization for specific needs
 - **Enterprise Features**: Role-based access, audit trails, and performance monitoring
@@ -80,8 +85,9 @@ Shrutik is built with modern, scalable technologies:
 We welcome contributions from developers, linguists, designers, and community members! Whether you're fixing bugs, adding features, improving documentation, or contributing voice data, every contribution matters.
 
 **Ways to Contribute:**
+
 - **Voice Data**: Record and transcribe in your native language
-- **Code**: Backend, frontend, or infrastructure improvements  
+- **Code**: Backend, frontend, or infrastructure improvements
 - **Documentation**: Help improve our guides and tutorials
 - **Localization**: Translate the interface to new languages
 - **Testing**: Report bugs and help with quality assurance
@@ -101,7 +107,7 @@ Join our growing community of contributors:
 Shrutik is released under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](LICENSE). This means you can:
 
 - **Use for learning and education** - Study and understand the code
-- **Modify and adapt** - Create your own versions and improvements  
+- **Modify and adapt** - Create your own versions and improvements
 - **Share for non-commercial purposes** - Use in hobby projects and open source
 - **Attribution required** - Give credit to the original creator
 - **No commercial use** - Commercial use requires separate permission
