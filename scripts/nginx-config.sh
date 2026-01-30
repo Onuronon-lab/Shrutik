@@ -35,7 +35,7 @@ show_usage() {
 validate_config() {
     echo -e "${BLUE}🔍 Validating nginx configuration...${NC}"
     
-    if docker-compose -f docker-compose.prod.yml exec nginx nginx -t 2>/dev/null; then
+    if docker-compose exec nginx nginx -t 2>/dev/null; then
         echo -e "${GREEN}✅ Nginx configuration is valid${NC}"
         return 0
     else
@@ -97,11 +97,11 @@ setup_production() {
 reload_nginx() {
     echo -e "${BLUE}🔄 Reloading nginx configuration...${NC}"
     
-    if docker-compose -f docker-compose.prod.yml exec nginx nginx -s reload 2>/dev/null; then
+    if docker-compose exec nginx nginx -s reload 2>/dev/null; then
         echo -e "${GREEN}✅ Nginx configuration reloaded${NC}"
     else
         echo -e "${RED}❌ Failed to reload nginx configuration${NC}"
-        echo "Check logs: docker-compose -f docker-compose.prod.yml logs nginx"
+        echo "Check logs: docker-compose logs nginx"
         exit 1
     fi
 }
@@ -111,7 +111,7 @@ show_status() {
     echo "===================="
     
     # Check if nginx container is running
-    if docker-compose -f docker-compose.prod.yml ps nginx | grep -q "Up"; then
+    if docker-compose ps nginx | grep -q "Up"; then
         echo -e "${GREEN}✅ Nginx container is running${NC}"
         
         # Show configuration file in use
@@ -130,19 +130,19 @@ show_status() {
         # Show listening ports
         echo ""
         echo "Listening ports:"
-        docker-compose -f docker-compose.prod.yml port nginx 80 2>/dev/null && echo "  - HTTP: $(docker-compose -f docker-compose.prod.yml port nginx 80)"
-        docker-compose -f docker-compose.prod.yml port nginx 443 2>/dev/null && echo "  - HTTPS: $(docker-compose -f docker-compose.prod.yml port nginx 443)"
+        docker-compose port nginx 80 2>/dev/null && echo "  - HTTP: $(docker-compose port nginx 80)"
+        docker-compose port nginx 443 2>/dev/null && echo "  - HTTPS: $(docker-compose port nginx 443)"
         
     else
         echo -e "${RED}❌ Nginx container is not running${NC}"
-        echo "Start with: docker-compose -f docker-compose.prod.yml up -d nginx"
+        echo "Start with: docker-compose up -d nginx"
     fi
 }
 
 show_logs() {
     echo -e "${BLUE}📋 Nginx Logs${NC}"
     echo "=============="
-    docker-compose -f docker-compose.prod.yml logs --tail=50 nginx
+    docker-compose logs --tail=50 nginx
 }
 
 # Parse command line arguments

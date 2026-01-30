@@ -16,9 +16,9 @@ echo -e "${BLUE}🏥 Shrutik Production Health Check${NC}"
 echo "=================================="
 
 # Check if docker-compose is running
-if ! docker-compose -f docker-compose.prod.yml ps | grep -q "Up"; then
+if ! docker-compose ps | grep -q "Up"; then
     echo -e "${RED}❌ No services are running${NC}"
-    echo "Start services with: docker-compose -f docker-compose.prod.yml up -d"
+    echo "Start services with: docker-compose up -d"
     exit 1
 fi
 
@@ -53,7 +53,7 @@ check_service_health "Flower Monitor" "http://localhost:5555/" || true
 
 # Check database connectivity
 echo -n "Checking PostgreSQL... "
-if docker-compose -f docker-compose.prod.yml exec -T postgres pg_isready -U production_user >/dev/null 2>&1; then
+if docker-compose exec -T postgres pg_isready -U production_user >/dev/null 2>&1; then
     echo -e "${GREEN}✅ Connected${NC}"
 else
     echo -e "${RED}❌ Connection failed${NC}"
@@ -61,7 +61,7 @@ fi
 
 # Check Redis connectivity
 echo -n "Checking Redis... "
-if docker-compose -f docker-compose.prod.yml exec -T redis redis-cli ping | grep -q "PONG"; then
+if docker-compose exec -T redis redis-cli ping | grep -q "PONG"; then
     echo -e "${GREEN}✅ Connected${NC}"
 else
     echo -e "${RED}❌ Connection failed${NC}"
@@ -69,7 +69,7 @@ fi
 
 # Check Celery workers
 echo -n "Checking Celery workers... "
-if docker-compose -f docker-compose.prod.yml logs celery 2>/dev/null | grep -q "ready"; then
+if docker-compose logs celery 2>/dev/null | grep -q "ready"; then
     echo -e "${GREEN}✅ Running${NC}"
 else
     echo -e "${YELLOW}⚠️  Check logs${NC}"
@@ -86,14 +86,14 @@ free -h | awk 'NR==2{printf "%.1f%% used\n", $3/$2*100}'
 
 # Check Docker container status
 echo -e "${BLUE}Container Status:${NC}"
-docker-compose -f docker-compose.prod.yml ps
+docker-compose ps
 
 # Check recent logs for errors
 echo -e "${BLUE}Recent Error Check:${NC}"
-error_count=$(docker-compose -f docker-compose.prod.yml logs --since="5m" 2>/dev/null | grep -i error | wc -l)
+error_count=$(docker-compose logs --since="5m" 2>/dev/null | grep -i error | wc -l)
 if [ "$error_count" -gt 0 ]; then
     echo -e "${YELLOW}⚠️  Found $error_count errors in last 5 minutes${NC}"
-    echo "Check logs with: docker-compose -f docker-compose.prod.yml logs"
+    echo "Check logs with: docker-compose logs"
 else
     echo -e "${GREEN}✅ No recent errors found${NC}"
 fi
