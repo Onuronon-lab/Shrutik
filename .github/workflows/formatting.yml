@@ -30,30 +30,30 @@ jobs:
 
       - name: Check Python formatting with Black
         run: |
-          black --check app/ tests/ scripts/ --line-length 88 --target-version py39
+          black --check server/app/ tests/ scripts/ --line-length 88 --target-version py39
 
       - name: Check Python imports with isort
         run: |
-          isort --check-only app/ tests/ scripts/ --profile black
+          isort --check-only server/app/ tests/ scripts/ --profile black
 
       - name: Check Python style with flake8
         run: |
-          flake8 app/ tests/ scripts/ --max-line-length=88 --extend-ignore=E203,W503
+          flake8 server/app/ tests/ scripts/ --max-line-length=88 --extend-ignore=E203,W503
         continue-on-error: true  # Don't fail on flake8 warnings
 
       - name: Install frontend dependencies
         run: |
-          cd frontend
+          cd client
           npm install
 
       - name: Check frontend formatting with Prettier
         run: |
-          cd frontend
+          cd client
           npx prettier --check "src/**/*.{ts,tsx,js,jsx,json,css}"
 
       - name: Check frontend linting with ESLint
         run: |
-          cd frontend
+          cd client
           npx eslint "src/**/*.{ts,tsx,js,jsx}" --max-warnings 0
         continue-on-error: true  # Don't fail on ESLint warnings
 
