@@ -170,7 +170,7 @@ logs/
 book/
 *.html
 # But keep essential frontend files
-!frontend/index.html
+!client/index.html
 
 node_modules*
 exports/
