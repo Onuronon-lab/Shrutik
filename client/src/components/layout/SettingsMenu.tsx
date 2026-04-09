@@ -66,7 +66,7 @@ export const SettingsMenu: React.FC<SettingsMenuProps> = ({
 
   const handleLanguageChange = (value: 'en' | 'bn') => {
     i18n.changeLanguage(value);
-    localStorage.setItem('lang', value);
+    localStorage.setItem('appLanguage', value);
   };
 
   const handleLogout = () => {
