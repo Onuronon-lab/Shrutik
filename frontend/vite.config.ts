@@ -321,9 +321,8 @@ export default defineConfig(({ mode }) => {
       postcss: './postcss.config.js',
     },
 
-    // Define global constants (equivalent to CRA's process.env)
     define: {
-      'process.env': {},
+      'process.env.NODE_ENV': JSON.stringify(mode),
       // Add build-time constants for performance monitoring
       __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
       __DEV__: JSON.stringify(isDevelopment),
